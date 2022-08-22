@@ -1,18 +1,38 @@
 # Cargo librerías y bases--------------------
 pacman::p_load(tidyverse, haven, gridExtra, grid)
 
+load("bases/germani_sampleb.RData")
+base1960 <- sample_B
 base1995 <- read_spss("bases/base_1995.sav")
 base2003 <- read_spss("bases/base_2003_2004.sav")
 base2007 <- read_spss("bases/base_2007.sav")
 base2010 <- read_spss("bases/base_2010.sav")
+base2015 <- read_spss("bases/base_2015.sav")
 load("bases/base_2021.RData")
 base2021 <- base_hogar
 rm(base_hogar)
 
-base1960 <- readxl::read_xlsx("bases/germani_sampleA.xlsx", col_names = F)
 
 
 # Transformación de variables -------------
+#1960
+
+base1960$q36[base1960$q36 == 0] <- NA
+
+base1960 <- base1960 %>%
+  mutate(
+         q36_f = factor(q36, labels = c("Ricos", "Modestos", "Humilde", "Clase alta",
+                                        "Clase media", "Clase popular", "Aristocracia",
+                                        "Burguesia", "Proletariado")),
+         q36_f = factor(q36_f, levels = c("Aristocracia", "Ricos", "Clase alta", "Burguesia",
+                                   "Clase media", "Modestos", "Proletariado",
+                                   "Clase popular", "Humilde")),
+         clasesub_1960 = car::recode(q36, "c(1,4,7,8)=1; 5=2; 2=3; c(3,6,9)=4"),
+         clasesub_1960_f = factor(clasesub_1960, labels = c("Clase alta", "Clase media",
+                                                            "Clase media-baja",
+                                                            "Clase baja")))
+
+
 #1995
 base1995 <- base1995 %>%
   mutate(p004a = car::recode(p004a, "99=NA"),
@@ -127,6 +147,26 @@ base2021 <- base2021 %>%
 
 
 #Parte 1--------------------
+barra1960 <- base1960 %>%
+  drop_na(q36_f) %>%
+  group_by(q36_f) %>%
+  tally() %>%
+  mutate(porcentaje = n/sum(n)) %>%
+  ggplot(aes(x=q36_f, y=porcentaje)) +
+  geom_bar(stat = "identity") +
+  geom_text(aes(label = scales::percent(porcentaje, accuracy = 0.1),
+                y = porcentaje + 0.01),
+            position = position_dodge(.9), vjust = 0, size = 2.5) +
+  labs(title = "1960") +
+  theme(axis.title.y = element_blank(),
+        axis.title.x = element_blank(),
+        plot.title = element_text(size = 12),
+        axis.text.x = element_text(size = 6),
+        axis.text.y = element_text(size = 8)) +
+  scale_x_discrete(labels = function(x) str_wrap(x, width = 10),
+                   guide = guide_axis(n.dodge = 2)) +
+  scale_y_continuous(labels=scales::percent, breaks = seq(0,.7, .1), limits = c(0,.6))
+
 barra2003 <- base2003 %>%
   drop_na(clasesub_2003) %>%
   group_by(clasesub_2003_f) %>%
@@ -206,7 +246,7 @@ barra2015 <- base2015 %>%
 
 
 barra2021 <- base2021 %>%
-  drop_na(clasesub_2021) %>%
+  drop_na(clasesub_2021_f) %>%
   group_by(clasesub_2021_f) %>%
   tally(POND2R_FIN_n) %>%
   mutate(porcentaje = n/sum(n)) %>%
@@ -226,7 +266,8 @@ barra2021 <- base2021 %>%
   scale_y_continuous(labels=scales::percent, breaks = seq(0,.7, .1), limits = c(0,.6))
 
 
-clases_20032021 <- grid.arrange(barra2003, barra2007, barra2010, barra2015, barra2021,
+clases_20032021 <- grid.arrange(barra1960, barra2003, barra2007, barra2010,
+                                barra2015, barra2021,
              ncol = 3)
 
 ggsave(filename = "salidas/clases_20032021.png", dpi = 300, type = "cairo", width = 8, height = 6, clases_20032021)
