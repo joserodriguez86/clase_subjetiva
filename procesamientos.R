@@ -1,5 +1,5 @@
 # Cargo librerías y bases--------------------
-pacman::p_load(tidyverse, haven, gridExtra, grid)
+pacman::p_load(tidyverse, haven, gridExtra, grid, occupar)
 
 load("bases/germani_sampleb.RData")
 base1960 <- sample_B
@@ -13,8 +13,8 @@ base2021 <- base_hogar
 rm(base_hogar)
 
 
-
 # Transformación de variables -------------
+
 #1960
 
 base1960$q36[base1960$q36 == 0] <- NA
@@ -68,8 +68,18 @@ base2003 <- base2003 %>%
                                                              "Clase media-alta",
                                                              "Clase media",
                                                              "Clase obrera",
-                                                             "Clase baja")))
-
+                                                             "Clase baja")),
+         ocupacion = p57bciuo_u,
+         sv = case_when(p57d1_u == 4 | p57d2_u >= 2 ~ 1,
+                        TRUE ~ 0),
+         categoria = case_when(p57d_u == 6 ~ 1,
+                               p57d_u == 5 & sv == 1 ~ 1,
+                               p57d_u == 5 & sv != 1 ~ 2,
+                               p57d_u %in% c(1:4, 7,8) ~ 3,
+                               TRUE ~ NA_real_),
+         tamano = case_when((p57d5est_u + p57d5tem_u) <= 5 ~ 1,
+                            (p57d5est_u + p57d5tem_u) > 5 | is.na(p57d5est_u + p57d5tem_u) ~ 2,
+                            TRUE ~ NA_real_))
 
 
 #2007
@@ -89,7 +99,18 @@ base2007 <- base2007 %>%
                                                              "Clase media-alta",
                                                              "Clase media",
                                                              "Clase media-baja",
-                                                             "Clase baja")))
+                                                             "Clase baja")),
+         ocupacion = as.integer(p046a),
+         sv = case_when(p051 == 1 ~ 1,
+                        TRUE ~ 0),
+         categoria = case_when(p047 == 10 ~ 1,
+                               p047 == 9 & sv == 1 ~ 1,
+                               p047 == 9 & (sv != 1 | is.na(sv)) ~ 2,
+                               p047 %in% c(1:8) ~ 3,
+                               TRUE ~ NA_real_),
+         tamano = case_when(p056a <= 2 ~ 1,
+                            p056a > 3 & p056a <= 7 ~ 2,
+                            TRUE ~ NA_real_))
 
 
 #2009/2010
@@ -109,7 +130,18 @@ base2010 <- base2010 %>%
                                                             "Clase media",
                                                             "Clase media-baja",
                                                             "Clase obrera",
-                                                            "Clase baja")))
+                                                            "Clase baja")),
+         ocupacion = as.integer(s.59),
+         sv = case_when(S.55 == 1 ~ 1,
+                        TRUE ~ 0),
+         categoria = case_when(S.53 == 3 ~ 1,
+                               S.53 == 2 & sv == 1 ~ 1,
+                               S.53 == 2 & (sv != 1 | is.na(sv)) ~ 2,
+                               S.53 %in% c(1, 4, 5) ~ 3,
+                               TRUE ~ NA_real_),
+         tamano = case_when(S.54a <= 5 ~ 1,
+                            S.54a > 5 & S.54a < 9995 ~ 2,
+                            TRUE ~ NA_real_))
 
 
 
@@ -133,7 +165,21 @@ base2015 <- base2015 %>%
                                                             "Clase media",
                                                             "Clase media-baja",
                                                             "Clase obrera",
-                                                            "Clase baja")))
+                                                            "Clase baja")),
+         ciuo = v183ciuo,
+         sv = car::recode(v186, "2=0; 9=NA"),
+         categoria = case_when(cat_ocup == 1 ~ 1,
+                               cat_ocup == 2 & sv == 1 ~ 1,
+                               cat_ocup == 2 & (sv == 0 | is.na(sv)) ~ 2,
+                               cat_ocup == 3 | cat_ocup == 4 ~ 3,
+                               TRUE ~ NA_real_),
+         tamano = car::recode(v189, "1:2=1; 3:hi=2"),
+         rural = case_when(v182caes %in% c("0100", "0101", "0102", "0103", "0104", "0200",
+                                           "0300") ~ 1,
+                           TRUE ~ 0))
+
+base2015$ciuo <- str_remove(base2015$ciuo, "^0+")
+base2015$ciuo <- as.integer(base2015$ciuo)
 
 #2021
 base2021 <- base2021 %>%
@@ -143,7 +189,356 @@ base2021 <- base2021 %>%
                                                      "Clase media",
                                                      "Clase media-baja",
                                                      "Clase trabajadora",
-                                                     "Clase baja")))
+                                                     "Clase baja")),
+         ciuo = CIUO_encuestado,
+         sv = car::recode(M3.9, "1:2=1; 3=0; 99=NA"),
+         categoria = case_when(M3.5 == 1 ~ 1,
+                               M3.5 == 2 & sv == 1 ~ 1,
+                               M3.5 == 2 & (sv != 1 | is.na(sv)) ~ 2,
+                               M3.5 >= 3 & M3.5 < 99 ~ 3,
+                               TRUE ~ NA_real_),
+         tamano = case_when(M3.6 <= 2 ~ 1,
+                            M3.6 > 2 & M3.6 < 99 ~ 2,
+                            TRUE ~ NA_real_),
+         rural = case_when(CAES_letra == "A" ~ 1,
+                           TRUE ~ 0))
+
+
+#Clase objetiva--------------------
+#2003
+base2003$ciuo <- isco88to08(base2003$ocupacion)
+
+seleccion <- base2003 %>%
+  select(ocupacion, ciuo)
+
+base2003 <- base2003 %>%
+  mutate(egp = case_when(
+    #Patrones
+    categoria == 1 & tamano == 2 ~ 1,
+    categoria == 1 & tamano == 1 ~ 5,
+
+    #Cuenta propia
+    categoria == 2 & ((ciuo >= 1000 & ciuo < 1400)) ~ 1,
+    categoria == 2 & (ciuo >= 1400 & ciuo < 2000) ~ 2,
+
+    categoria == 2 & ciuo %in% c(2165, 2221, 2222, 2513:2519, 2320, 2330, 2341, 2342,
+                                 2351:2359, 2421:2424, 2621, 2622, 2651:2659, 2636) ~ 2,
+    categoria == 2 & (ciuo >= 2000 & ciuo < 3000) ~ 1,
+
+    categoria == 2 & ciuo %in% c(3221, 3222, 3311:3314, 3411:3413) ~ 3,
+    categoria == 2 & (ciuo >= 3000 & ciuo < 4000) ~ 2,
+
+    categoria == 2 & (ciuo %in% c(5211, 5212, 5413, 5414) |
+                        (ciuo >= 9000 & ciuo < 9999) | (ciuo >= 6300 & ciuo < 7000)) ~ 10,
+    categoria == 2 & ((ciuo >= 4000 & ciuo < 6000) | (ciuo >= 7000 & ciuo < 9000)) ~ 6,
+    categoria == 2 & (ciuo >= 6000 & ciuo < 6300) ~ 7,
+
+    #Empleados
+    categoria == 3 & (ciuo >= 1000 & ciuo < 1400) ~ 1,
+    categoria == 3 & (ciuo >= 1400 & ciuo < 2000) ~ 2,
+
+    categoria == 3 & ciuo %in% c(2165, 2221, 2222, 2513:2519, 2320, 2330, 2341, 2342,
+                                 2351:2359, 2421:2424, 2621, 2622, 2651:2659, 2636) ~ 2,
+    categoria == 3 & (ciuo >= 2000 & ciuo < 3000) ~ 1,
+
+    categoria == 3 & ciuo %in% c(3221, 3222, 3311:3314, 3411:3413) & (sv != 1 | is.na(sv)) ~ 3,
+    categoria == 3 & (ciuo >= 3000 & ciuo < 4000) ~ 2,
+
+    categoria == 3 & ciuo %in% c(4412, 4419) & (sv != 1 | is.na(sv)) ~ 4,
+    categoria == 3 & (ciuo >= 4000 & ciuo < 5000) & (sv != 1 | is.na(sv)) ~ 3,
+
+    categoria == 3 & ciuo %in% c(5111:5113) & (sv != 1 | is.na(sv)) ~ 3,
+    categoria == 3 & ciuo %in% c(5120, 5141, 5142, 5153, 5163, 5164, 5165, 5169) & (sv != 1 | is.na(sv)) ~ 9,
+    categoria == 3 & ciuo %in% c(5211, 5212, 5413, 5414, 5419) ~ 10,
+    categoria == 3 & ciuo %in% c(5411, 5412) ~ 10,
+    categoria == 3 & (ciuo >= 5000 & ciuo < 6000) & (sv != 1 | is.na(sv)) ~ 4,
+
+    categoria == 3 & (ciuo >= 3000 & ciuo < 6000) & sv == 1 ~ 2, #supervisores NM
+
+    categoria == 3 & (ciuo >= 6000 & ciuo < 7000) ~ 11,
+
+    categoria == 3 & (ciuo >= 7000 & ciuo < 9000) & (sv != 1 | is.na(sv)) ~ 9,
+    categoria == 3 & (ciuo >= 9000 & ciuo < 9999) & (sv != 1 | is.na(sv)) ~ 10,
+    categoria == 3 & (ciuo >= 7000 & ciuo < 9999) & sv == 1 ~ 8, #supervisores M
+    ciuo == 110 ~ 2,
+    ciuo == 210 | ciuo == 310 ~ 8,
+    TRUE ~ NA_real_
+  ))
+
+base2003$egp_f <- factor(base2003$egp, labels = c("I", "II", "IIIa", "IIIb",
+                                          "IVa", "IVb", "IVc", "V",
+                                          "VI", "VIIa", "VIIb"))
+
+
+#2007
+base2007$ciuo <- isco88to08(base2007$ocupacion)
+
+seleccion <- base2007 %>%
+  select(ocupacion, ciuo) %>%
+  arrange(ciuo, ocupacion) %>%
+  view()
+
+base2007 <- base2007 %>%
+  mutate(ciuo = case_when(ocupacion %in% c(5164, 3452, 5223, 7125, 8342) ~ ocupacion,
+                          TRUE ~ ciuo))
+
+base2007 <- base2007 %>%
+  mutate(egp = case_when(
+    #Patrones
+    categoria == 1 & tamano == 2 ~ 1,
+    categoria == 1 & tamano == 1 ~ 5,
+
+    #Cuenta propia
+    categoria == 2 & ((ciuo >= 1000 & ciuo < 1400)) ~ 1,
+    categoria == 2 & (ciuo >= 1400 & ciuo < 2000) ~ 2,
+
+    categoria == 2 & ciuo %in% c(2165, 2221, 2222, 2513:2519, 2320, 2330, 2341, 2342,
+                                 2351:2359, 2421:2424, 2621, 2622, 2651:2659, 2636) ~ 2,
+    categoria == 2 & (ciuo >= 2000 & ciuo < 3000) ~ 1,
+
+    categoria == 2 & ciuo %in% c(3221, 3222, 3311:3314, 3411:3413) ~ 3,
+    categoria == 2 & (ciuo >= 3000 & ciuo < 4000) ~ 2,
+
+    categoria == 2 & (ciuo %in% c(5211, 5212, 5413, 5414) |
+                        (ciuo >= 9000 & ciuo < 9999) | (ciuo >= 6300 & ciuo < 7000)) ~ 10,
+    categoria == 2 & ((ciuo >= 4000 & ciuo < 6000) | (ciuo >= 7000 & ciuo < 9000)) ~ 6,
+    categoria == 2 & (ciuo >= 6000 & ciuo < 6300) ~ 7,
+
+    #Empleados
+    categoria == 3 & (ciuo >= 1000 & ciuo < 1400) ~ 1,
+    categoria == 3 & (ciuo >= 1400 & ciuo < 2000) ~ 2,
+
+    categoria == 3 & ciuo %in% c(2165, 2221, 2222, 2513:2519, 2320, 2330, 2341, 2342,
+                                 2351:2359, 2421:2424, 2621, 2622, 2651:2659, 2636) ~ 2,
+    categoria == 3 & (ciuo >= 2000 & ciuo < 3000) ~ 1,
+
+    categoria == 3 & ciuo %in% c(3221, 3222, 3311:3314, 3411:3413) & (sv != 1 | is.na(sv)) ~ 3,
+    categoria == 3 & (ciuo >= 3000 & ciuo < 4000) ~ 2,
+
+    categoria == 3 & ciuo %in% c(4412, 4419) & (sv != 1 | is.na(sv)) ~ 4,
+    categoria == 3 & (ciuo >= 4000 & ciuo < 5000) & (sv != 1 | is.na(sv)) ~ 3,
+
+    categoria == 3 & ciuo %in% c(5111:5113) & (sv != 1 | is.na(sv)) ~ 3,
+    categoria == 3 & ciuo %in% c(5120, 5141, 5142, 5153, 5163, 5164, 5165, 5169) & (sv != 1 | is.na(sv)) ~ 9,
+    categoria == 3 & ciuo %in% c(5211, 5212, 5413, 5414, 5419) ~ 10,
+    categoria == 3 & ciuo %in% c(5411, 5412) ~ 10,
+    categoria == 3 & (ciuo >= 5000 & ciuo < 6000) & (sv != 1 | is.na(sv)) ~ 4,
+
+    categoria == 3 & (ciuo >= 3000 & ciuo < 6000) & sv == 1 ~ 2, #supervisores NM
+
+    categoria == 3 & (ciuo >= 6000 & ciuo < 7000) ~ 11,
+
+    categoria == 3 & (ciuo >= 7000 & ciuo < 9000) & (sv != 1 | is.na(sv)) ~ 9,
+    categoria == 3 & (ciuo >= 9000 & ciuo < 9999) & (sv != 1 | is.na(sv)) ~ 10,
+    categoria == 3 & (ciuo >= 7000 & ciuo < 9999) & sv == 1 ~ 8, #supervisores M
+    ciuo == 110 ~ 2,
+    ciuo == 210 | ciuo == 310 ~ 8,
+    TRUE ~ NA_real_
+  ))
+
+base2007$egp_f <- factor(base2007$egp, labels = c("I", "II", "IIIa", "IIIb",
+                                                  "IVa", "IVb", "IVc", "V",
+                                                  "VI", "VIIa", "VIIb"))
+
+
+#Base2010
+base2010$ciuo <- isco88to08(base2010$ocupacion)
+
+seleccion <- base2010 %>%
+  select(ocupacion, ciuo) %>%
+  arrange(ciuo, ocupacion) %>%
+  view()
+
+base2010 <- base2010 %>%
+  mutate(ciuo = case_when(ocupacion %in% c(5164, 3452, 5223, 7125, 8342) ~ ocupacion,
+                          TRUE ~ ciuo))
+
+base2010 <- base2010 %>%
+  mutate(egp = case_when(
+    #Patrones
+    categoria == 1 & tamano == 2 ~ 1,
+    categoria == 1 & tamano == 1 ~ 5,
+
+    #Cuenta propia
+    categoria == 2 & ((ciuo >= 1000 & ciuo < 1400)) ~ 1,
+    categoria == 2 & (ciuo >= 1400 & ciuo < 2000) ~ 2,
+
+    categoria == 2 & ciuo %in% c(2165, 2221, 2222, 2513:2519, 2320, 2330, 2341, 2342,
+                                 2351:2359, 2421:2424, 2621, 2622, 2651:2659, 2636) ~ 2,
+    categoria == 2 & (ciuo >= 2000 & ciuo < 3000) ~ 1,
+
+    categoria == 2 & ciuo %in% c(3221, 3222, 3311:3314, 3411:3413) ~ 3,
+    categoria == 2 & (ciuo >= 3000 & ciuo < 4000) ~ 2,
+
+    categoria == 2 & (ciuo %in% c(5211, 5212, 5413, 5414) |
+                        (ciuo >= 9000 & ciuo < 9999) | (ciuo >= 6300 & ciuo < 7000)) ~ 10,
+    categoria == 2 & ((ciuo >= 4000 & ciuo < 6000) | (ciuo >= 7000 & ciuo < 9000)) ~ 6,
+    categoria == 2 & (ciuo >= 6000 & ciuo < 6300) ~ 7,
+
+    #Empleados
+    categoria == 3 & (ciuo >= 1000 & ciuo < 1400) ~ 1,
+    categoria == 3 & (ciuo >= 1400 & ciuo < 2000) ~ 2,
+
+    categoria == 3 & ciuo %in% c(2165, 2221, 2222, 2513:2519, 2320, 2330, 2341, 2342,
+                                 2351:2359, 2421:2424, 2621, 2622, 2651:2659, 2636) ~ 2,
+    categoria == 3 & (ciuo >= 2000 & ciuo < 3000) ~ 1,
+
+    categoria == 3 & ciuo %in% c(3221, 3222, 3311:3314, 3411:3413) & (sv != 1 | is.na(sv)) ~ 3,
+    categoria == 3 & (ciuo >= 3000 & ciuo < 4000) ~ 2,
+
+    categoria == 3 & ciuo %in% c(4412, 4419) & (sv != 1 | is.na(sv)) ~ 4,
+    categoria == 3 & (ciuo >= 4000 & ciuo < 5000) & (sv != 1 | is.na(sv)) ~ 3,
+
+    categoria == 3 & ciuo %in% c(5111:5113) & (sv != 1 | is.na(sv)) ~ 3,
+    categoria == 3 & ciuo %in% c(5120, 5141, 5142, 5153, 5163, 5164, 5165, 5169) & (sv != 1 | is.na(sv)) ~ 9,
+    categoria == 3 & ciuo %in% c(5211, 5212, 5413, 5414, 5419) ~ 10,
+    categoria == 3 & ciuo %in% c(5411, 5412) ~ 10,
+    categoria == 3 & (ciuo >= 5000 & ciuo < 6000) & (sv != 1 | is.na(sv)) ~ 4,
+
+    categoria == 3 & (ciuo >= 3000 & ciuo < 6000) & sv == 1 ~ 2, #supervisores NM
+
+    categoria == 3 & (ciuo >= 6000 & ciuo < 7000) ~ 11,
+
+    categoria == 3 & (ciuo >= 7000 & ciuo < 9000) & (sv != 1 | is.na(sv)) ~ 9,
+    categoria == 3 & (ciuo >= 9000 & ciuo < 9999) & (sv != 1 | is.na(sv)) ~ 10,
+    categoria == 3 & (ciuo >= 7000 & ciuo < 9999) & sv == 1 ~ 8, #supervisores M
+    ciuo == 110 ~ 2,
+    ciuo == 210 | ciuo == 310 ~ 8,
+    TRUE ~ NA_real_
+  ))
+
+base2010$egp_f <- factor(base2010$egp, labels = c("I", "II", "IIIa", "IIIb",
+                                                  "IVa", "IVb", "IVc", "V",
+                                                  "VI", "VIIa", "VIIb"))
+
+
+#Base2015
+base2015 <- base2015 %>%
+  mutate(egp = case_when(
+    #Patrones
+    categoria == 1 & tamano == 2 ~ 1,
+    categoria == 1 & tamano == 1 & rural != 1 ~ 5,
+    categoria == 1 & tamano == 1 & rural == 1 ~ 7,
+
+    #Cuenta propia
+    categoria == 2 & ((ciuo >= 1000 & ciuo < 1400)) ~ 1,
+    categoria == 2 & (ciuo >= 1400 & ciuo < 2000) ~ 2,
+
+    categoria == 2 & ciuo %in% c(2165, 2221, 2222, 2513:2519, 2320, 2330, 2341, 2342,
+                                 2351:2359, 2421:2424, 2621, 2622, 2651:2659, 2636) ~ 2,
+    categoria == 2 & (ciuo >= 2000 & ciuo < 3000) ~ 1,
+
+    categoria == 2 & ciuo %in% c(3221, 3222, 3311:3314, 3411:3413) ~ 3,
+    categoria == 2 & (ciuo >= 3000 & ciuo < 4000) ~ 2,
+
+    categoria == 2 & (ciuo %in% c(5211, 5212, 5413, 5414) |
+                        (ciuo >= 9000 & ciuo < 9999) | (ciuo >= 6300 & ciuo < 7000)) ~ 10,
+    categoria == 2 & ((ciuo >= 4000 & ciuo < 6000) | (ciuo >= 7000 & ciuo < 9000)) ~ 6,
+    categoria == 2 & (ciuo >= 6000 & ciuo < 6300) ~ 7,
+
+    #Empleados
+    categoria == 3 & (ciuo >= 1000 & ciuo < 1400) ~ 1,
+    categoria == 3 & (ciuo >= 1400 & ciuo < 2000) ~ 2,
+
+    categoria == 3 & ciuo %in% c(2165, 2221, 2222, 2513:2519, 2320, 2330, 2341, 2342,
+                                 2351:2359, 2421:2424, 2621, 2622, 2651:2659, 2636) ~ 2,
+    categoria == 3 & (ciuo >= 2000 & ciuo < 3000) ~ 1,
+
+    categoria == 3 & ciuo %in% c(3221, 3222, 3311:3314, 3411:3413) & (sv != 1 | is.na(sv)) ~ 3,
+    categoria == 3 & (ciuo >= 3000 & ciuo < 4000) ~ 2,
+
+    categoria == 3 & ciuo %in% c(4412, 4419) & (sv != 1 | is.na(sv)) ~ 4,
+    categoria == 3 & (ciuo >= 4000 & ciuo < 5000) & (sv != 1 | is.na(sv)) ~ 3,
+
+    categoria == 3 & ciuo %in% c(5111:5113) & (sv != 1 | is.na(sv)) ~ 3,
+    categoria == 3 & ciuo %in% c(5120, 5141, 5142, 5153, 5163, 5164, 5165, 5169) & (sv != 1 | is.na(sv)) ~ 9,
+    categoria == 3 & ciuo %in% c(5211, 5212, 5413, 5414, 5419) ~ 10,
+    categoria == 3 & ciuo %in% c(5411, 5412) ~ 10,
+    categoria == 3 & (ciuo >= 5000 & ciuo < 6000) & (sv != 1 | is.na(sv)) ~ 4,
+
+    categoria == 3 & (ciuo >= 3000 & ciuo < 6000) & sv == 1 ~ 2, #supervisores NM
+
+    categoria == 3 & (ciuo >= 6000 & ciuo < 7000) ~ 11,
+
+    categoria == 3 & (ciuo >= 7000 & ciuo < 9000) & (sv != 1 | is.na(sv)) ~ 9,
+    categoria == 3 & (ciuo >= 9000 & ciuo < 9999) & (sv != 1 | is.na(sv)) ~ 10,
+    categoria == 3 & (ciuo >= 7000 & ciuo < 9999) & sv == 1 ~ 8, #supervisores M
+    ciuo == 110 ~ 2,
+    ciuo == 210 | ciuo == 310 ~ 8,
+    TRUE ~ NA_real_
+  ))
+
+base2015$egp_f <- factor(base2015$egp, labels = c("I", "II", "IIIa", "IIIb",
+                                          "IVa", "IVb", "IVc", "V",
+                                          "VI", "VIIa", "VIIb"))
+
+
+#base2021
+base2021 <- base2021 %>%
+  mutate(egp = case_when(
+    #Patrones
+    categoria == 1 & tamano == 2 ~ 1,
+    categoria == 1 & tamano == 1 & rural != 1 ~ 5,
+    categoria == 1 & tamano == 1 & rural == 1 ~ 7,
+
+    #Cuenta propia
+    categoria == 2 & ((ciuo >= 1000 & ciuo < 1400)) ~ 1,
+    categoria == 2 & (ciuo >= 1400 & ciuo < 2000) ~ 2,
+
+    categoria == 2 & ciuo %in% c(2165, 2221, 2222, 2513:2519, 2320, 2330, 2341, 2342,
+                                 2351:2359, 2421:2424, 2621, 2622, 2651:2659, 2636) ~ 2,
+    categoria == 2 & (ciuo >= 2000 & ciuo < 3000) ~ 1,
+
+    categoria == 2 & ciuo %in% c(3221, 3222, 3311:3314, 3411:3413) ~ 3,
+    categoria == 2 & (ciuo >= 3000 & ciuo < 4000) ~ 2,
+
+    categoria == 2 & (ciuo %in% c(5211, 5212, 5413, 5414) |
+                        (ciuo >= 9000 & ciuo < 9999) | (ciuo >= 6300 & ciuo < 7000)) ~ 10,
+    categoria == 2 & ((ciuo >= 4000 & ciuo < 6000) | (ciuo >= 7000 & ciuo < 9000)) ~ 6,
+    categoria == 2 & (ciuo >= 6000 & ciuo < 6300) ~ 7,
+
+    #Empleados
+    categoria == 3 & (ciuo >= 1000 & ciuo < 1400) ~ 1,
+    categoria == 3 & (ciuo >= 1400 & ciuo < 2000) ~ 2,
+
+    categoria == 3 & ciuo %in% c(2165, 2221, 2222, 2513:2519, 2320, 2330, 2341, 2342,
+                                 2351:2359, 2421:2424, 2621, 2622, 2651:2659, 2636) ~ 2,
+    categoria == 3 & (ciuo >= 2000 & ciuo < 3000) ~ 1,
+
+    categoria == 3 & ciuo %in% c(3221, 3222, 3311:3314, 3411:3413) & (sv != 1 | is.na(sv)) ~ 3,
+    categoria == 3 & (ciuo >= 3000 & ciuo < 4000) ~ 2,
+
+    categoria == 3 & ciuo %in% c(4412, 4419) & (sv != 1 | is.na(sv)) ~ 4,
+    categoria == 3 & (ciuo >= 4000 & ciuo < 5000) & (sv != 1 | is.na(sv)) ~ 3,
+
+    categoria == 3 & ciuo %in% c(5111:5113) & (sv != 1 | is.na(sv)) ~ 3,
+    categoria == 3 & ciuo %in% c(5120, 5141, 5142, 5153, 5163, 5164, 5165, 5169) & (sv != 1 | is.na(sv)) ~ 9,
+    categoria == 3 & ciuo %in% c(5211, 5212, 5413, 5414, 5419) ~ 10,
+    categoria == 3 & ciuo %in% c(5411, 5412) ~ 10,
+    categoria == 3 & (ciuo >= 5000 & ciuo < 6000) & (sv != 1 | is.na(sv)) ~ 4,
+
+    categoria == 3 & (ciuo >= 3000 & ciuo < 6000) & sv == 1 ~ 2, #supervisores NM
+
+    categoria == 3 & (ciuo >= 6000 & ciuo < 7000) ~ 11,
+
+    categoria == 3 & (ciuo >= 7000 & ciuo < 9000) & (sv != 1 | is.na(sv)) ~ 9,
+    categoria == 3 & (ciuo >= 9000 & ciuo < 9999) & (sv != 1 | is.na(sv)) ~ 10,
+    categoria == 3 & (ciuo >= 7000 & ciuo < 9999) & sv == 1 ~ 8, #supervisores M
+    ciuo == 110 ~ 2,
+    ciuo == 210 | ciuo == 310 ~ 8,
+    TRUE ~ NA_real_
+  ))
+
+base2021$egp_f <- factor(base2021$egp, labels = c("I", "II", "IIIa", "IIIb",
+                                                  "IVa", "IVb", "IVc", "V",
+                                                  "VI", "VIIa", "VIIb"))
+
+
+
+
+
+
+
 
 
 #Parte 1--------------------
@@ -187,6 +582,7 @@ barra2003 <- base2003 %>%
   scale_y_continuous(labels=scales::percent, breaks = seq(0,.7, .1), limits = c(0,.6))
 
 barra2007 <- base2007 %>%
+  filter(region == 1) %>%
   drop_na(clasesub_2007) %>%
   group_by(clasesub_2007_f) %>%
   tally(pond18) %>%
@@ -206,6 +602,7 @@ barra2007 <- base2007 %>%
   scale_y_continuous(labels=scales::percent, breaks = seq(0,.7, .1), limits = c(0,.6))
 
 barra2010 <- base2010 %>%
+  filter(Region == 1) %>%
   drop_na(clasesub_2010) %>%
   group_by(clasesub_2010_f) %>%
   tally() %>%
@@ -226,6 +623,7 @@ barra2010 <- base2010 %>%
 
 
 barra2015 <- base2015 %>%
+  filter(region == 1) %>%
   drop_na(clasesub_2015) %>%
   group_by(clasesub_2015_f) %>%
   tally(f_calib3) %>%
@@ -246,6 +644,7 @@ barra2015 <- base2015 %>%
 
 
 barra2021 <- base2021 %>%
+  filter(REGION == "GBA") %>%
   drop_na(clasesub_2021_f) %>%
   group_by(clasesub_2021_f) %>%
   tally(POND2R_FIN_n) %>%
