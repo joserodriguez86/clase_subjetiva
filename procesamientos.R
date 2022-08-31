@@ -69,6 +69,11 @@ base2003 <- base2003 %>%
                                                              "Clase media",
                                                              "Clase obrera",
                                                              "Clase baja")),
+         clasesub_recod = car::recode(clasesub_2003, "1:2=1; 3=2; 4=3; 5=4"),
+         clasesub_recod_f = factor(clasesub_recod, labels = c("Clase media-alta",
+                                                            "Clase media",
+                                                            "Clase obrera",
+                                                            "Clase baja")),
          ocupacion = p57bciuo_u,
          sv = case_when(p57d1_u == 4 | p57d2_u >= 2 ~ 1,
                         TRUE ~ 0),
@@ -100,6 +105,11 @@ base2007 <- base2007 %>%
                                                              "Clase media",
                                                              "Clase media-baja",
                                                              "Clase baja")),
+         clasesub_recod = car::recode(clasesub_2007, "1:3=1; 4=2; 5=3; 6=4"),
+         clasesub_recod_f = factor(clasesub_recod, labels = c("Clase media-alta",
+                                                              "Clase media",
+                                                              "Clase obrera",
+                                                              "Clase baja")),
          ocupacion = as.integer(p046a),
          sv = case_when(p051 == 1 ~ 1,
                         TRUE ~ 0),
@@ -166,6 +176,12 @@ base2015 <- base2015 %>%
                                                             "Clase media-baja",
                                                             "Clase obrera",
                                                             "Clase baja")),
+         clasesub_recod = car::recode(clasesub_2015, "1:2=1; 3=2; 4=3; 5=4; 6=5"),
+         clasesub_recod_f = factor(clasesub_recod, labels = c("Clase media-alta",
+                                                              "Clase media",
+                                                              "Clase media-baja",
+                                                              "Clase obrera",
+                                                              "Clase baja")),
          ciuo = v183ciuo,
          sv = car::recode(v186, "2=0; 9=NA"),
          categoria = case_when(cat_ocup == 1 ~ 1,
@@ -190,6 +206,12 @@ base2021 <- base2021 %>%
                                                      "Clase media-baja",
                                                      "Clase trabajadora",
                                                      "Clase baja")),
+         clasesub_recod = car::recode(M11.6, "1:2=1; 3=2; 4=3; 5=4; 6=5"),
+         clasesub_recod_f = factor(clasesub_recod, labels = c("Clase media-alta",
+                                                              "Clase media",
+                                                              "Clase media-baja",
+                                                              "Clase trabajadora",
+                                                              "Clase baja")),
          ciuo = CIUO_encuestado,
          sv = car::recode(M3.9, "1:2=1; 3=0; 99=NA"),
          categoria = case_when(M3.5 == 1 ~ 1,
@@ -269,6 +291,9 @@ base2003$egp_f <- factor(base2003$egp, labels = c("I", "II", "IIIa", "IIIb",
                                           "IVa", "IVb", "IVc", "V",
                                           "VI", "VIIa", "VIIb"))
 
+base2003$egp5 <- car::recode(base2003$egp, "1:2=1; 3:4=2; 5:7=3; 8:9=4; 10:11=5")
+base2003$egp5_f <- factor(base2003$egp5, labels = c("I+II", "III", "IV", "V+VI", "VII"))
+
 
 #2007
 base2007$ciuo <- isco88to08(base2007$ocupacion)
@@ -339,6 +364,9 @@ base2007 <- base2007 %>%
 base2007$egp_f <- factor(base2007$egp, labels = c("I", "II", "IIIa", "IIIb",
                                                   "IVa", "IVb", "IVc", "V",
                                                   "VI", "VIIa", "VIIb"))
+
+base2007$egp5 <- car::recode(base2007$egp, "1:2=1; 3:4=2; 5:7=3; 8:9=4; 10:11=5")
+base2007$egp5_f <- factor(base2007$egp5, labels = c("I+II", "III", "IV", "V+VI", "VII"))
 
 
 #Base2010
@@ -411,6 +439,9 @@ base2010$egp_f <- factor(base2010$egp, labels = c("I", "II", "IIIa", "IIIb",
                                                   "IVa", "IVb", "IVc", "V",
                                                   "VI", "VIIa", "VIIb"))
 
+base2010$egp5 <- car::recode(base2010$egp, "1:2=1; 3:4=2; 5:7=3; 8:9=4; 10:11=5")
+base2010$egp5_f <- factor(base2010$egp5, labels = c("I+II", "III", "IV", "V+VI", "VII"))
+
 
 #Base2015
 base2015 <- base2015 %>%
@@ -471,6 +502,9 @@ base2015 <- base2015 %>%
 base2015$egp_f <- factor(base2015$egp, labels = c("I", "II", "IIIa", "IIIb",
                                           "IVa", "IVb", "IVc", "V",
                                           "VI", "VIIa", "VIIb"))
+
+base2015$egp5 <- car::recode(base2015$egp, "1:2=1; 3:4=2; 5:7=3; 8:9=4; 10:11=5")
+base2015$egp5_f <- factor(base2015$egp5, labels = c("I+II", "III", "IV", "V+VI", "VII"))
 
 
 #base2021
@@ -533,15 +567,12 @@ base2021$egp_f <- factor(base2021$egp, labels = c("I", "II", "IIIa", "IIIb",
                                                   "IVa", "IVb", "IVc", "V",
                                                   "VI", "VIIa", "VIIb"))
 
+base2021$egp5 <- car::recode(base2021$egp, "1:2=1; 3:4=2; 5:7=3; 8:9=4; 10:11=5")
+base2021$egp5_f <- factor(base2021$egp5, labels = c("I+II", "III", "IV", "V+VI", "VII"))
 
 
 
-
-
-
-
-
-#Parte 1--------------------
+#Descriptivos clase subjetiva--------------------
 barra1960 <- base1960 %>%
   drop_na(q36_f) %>%
   group_by(q36_f) %>%
@@ -669,4 +700,234 @@ clases_20032021 <- grid.arrange(barra1960, barra2003, barra2007, barra2010,
                                 barra2015, barra2021,
              ncol = 3)
 
-ggsave(filename = "salidas/clases_20032021.png", dpi = 300, type = "cairo", width = 8, height = 6, clases_20032021)
+ggsave(filename = "salidas/clases_sub_20032021.png", dpi = 300, type = "cairo", width = 8, height = 6, clases_20032021)
+
+
+
+#Descriptivos clase objetiva--------------------
+
+barra2003 <- base2003 %>%
+  drop_na(egp5_f) %>%
+  group_by(egp5_f) %>%
+  tally() %>%
+  mutate(porcentaje = n/sum(n)) %>%
+  ggplot(aes(x=egp5_f, y=porcentaje)) +
+  geom_bar(stat = "identity") +
+  geom_text(aes(label = scales::percent(porcentaje, accuracy = 0.1),
+                y = porcentaje + 0.01),
+            position = position_dodge(.9), vjust = 0, size = 2.5) +
+  labs(title = "2003/2004") +
+  theme(axis.title.y = element_blank(),
+        axis.title.x = element_blank(),
+        plot.title = element_text(size = 12),
+        axis.text.x = element_text(size = 7),
+        axis.text.y = element_text(size = 8)) +
+  scale_x_discrete(labels = function(x) str_wrap(x, width = 10)) +
+  scale_y_continuous(labels=scales::percent, breaks = seq(0,.7, .05), limits = c(0,.35))
+
+barra2007 <- base2007 %>%
+  filter(region == 1) %>%
+  drop_na(egp5_f) %>%
+  group_by(egp5_f) %>%
+  tally(pond18) %>%
+  mutate(porcentaje = n/sum(n)) %>%
+  ggplot(aes(x=egp5_f, y=porcentaje)) +
+  geom_bar(stat = "identity") +
+  geom_text(aes(label = scales::percent(porcentaje, accuracy = 0.1),
+                y = porcentaje + 0.01),
+            position = position_dodge(.9), vjust = 0, size = 2.5) +
+  labs(title = "2007/2008") +
+  theme(axis.title.y = element_blank(),
+        axis.title.x = element_blank(),
+        plot.title = element_text(size = 12),
+        axis.text.x = element_text(size = 7),
+        axis.text.y = element_text(size = 8)) +
+  scale_x_discrete(labels = function(x) str_wrap(x, width = 10)) +
+  scale_y_continuous(labels=scales::percent, breaks = seq(0,.7, .05), limits = c(0,.35))
+
+barra2010 <- base2010 %>%
+  filter(Region == 1) %>%
+  drop_na(egp5_f) %>%
+  group_by(egp5_f) %>%
+  tally() %>%
+  mutate(porcentaje = n/sum(n)) %>%
+  ggplot(aes(x=egp5_f, y=porcentaje)) +
+  geom_bar(stat = "identity") +
+  geom_text(aes(label = scales::percent(porcentaje, accuracy = 0.1),
+                y = porcentaje + 0.01),
+            position = position_dodge(.9), vjust = 0, size = 2.5) +
+  labs(title = "2009/2010") +
+  theme(axis.title.y = element_blank(),
+        axis.title.x = element_blank(),
+        plot.title = element_text(size = 12),
+        axis.text.x = element_text(size = 7),
+        axis.text.y = element_text(size = 8)) +
+  scale_x_discrete(labels = function(x) str_wrap(x, width = 10)) +
+  scale_y_continuous(labels=scales::percent, breaks = seq(0,.7, .05), limits = c(0,.35))
+
+
+barra2015 <- base2015 %>%
+  filter(region == 1) %>%
+  drop_na(egp5_f) %>%
+  group_by(egp5_f) %>%
+  tally(f_calib3) %>%
+  mutate(porcentaje = n/sum(n)) %>%
+  ggplot(aes(x=egp5_f, y=porcentaje)) +
+  geom_bar(stat = "identity") +
+  geom_text(aes(label = scales::percent(porcentaje, accuracy = 0.1),
+                y = porcentaje + 0.01),
+            position = position_dodge(.9), vjust = 0, size = 2.5) +
+  labs(title = "2014/2015") +
+  theme(axis.title.y = element_blank(),
+        axis.title.x = element_blank(),
+        plot.title = element_text(size = 12),
+        axis.text.x = element_text(size = 7),
+        axis.text.y = element_text(size = 8)) +
+  scale_x_discrete(labels = function(x) str_wrap(x, width = 7)) +
+  scale_y_continuous(labels=scales::percent, breaks = seq(0,.7, .05), limits = c(0,.35))
+
+
+barra2021 <- base2021 %>%
+  filter(REGION == "GBA") %>%
+  drop_na(egp5_f) %>%
+  group_by(egp5_f) %>%
+  tally(POND2R_FIN_n) %>%
+  mutate(porcentaje = n/sum(n)) %>%
+  ggplot(aes(x=egp5_f, y=porcentaje)) +
+  geom_bar(stat = "identity") +
+  geom_text(aes(label = scales::percent(porcentaje, accuracy = 0.1),
+                y = porcentaje + 0.01),
+            position = position_dodge(.9), vjust = 0, size = 2.5) +
+  labs(title = "2021") +
+  theme(axis.title.y = element_blank(),
+        axis.title.x = element_blank(),
+        plot.title = element_text(size = 12),
+        axis.text.x = element_text(size = 7),
+        axis.text.y = element_text(size = 8)) +
+  scale_x_discrete(labels = function(x) str_wrap(x, width = 10),
+                   guide = guide_axis(n.dodge = 2)) +
+  scale_y_continuous(labels=scales::percent, breaks = seq(0,.7, .05), limits = c(0,.35))
+
+
+clases_20032021 <- grid.arrange(barra2003, barra2007, barra2010,
+                                barra2015, barra2021,
+                                ncol = 3)
+
+ggsave(filename = "salidas/clases_obj_20032021.png", dpi = 300, type = "cairo", width = 8, height = 6, clases_20032021)
+
+
+
+
+#Comparación clase subjetiva - objetiva ----------------
+
+barra2003 <- base2003 %>%
+  drop_na(egp5_f, clasesub_recod_f) %>%
+  group_by(clasesub_recod_f, egp5_f) %>%
+  tally() %>%
+  mutate(porcentaje = n/sum(n)) %>%
+  ggplot(aes(x=clasesub_recod_f, y=porcentaje, fill=egp5_f)) +
+  geom_col() +
+  geom_text(aes(label = scales::percent(porcentaje, accuracy = 0.1),
+                y = porcentaje + 0.01),
+            position = position_stack(.5), vjust = 1.1, size = 2.5) +
+  labs(title = "2003/2004") +
+  theme(axis.title.y = element_blank(),
+        axis.title.x = element_blank(),
+        plot.title = element_text(size = 12),
+        axis.text.x = element_text(size = 7),
+        axis.text.y = element_text(size = 8),
+        legend.position= "none") +
+  scale_x_discrete(labels = function(x) str_wrap(x, width = 10)) +
+  scale_y_continuous(labels=scales::percent, breaks = seq(0,1, .1))
+
+
+barra2007 <- base2007 %>%
+  drop_na(egp5_f, clasesub_recod_f) %>%
+  group_by(clasesub_recod_f, egp5_f) %>%
+  tally() %>%
+  mutate(porcentaje = n/sum(n)) %>%
+  ggplot(aes(x=clasesub_recod_f, y=porcentaje, fill=egp5_f)) +
+  geom_col() +
+  geom_text(aes(label = scales::percent(porcentaje, accuracy = 0.1),
+                y = porcentaje + 0.01),
+            position = position_stack(.5), vjust = 1.2, size = 2.5) +
+  labs(title = "2007/2008") +
+  theme(axis.title.y = element_blank(),
+        axis.title.x = element_blank(),
+        plot.title = element_text(size = 12),
+        axis.text.x = element_text(size = 7),
+        axis.text.y = element_text(size = 8),
+        legend.position= "none") +
+  scale_x_discrete(labels = function(x) str_wrap(x, width = 10)) +
+  scale_y_continuous(labels=scales::percent, breaks = seq(0,1, .1))
+
+barra2010 <- base2010 %>%
+  drop_na(egp5_f, clasesub_2010_f) %>%
+  group_by(clasesub_2010_f, egp5_f) %>%
+  tally() %>%
+  mutate(porcentaje = n/sum(n)) %>%
+  ggplot(aes(x=clasesub_2010_f, y=porcentaje, fill=egp5_f)) +
+  geom_col() +
+  geom_text(aes(label = scales::percent(porcentaje, accuracy = 0.1),
+                y = porcentaje + 0.01),
+            position = position_stack(.5), vjust = 1.2, size = 2.5) +
+  labs(title = "2009/2010") +
+  theme(axis.title.y = element_blank(),
+        axis.title.x = element_blank(),
+        plot.title = element_text(size = 12),
+        axis.text.x = element_text(size = 7),
+        axis.text.y = element_text(size = 8),
+        legend.position= "none") +
+  scale_x_discrete(labels = function(x) str_wrap(x, width = 10)) +
+  scale_y_continuous(labels=scales::percent, breaks = seq(0,1, .1))
+
+
+barra2015 <- base2015 %>%
+  drop_na(egp5_f, clasesub_recod_f) %>%
+  group_by(clasesub_recod_f, egp5_f) %>%
+  tally() %>%
+  mutate(porcentaje = n/sum(n)) %>%
+  ggplot(aes(x=clasesub_recod_f, y=porcentaje, fill=egp5_f)) +
+  geom_col() +
+  geom_text(aes(label = scales::percent(porcentaje, accuracy = 0.1),
+                y = porcentaje + 0.01),
+            position = position_stack(.5), vjust = 1.2, size = 2.5) +
+  labs(title = "2014/2015") +
+  theme(axis.title.y = element_blank(),
+        axis.title.x = element_blank(),
+        plot.title = element_text(size = 12),
+        axis.text.x = element_text(size = 7),
+        axis.text.y = element_text(size = 8),
+        legend.position= "none") +
+  scale_x_discrete(labels = function(x) str_wrap(x, width = 10)) +
+  scale_y_continuous(labels=scales::percent, breaks = seq(0,1, .1))
+
+
+barra2021 <- base2021 %>%
+  drop_na(egp5_f, clasesub_recod_f) %>%
+  group_by(clasesub_recod_f, egp5_f) %>%
+  tally() %>%
+  mutate(porcentaje = n/sum(n)) %>%
+  ggplot(aes(x=clasesub_recod_f, y=porcentaje, fill=egp5_f)) +
+  geom_col() +
+  geom_text(aes(label = scales::percent(porcentaje, accuracy = 0.1),
+                y = porcentaje + 0.01),
+            position = position_stack(.5), vjust = 1.2, size = 2.5) +
+  labs(title = "2021",
+       fill = "Clase objetiva") +
+  theme(axis.title.y = element_blank(),
+        axis.title.x = element_blank(),
+        plot.title = element_text(size = 12),
+        axis.text.x = element_text(size = 7),
+        axis.text.y = element_text(size = 8),
+        legend.position = "none") +
+  scale_x_discrete(labels = function(x) str_wrap(x, width = 10)) +
+  scale_y_continuous(labels=scales::percent, breaks = seq(0,1, .1))
+
+
+clases_20032021 <- grid.arrange(barra2003, barra2007, barra2010,
+                                barra2015, barra2021,
+                                ncol = 3)
+
+ggsave(filename = "salidas/composicion_20032021.png", dpi = 300, type = "cairo", width = 8, height = 6, clases_20032021)
+
