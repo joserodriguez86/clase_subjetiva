@@ -18,10 +18,10 @@ rm(base_hogar)
 #1960
 
 base1960$q36[base1960$q36 == 0] <- NA
+base1960$q3 <- as.numeric(base1960$q3)
 
 base1960 <- base1960 %>%
-  mutate(
-         q36_f = factor(q36, labels = c("Ricos", "Modestos", "Humilde", "Clase alta",
+  mutate(q36_f = factor(q36, labels = c("Ricos", "Modestos", "Humilde", "Clase alta",
                                         "Clase media", "Clase popular", "Aristocracia",
                                         "Burguesia", "Proletariado")),
          q36_f = factor(q36_f, levels = c("Aristocracia", "Ricos", "Clase alta", "Burguesia",
@@ -30,7 +30,20 @@ base1960 <- base1960 %>%
          clasesub_1960 = car::recode(q36, "c(1,4,7,8)=1; 5=2; 2=3; c(3,6,9)=4"),
          clasesub_1960_f = factor(clasesub_1960, labels = c("Clase alta", "Clase media",
                                                             "Clase media-baja",
-                                                            "Clase baja")))
+                                                            "Clase baja")),
+         clase_recod = car::recode(clasesub_1960, "1:2=1;3=2;4=3"),
+         clase_recod_f = factor(clase_recod, labels = c("Clase media / alta",
+                                                            "Clase media-baja",
+                                                            "Clase baja")),
+         egp5 = case_when(q3 > 0 & q3 <= 2 ~ 1,
+                                 q3 == 3 | q3 == 4 ~ 3,
+                                 q3 == 5 & (v8 >= 4 & v8 <9) ~ 3,
+                                 q3 == 5 & v8 < 4 ~ 5,
+                                 q3 >= 6 & q3 <= 10 ~ 1,
+                                 q3 == 11 ~ 2,
+                                 q3 == 12 | q3 == 13 ~ 4,
+                                 q3 == 14 ~ 5),
+         egp5_f = factor(egp5, labels = c("I+II", "III", "IV", "V+VI", "VII")))
 
 
 #1995
@@ -706,6 +719,26 @@ ggsave(filename = "salidas/clases_sub_20032021.png", dpi = 300, type = "cairo", 
 
 #Descriptivos clase objetiva--------------------
 
+barra1960 <- base1960 %>%
+  drop_na(egp5_f) %>%
+  group_by(egp5_f) %>%
+  tally() %>%
+  mutate(porcentaje = n/sum(n)) %>%
+  ggplot(aes(x=egp5_f, y=porcentaje)) +
+  geom_bar(stat = "identity") +
+  geom_text(aes(label = scales::percent(porcentaje, accuracy = 0.1),
+                y = porcentaje + 0.01),
+            position = position_dodge(.9), vjust = 0, size = 2.5) +
+  labs(title = "1960") +
+  theme(axis.title.y = element_blank(),
+        axis.title.x = element_blank(),
+        plot.title = element_text(size = 12),
+        axis.text.x = element_text(size = 7),
+        axis.text.y = element_text(size = 8)) +
+  scale_x_discrete(labels = function(x) str_wrap(x, width = 10)) +
+  scale_y_continuous(labels=scales::percent, breaks = seq(0,.7, .05), limits = c(0,.35))
+
+
 barra2003 <- base2003 %>%
   drop_na(egp5_f) %>%
   group_by(egp5_f) %>%
@@ -809,7 +842,7 @@ barra2021 <- base2021 %>%
   scale_y_continuous(labels=scales::percent, breaks = seq(0,.7, .05), limits = c(0,.35))
 
 
-clases_20032021 <- grid.arrange(barra2003, barra2007, barra2010,
+clases_20032021 <- grid.arrange(barra1960, barra2003, barra2007, barra2010,
                                 barra2015, barra2021,
                                 ncol = 3)
 
@@ -819,6 +852,27 @@ ggsave(filename = "salidas/clases_obj_20032021.png", dpi = 300, type = "cairo", 
 
 
 #Comparación clase subjetiva - objetiva ----------------
+
+barra1960 <- base1960 %>%
+  drop_na(egp5_f, clase_recod_f) %>%
+  group_by(clase_recod_f, egp5_f) %>%
+  tally() %>%
+  mutate(porcentaje = n/sum(n)) %>%
+  ggplot(aes(x=clase_recod_f, y=porcentaje, fill=egp5_f)) +
+  geom_col() +
+  geom_text(aes(label = scales::percent(porcentaje, accuracy = 0.1),
+                y = porcentaje + 0.01),
+            position = position_stack(.5), vjust = 1.1, size = 2.5) +
+  labs(title = "1960") +
+  theme(axis.title.y = element_blank(),
+        axis.title.x = element_blank(),
+        plot.title = element_text(size = 12),
+        axis.text.x = element_text(size = 7),
+        axis.text.y = element_text(size = 8),
+        legend.position= "none") +
+  scale_x_discrete(labels = function(x) str_wrap(x, width = 10)) +
+  scale_y_continuous(labels=scales::percent, breaks = seq(0,1, .1))
+
 
 barra2003 <- base2003 %>%
   drop_na(egp5_f, clasesub_recod_f) %>%
@@ -925,7 +979,7 @@ barra2021 <- base2021 %>%
   scale_y_continuous(labels=scales::percent, breaks = seq(0,1, .1))
 
 
-clases_20032021 <- grid.arrange(barra2003, barra2007, barra2010,
+clases_20032021 <- grid.arrange(barra1960, barra2003, barra2007, barra2010,
                                 barra2015, barra2021,
                                 ncol = 3)
 
