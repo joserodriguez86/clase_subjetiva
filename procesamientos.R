@@ -863,12 +863,14 @@ barra1960 <- base1960 %>%
   geom_text(aes(label = scales::percent(porcentaje, accuracy = 0.1),
                 y = porcentaje + 0.01),
             position = position_stack(.5), vjust = 1.1, size = 2.5) +
-  labs(title = "1960") +
+  theme_classic() +
+  labs(title = "1960",
+       fill = "Clase objetiva") +
   theme(axis.title.y = element_blank(),
         axis.title.x = element_blank(),
-        plot.title = element_text(size = 12),
+        plot.title = element_text(size = 12, hjust = 0.5),
         axis.text.x = element_text(size = 7),
-        axis.text.y = element_text(size = 8),
+        axis.text.y = element_blank(),
         legend.position= "none") +
   scale_x_discrete(labels = function(x) str_wrap(x, width = 10)) +
   scale_y_continuous(labels=scales::percent, breaks = seq(0,1, .1))
@@ -884,12 +886,13 @@ barra2003 <- base2003 %>%
   geom_text(aes(label = scales::percent(porcentaje, accuracy = 0.1),
                 y = porcentaje + 0.01),
             position = position_stack(.5), vjust = 1.1, size = 2.5) +
+  theme_classic() +
   labs(title = "2003/2004") +
   theme(axis.title.y = element_blank(),
         axis.title.x = element_blank(),
-        plot.title = element_text(size = 12),
+        plot.title = element_text(size = 12, hjust = 0.5),
         axis.text.x = element_text(size = 7),
-        axis.text.y = element_text(size = 8),
+        axis.text.y = element_blank(),
         legend.position= "none") +
   scale_x_discrete(labels = function(x) str_wrap(x, width = 10)) +
   scale_y_continuous(labels=scales::percent, breaks = seq(0,1, .1))
@@ -905,12 +908,13 @@ barra2007 <- base2007 %>%
   geom_text(aes(label = scales::percent(porcentaje, accuracy = 0.1),
                 y = porcentaje + 0.01),
             position = position_stack(.5), vjust = 1.2, size = 2.5) +
+  theme_classic() +
   labs(title = "2007/2008") +
   theme(axis.title.y = element_blank(),
         axis.title.x = element_blank(),
-        plot.title = element_text(size = 12),
+        plot.title = element_text(size = 12, hjust = 0.5),
         axis.text.x = element_text(size = 7),
-        axis.text.y = element_text(size = 8),
+        axis.text.y = element_blank(),
         legend.position= "none") +
   scale_x_discrete(labels = function(x) str_wrap(x, width = 10)) +
   scale_y_continuous(labels=scales::percent, breaks = seq(0,1, .1))
@@ -925,12 +929,13 @@ barra2010 <- base2010 %>%
   geom_text(aes(label = scales::percent(porcentaje, accuracy = 0.1),
                 y = porcentaje + 0.01),
             position = position_stack(.5), vjust = 1.2, size = 2.5) +
+  theme_classic() +
   labs(title = "2009/2010") +
   theme(axis.title.y = element_blank(),
         axis.title.x = element_blank(),
-        plot.title = element_text(size = 12),
+        plot.title = element_text(size = 12, hjust = 0.5),
         axis.text.x = element_text(size = 7),
-        axis.text.y = element_text(size = 8),
+        axis.text.y = element_blank(),
         legend.position= "none") +
   scale_x_discrete(labels = function(x) str_wrap(x, width = 10)) +
   scale_y_continuous(labels=scales::percent, breaks = seq(0,1, .1))
@@ -946,12 +951,13 @@ barra2015 <- base2015 %>%
   geom_text(aes(label = scales::percent(porcentaje, accuracy = 0.1),
                 y = porcentaje + 0.01),
             position = position_stack(.5), vjust = 1.2, size = 2.5) +
+  theme_classic() +
   labs(title = "2014/2015") +
   theme(axis.title.y = element_blank(),
         axis.title.x = element_blank(),
-        plot.title = element_text(size = 12),
+        plot.title = element_text(size = 12, hjust = 0.5),
         axis.text.x = element_text(size = 7),
-        axis.text.y = element_text(size = 8),
+        axis.text.y = element_blank(),
         legend.position= "none") +
   scale_x_discrete(labels = function(x) str_wrap(x, width = 10)) +
   scale_y_continuous(labels=scales::percent, breaks = seq(0,1, .1))
@@ -967,21 +973,22 @@ barra2021 <- base2021 %>%
   geom_text(aes(label = scales::percent(porcentaje, accuracy = 0.1),
                 y = porcentaje + 0.01),
             position = position_stack(.5), vjust = 1.2, size = 2.5) +
+  theme_classic() +
   labs(title = "2021",
        fill = "Clase objetiva") +
   theme(axis.title.y = element_blank(),
         axis.title.x = element_blank(),
-        plot.title = element_text(size = 12),
+        plot.title = element_text(size = 12, hjust = 0.5),
         axis.text.x = element_text(size = 7),
-        axis.text.y = element_text(size = 8),
+        axis.text.y = element_blank(),
         legend.position = "none") +
-  scale_x_discrete(labels = function(x) str_wrap(x, width = 10)) +
+  scale_x_discrete(labels = function(x) str_wrap(x, width = 9)) +
   scale_y_continuous(labels=scales::percent, breaks = seq(0,1, .1))
 
 
-clases_20032021 <- grid.arrange(barra1960, barra2003, barra2007, barra2010,
+clases_20032021 <- ggarrange(barra1960, barra2003, barra2007, barra2010,
                                 barra2015, barra2021,
-                                ncol = 3)
+                                ncol = 3, nrow = 2, common.legend = TRUE, legend = "bottom")
 
-ggsave(filename = "salidas/composicion_20032021.png", dpi = 300, type = "cairo", width = 8, height = 6, clases_20032021)
+ggsave(filename = "salidas/composicion2_20032021.png", dpi = 300, type = "cairo", width = 8, height = 6, clases_20032021)
 
