@@ -1,0 +1,1160 @@
+---
+title: "Tendencias pasadas y recientes sobre el posicionamiento de clase subjetiva
+  en Argentina (1960-2021). Explicaciones desde la posición de clase y el origen social."
+author: "José Rodríguez de la Fuente - Gonzalo Assusa"
+date: "`r Sys.Date()`"
+output:
+  rmdformats::downcute:
+    self_contained: true
+    lightbox: true
+    highlight: tango
+---
+
+#Armado de las bases de datos  
+
+Se importan las bases de datos.  
+
+```{r carga librerías, message=F, warning=F}
+pacman::p_load(tidyverse, haven, gridExtra, grid, occupar, ggpubr, ggsci)
+
+theme_set(theme_classic())
+
+load("bases/germani_sampleb.RData")
+base1960 <- sample_B
+base2003 <- read_spss("bases/base_2003_2004.sav")
+base2007 <- read_spss("bases/base_2007.sav")
+base2010 <- read_spss("bases/base_2010.sav")
+base2015 <- read_spss("bases/base_2015.sav")
+load("bases/base_2021.RData")
+base2021 <- base_hogar
+rm(base_hogar)
+```
+
+Se construyen las principales variables a utilizar.  
+
+```{r variables, message=F, warning=F}
+#1960
+
+base1960$q36[base1960$q36 == 0] <- NA
+base1960$q3 <- as.numeric(base1960$q3)
+
+base1960 <- base1960 %>%
+  mutate(q36_f = factor(q36, labels = c("Ricos", "Modestos", "Humilde", "C. alta",
+                                        "C. media", "C. popular", "Aristocracia",
+                                        "Burguesia", "Proletariado")),
+         q36_f = factor(q36_f, levels = c("Aristocracia", "Ricos", "C. alta", "Burguesia",
+                                   "C. media", "Modestos", "Proletariado",
+                                   "C. popular", "Humilde")),
+         clasesub_1960 = car::recode(q36, "c(1,4,7,8)=1; 5=2; 2=3; c(3,6,9)=4"),
+         clasesub_1960_f = factor(clasesub_1960, labels = c("C. alta", "C. media",
+                                                            "C. media-baja",
+                                                            "C. baja")),
+         clase_recod = car::recode(clasesub_1960, "1:2=1;3=2;4=3"),
+         clase_recod_f = factor(clase_recod, labels = c("C. media / alta",
+                                                            "C. media-baja",
+                                                            "C. baja")),
+         clasesub_dic = car::recode(clase_recod, "1:2=1; 3=2"),
+         clasesub_dic_f = factor(clasesub_dic, labels = c("C.s medias", "C. obrera / baja")),
+         egp5 = case_when(q3 > 0 & q3 <= 2 ~ 1,
+                                 q3 == 3 | q3 == 4 ~ 3,
+                                 q3 == 5 & (v8 >= 4 & v8 <9) ~ 3,
+                                 q3 == 5 & v8 < 4 ~ 5,
+                                 q3 >= 6 & q3 <= 10 ~ 1,
+                                 q3 == 11 ~ 2,
+                                 q3 == 12 | q3 == 13 ~ 4,
+                                 q3 == 14 ~ 5),
+         egp5_f = factor(egp5, labels = c("I+II", "III", "IV", "V+VI", "VII")))
+
+
+#2003/2004
+base2003 <- base2003 %>%
+  mutate(clasesub_2003 = case_when(p64a_u == 1 ~ 5,
+                                   p64a_u == 2 ~ 4,
+                                   p64a_u == 3 ~ 3,
+                                   p64a_u == 4 ~ 2,
+                                   p64a_u == 5 ~ 1,
+                                   (p64a_u > 5 | is.na(p64a_u)) & p64b_u == 1 ~ 5,
+                                   (p64a_u > 5 | is.na(p64a_u)) & p64b_u == 2 ~ 4,
+                                   (p64a_u > 5 | is.na(p64a_u)) & p64b_u == 3 ~ 3,
+                                   (p64a_u > 5 | is.na(p64a_u)) & p64b_u == 4 ~ 2,
+                                   (p64a_u > 5 | is.na(p64a_u)) & p64b_u == 5 ~ 1,
+                                   TRUE ~ NA_real_),
+         clasesub_2003_f = factor(clasesub_2003, labels = c("C. alta",
+                                                             "C. media-alta",
+                                                             "C. media",
+                                                             "C. obrera",
+                                                             "C. baja")),
+         clasesub_recod = car::recode(clasesub_2003, "1:2=1; 3=2; 4=3; 5=4"),
+         clasesub_recod_f = factor(clasesub_recod, labels = c("C. media-alta",
+                                                            "C. media",
+                                                            "C. obrera",
+                                                            "C. baja")),
+         clasesub_dic = car::recode(clasesub_recod, "1:2=1; 3:4=2"),
+         clasesub_dic_f = factor(clasesub_dic, labels = c("C.s medias", "C. obrera / baja")),
+         ocupacion = p57bciuo_u,
+         sv = case_when(p57d1_u == 4 | p57d2_u >= 2 ~ 1,
+                        TRUE ~ 0),
+         categoria = case_when(p57d_u == 6 ~ 1,
+                               p57d_u == 5 & sv == 1 ~ 1,
+                               p57d_u == 5 & sv != 1 ~ 2,
+                               p57d_u %in% c(1:4, 7,8) ~ 3,
+                               TRUE ~ NA_real_),
+         tamano = case_when((p57d5est_u + p57d5tem_u) <= 5 ~ 1,
+                            (p57d5est_u + p57d5tem_u) > 5 | is.na(p57d5est_u + p57d5tem_u) ~ 2,
+                            TRUE ~ NA_real_))
+
+
+#2007
+base2007 <- base2007 %>%
+  mutate(clasesub_2007 = case_when(p161 == 1 ~ 6,
+                                   p161 == 3 ~ 5,
+                                   p161 == 4 ~ 4,
+                                   p161 == 5 ~ 3,
+                                   p161 == 6 ~ 1,
+                                   (p161 > 6 | is.na(p161)) & p161a == 1 ~ 6,
+                                   (p161 > 6 | is.na(p161)) & p161a == 3 ~ 5,
+                                   (p161 > 6 | is.na(p161)) & p161a == 4 ~ 4,
+                                   (p161 > 6 | is.na(p161)) & p161a == 5 ~ 3,
+                                   (p161 > 6 | is.na(p161)) & p161a == 6 ~ 1,
+                                   TRUE ~ NA_real_),
+         clasesub_2007_f = factor(clasesub_2007, labels = c("C. alta",
+                                                             "C. media-alta",
+                                                             "C. media",
+                                                             "C. media-baja",
+                                                             "C. baja")),
+         clasesub_recod = car::recode(clasesub_2007, "1:3=1; 4=2; 5=3; 6=4"),
+         clasesub_recod_f = factor(clasesub_recod, labels = c("C. media-alta",
+                                                              "C. media",
+                                                              "C. media-baja",
+                                                              "C. baja")),
+         clasesub_dic = car::recode(clasesub_recod, "1:3=1; 4=2"),
+         clasesub_dic_f = factor(clasesub_dic, labels = c("C.s medias", "C. obrera / baja")),
+         ocupacion = as.integer(p046a),
+         sv = case_when(p051 == 1 ~ 1,
+                        TRUE ~ 0),
+         categoria = case_when(p047 == 10 ~ 1,
+                               p047 == 9 & sv == 1 ~ 1,
+                               p047 == 9 & (sv != 1 | is.na(sv)) ~ 2,
+                               p047 %in% c(1:8) ~ 3,
+                               TRUE ~ NA_real_),
+         tamano = case_when(p056a <= 2 ~ 1,
+                            p056a > 3 & p056a <= 7 ~ 2,
+                            TRUE ~ NA_real_))
+
+
+#2009/2010
+base2010 <- base2010 %>%
+  mutate(clasesub_2010 = case_when(S.83a == 1 ~ 5,
+                                   S.83a == 2 ~ 4,
+                                   S.83a == 3 ~ 3,
+                                   S.83a == 4 ~ 2,
+                                   S.83a == 5 ~ 1,
+                                   (S.83a > 5 | is.na(S.83a)) & S.83b == 1 ~ 5,
+                                   (S.83a > 5 | is.na(S.83a)) & S.83b == 2 ~ 4,
+                                   (S.83a > 5 | is.na(S.83a)) & S.83b == 3 ~ 3,
+                                   (S.83a > 5 | is.na(S.83a)) & S.83b == 4 ~ 2,
+                                   (S.83a > 5 | is.na(S.83a)) & S.83b == 5 ~ 1,
+                                   TRUE ~ NA_real_),
+         clasesub_2010_f = factor(clasesub_2010, labels = c("C. media-alta",
+                                                            "C. media",
+                                                            "C. media-baja",
+                                                            "C. obrera",
+                                                            "C. baja")),
+         clasesub_dic = car::recode(clasesub_2010, "1:3=1; 4:5=2"),
+         clasesub_dic_f = factor(clasesub_dic, labels = c("C.s medias", "C. obrera / baja")),
+         ocupacion = as.integer(s.59),
+         sv = case_when(S.55 == 1 ~ 1,
+                        TRUE ~ 0),
+         categoria = case_when(S.53 == 3 ~ 1,
+                               S.53 == 2 & sv == 1 ~ 1,
+                               S.53 == 2 & (sv != 1 | is.na(sv)) ~ 2,
+                               S.53 %in% c(1, 4, 5) ~ 3,
+                               TRUE ~ NA_real_),
+         tamano = case_when(S.54a <= 5 ~ 1,
+                            S.54a > 5 & S.54a < 9995 ~ 2,
+                            TRUE ~ NA_real_))
+
+
+
+#2014-2015
+base2015 <- base2015 %>%
+  mutate(clasesub_2015 = case_when(v260a == 1 ~ 6,
+                                   v260a == 2 ~ 5,
+                                   v260a == 3 ~ 4,
+                                   v260a == 4 ~ 3,
+                                   v260a == 5 ~ 2,
+                                   v260a == 6 ~ 1,
+                                   is.na(v260a) & v261a == 1 ~ 6,
+                                   is.na(v260a) & v261a == 2 ~ 5,
+                                   is.na(v260a) & v261a == 3 ~ 4,
+                                   is.na(v260a) & v261a == 4 ~ 3,
+                                   is.na(v260a) & v261a == 5 ~ 2,
+                                   is.na(v260a) & v261a == 6 ~ 1,
+                                   TRUE ~ NA_real_),
+         clasesub_2015_f = factor(clasesub_2015, labels = c("C. alta",
+                                                            "C. media-alta",
+                                                            "C. media",
+                                                            "C. media-baja",
+                                                            "C. obrera",
+                                                            "C. baja")),
+         clasesub_recod = car::recode(clasesub_2015, "1:2=1; 3=2; 4=3; 5=4; 6=5"),
+         clasesub_recod_f = factor(clasesub_recod, labels = c("C. media-alta",
+                                                              "C. media",
+                                                              "C. media-baja",
+                                                              "C. obrera",
+                                                              "C. baja")),
+         clasesub_dic = car::recode(clasesub_recod, "1:3=1; 4:5=2"),
+         clasesub_dic_f = factor(clasesub_dic, labels = c("C.s medias", "C. obrera / baja")),
+         ciuo = v183ciuo,
+         sv = car::recode(v186, "2=0; 9=NA"),
+         categoria = case_when(cat_ocup == 1 ~ 1,
+                               cat_ocup == 2 & sv == 1 ~ 1,
+                               cat_ocup == 2 & (sv == 0 | is.na(sv)) ~ 2,
+                               cat_ocup == 3 | cat_ocup == 4 ~ 3,
+                               TRUE ~ NA_real_),
+         tamano = car::recode(v189, "1:2=1; 3:hi=2"),
+         rural = case_when(v182caes %in% c("0100", "0101", "0102", "0103", "0104", "0200",
+                                           "0300") ~ 1,
+                           TRUE ~ 0))
+
+base2015$ciuo <- str_remove(base2015$ciuo, "^0+")
+base2015$ciuo <- as.integer(base2015$ciuo)
+
+#2021
+base2021 <- base2021 %>%
+  mutate(M11.6 = car::recode(M11.6, "99 = NA"),
+         clasesub_2021_f = factor(M11.6, labels = c("C. alta",
+                                                     "C. media-alta",
+                                                     "C. media",
+                                                     "C. media-baja",
+                                                     "C. trabajadora",
+                                                     "C. baja")),
+         clasesub_recod = car::recode(M11.6, "1:2=1; 3=2; 4=3; 5=4; 6=5"),
+         clasesub_recod_f = factor(clasesub_recod, labels = c("C. media-alta",
+                                                              "C. media",
+                                                              "C. media-baja",
+                                                              "C. trabajadora",
+                                                              "C. baja")),
+         clasesub_dic = car::recode(clasesub_recod, "1:3=1; 4:5=2"),
+         clasesub_dic_f = factor(clasesub_dic, labels = c("C.s medias", "C. obrera / baja")),
+         ciuo = CIUO_encuestado,
+         sv = car::recode(M3.9, "1:2=1; 3=0; 99=NA"),
+         categoria = case_when(M3.5 == 1 ~ 1,
+                               M3.5 == 2 & sv == 1 ~ 1,
+                               M3.5 == 2 & (sv != 1 | is.na(sv)) ~ 2,
+                               M3.5 >= 3 & M3.5 < 99 ~ 3,
+                               TRUE ~ NA_real_),
+         tamano = case_when(M3.6 <= 2 ~ 1,
+                            M3.6 > 2 & M3.6 < 99 ~ 2,
+                            TRUE ~ NA_real_),
+         rural = case_when(CAES_letra == "A" ~ 1,
+                           TRUE ~ 0))
+```
+
+
+# Construcción de EGP  
+
+Se construye la variable egp para cada base de datos.  
+
+```{r egp, warning=F, message=F}
+#2003
+base2003$ciuo <- isco88to08(base2003$ocupacion)
+
+base2003 <- base2003 %>%
+  mutate(egp = case_when(
+    #Patrones
+    categoria == 1 & tamano == 2 ~ 1,
+    categoria == 1 & tamano == 1 ~ 5,
+
+    #Cuenta propia
+    categoria == 2 & ((ciuo >= 1000 & ciuo < 1400)) ~ 1,
+    categoria == 2 & (ciuo >= 1400 & ciuo < 2000) ~ 2,
+
+    categoria == 2 & ciuo %in% c(2165, 2221, 2222, 2513:2519, 2320, 2330, 2341, 2342,
+                                 2351:2359, 2421:2424, 2621, 2622, 2651:2659, 2636) ~ 2,
+    categoria == 2 & (ciuo >= 2000 & ciuo < 3000) ~ 1,
+
+    categoria == 2 & ciuo %in% c(3221, 3222, 3311:3314, 3411:3413) ~ 3,
+    categoria == 2 & (ciuo >= 3000 & ciuo < 4000) ~ 2,
+
+    categoria == 2 & (ciuo %in% c(5211, 5212, 5413, 5414) |
+                        (ciuo >= 9000 & ciuo < 9999) | (ciuo >= 6300 & ciuo < 7000)) ~ 10,
+    categoria == 2 & ((ciuo >= 4000 & ciuo < 6000) | (ciuo >= 7000 & ciuo < 9000)) ~ 6,
+    categoria == 2 & (ciuo >= 6000 & ciuo < 6300) ~ 7,
+
+    #Empleados
+    categoria == 3 & (ciuo >= 1000 & ciuo < 1400) ~ 1,
+    categoria == 3 & (ciuo >= 1400 & ciuo < 2000) ~ 2,
+
+    categoria == 3 & ciuo %in% c(2165, 2221, 2222, 2513:2519, 2320, 2330, 2341, 2342,
+                                 2351:2359, 2421:2424, 2621, 2622, 2651:2659, 2636) ~ 2,
+    categoria == 3 & (ciuo >= 2000 & ciuo < 3000) ~ 1,
+
+    categoria == 3 & ciuo %in% c(3221, 3222, 3311:3314, 3411:3413) & (sv != 1 | is.na(sv)) ~ 3,
+    categoria == 3 & (ciuo >= 3000 & ciuo < 4000) ~ 2,
+
+    categoria == 3 & ciuo %in% c(4412, 4419) & (sv != 1 | is.na(sv)) ~ 4,
+    categoria == 3 & (ciuo >= 4000 & ciuo < 5000) & (sv != 1 | is.na(sv)) ~ 3,
+
+    categoria == 3 & ciuo %in% c(5111:5113) & (sv != 1 | is.na(sv)) ~ 3,
+    categoria == 3 & ciuo %in% c(5120, 5141, 5142, 5153, 5163, 5164, 5165, 5169) & (sv != 1 | is.na(sv)) ~ 9,
+    categoria == 3 & ciuo %in% c(5211, 5212, 5413, 5414, 5419) ~ 10,
+    categoria == 3 & ciuo %in% c(5411, 5412) ~ 10,
+    categoria == 3 & (ciuo >= 5000 & ciuo < 6000) & (sv != 1 | is.na(sv)) ~ 4,
+
+    categoria == 3 & (ciuo >= 3000 & ciuo < 6000) & sv == 1 ~ 2, #supervisores NM
+
+    categoria == 3 & (ciuo >= 6000 & ciuo < 7000) ~ 11,
+
+    categoria == 3 & (ciuo >= 7000 & ciuo < 9000) & (sv != 1 | is.na(sv)) ~ 9,
+    categoria == 3 & (ciuo >= 9000 & ciuo < 9999) & (sv != 1 | is.na(sv)) ~ 10,
+    categoria == 3 & (ciuo >= 7000 & ciuo < 9999) & sv == 1 ~ 8, #supervisores M
+    ciuo == 110 ~ 2,
+    ciuo == 210 | ciuo == 310 ~ 8,
+    TRUE ~ NA_real_
+  ))
+
+base2003$egp_f <- factor(base2003$egp, labels = c("I", "II", "IIIa", "IIIb",
+                                          "IVa", "IVb", "IVc", "V",
+                                          "VI", "VIIa", "VIIb"))
+
+base2003$egp5 <- car::recode(base2003$egp, "1:2=1; 3:4=2; 5:7=3; 8:9=4; 10:11=5")
+base2003$egp5_f <- factor(base2003$egp5, labels = c("I+II", "III", "IV", "V+VI", "VII"))
+
+
+#2007
+base2007$ciuo <- isco88to08(base2007$ocupacion)
+
+base2007 <- base2007 %>%
+  mutate(ciuo = case_when(ocupacion %in% c(5164, 3452, 5223, 7125, 8342) ~ ocupacion,
+                          TRUE ~ ciuo))
+
+base2007 <- base2007 %>%
+  mutate(egp = case_when(
+    #Patrones
+    categoria == 1 & tamano == 2 ~ 1,
+    categoria == 1 & tamano == 1 ~ 5,
+
+    #Cuenta propia
+    categoria == 2 & ((ciuo >= 1000 & ciuo < 1400)) ~ 1,
+    categoria == 2 & (ciuo >= 1400 & ciuo < 2000) ~ 2,
+
+    categoria == 2 & ciuo %in% c(2165, 2221, 2222, 2513:2519, 2320, 2330, 2341, 2342,
+                                 2351:2359, 2421:2424, 2621, 2622, 2651:2659, 2636) ~ 2,
+    categoria == 2 & (ciuo >= 2000 & ciuo < 3000) ~ 1,
+
+    categoria == 2 & ciuo %in% c(3221, 3222, 3311:3314, 3411:3413) ~ 3,
+    categoria == 2 & (ciuo >= 3000 & ciuo < 4000) ~ 2,
+
+    categoria == 2 & (ciuo %in% c(5211, 5212, 5413, 5414) |
+                        (ciuo >= 9000 & ciuo < 9999) | (ciuo >= 6300 & ciuo < 7000)) ~ 10,
+    categoria == 2 & ((ciuo >= 4000 & ciuo < 6000) | (ciuo >= 7000 & ciuo < 9000)) ~ 6,
+    categoria == 2 & (ciuo >= 6000 & ciuo < 6300) ~ 7,
+
+    #Empleados
+    categoria == 3 & (ciuo >= 1000 & ciuo < 1400) ~ 1,
+    categoria == 3 & (ciuo >= 1400 & ciuo < 2000) ~ 2,
+
+    categoria == 3 & ciuo %in% c(2165, 2221, 2222, 2513:2519, 2320, 2330, 2341, 2342,
+                                 2351:2359, 2421:2424, 2621, 2622, 2651:2659, 2636) ~ 2,
+    categoria == 3 & (ciuo >= 2000 & ciuo < 3000) ~ 1,
+
+    categoria == 3 & ciuo %in% c(3221, 3222, 3311:3314, 3411:3413) & (sv != 1 | is.na(sv)) ~ 3,
+    categoria == 3 & (ciuo >= 3000 & ciuo < 4000) ~ 2,
+
+    categoria == 3 & ciuo %in% c(4412, 4419) & (sv != 1 | is.na(sv)) ~ 4,
+    categoria == 3 & (ciuo >= 4000 & ciuo < 5000) & (sv != 1 | is.na(sv)) ~ 3,
+
+    categoria == 3 & ciuo %in% c(5111:5113) & (sv != 1 | is.na(sv)) ~ 3,
+    categoria == 3 & ciuo %in% c(5120, 5141, 5142, 5153, 5163, 5164, 5165, 5169) & (sv != 1 | is.na(sv)) ~ 9,
+    categoria == 3 & ciuo %in% c(5211, 5212, 5413, 5414, 5419) ~ 10,
+    categoria == 3 & ciuo %in% c(5411, 5412) ~ 10,
+    categoria == 3 & (ciuo >= 5000 & ciuo < 6000) & (sv != 1 | is.na(sv)) ~ 4,
+
+    categoria == 3 & (ciuo >= 3000 & ciuo < 6000) & sv == 1 ~ 2, #supervisores NM
+
+    categoria == 3 & (ciuo >= 6000 & ciuo < 7000) ~ 11,
+
+    categoria == 3 & (ciuo >= 7000 & ciuo < 9000) & (sv != 1 | is.na(sv)) ~ 9,
+    categoria == 3 & (ciuo >= 9000 & ciuo < 9999) & (sv != 1 | is.na(sv)) ~ 10,
+    categoria == 3 & (ciuo >= 7000 & ciuo < 9999) & sv == 1 ~ 8, #supervisores M
+    ciuo == 110 ~ 2,
+    ciuo == 210 | ciuo == 310 ~ 8,
+    TRUE ~ NA_real_
+  ))
+
+base2007$egp_f <- factor(base2007$egp, labels = c("I", "II", "IIIa", "IIIb",
+                                                  "IVa", "IVb", "IVc", "V",
+                                                  "VI", "VIIa", "VIIb"))
+
+base2007$egp5 <- car::recode(base2007$egp, "1:2=1; 3:4=2; 5:7=3; 8:9=4; 10:11=5")
+base2007$egp5_f <- factor(base2007$egp5, labels = c("I+II", "III", "IV", "V+VI", "VII"))
+
+
+#Base2010
+base2010$ciuo <- isco88to08(base2010$ocupacion)
+
+base2010 <- base2010 %>%
+  mutate(ciuo = case_when(ocupacion %in% c(5164, 3452, 5223, 7125, 8342) ~ ocupacion,
+                          TRUE ~ ciuo))
+
+base2010 <- base2010 %>%
+  mutate(egp = case_when(
+    #Patrones
+    categoria == 1 & tamano == 2 ~ 1,
+    categoria == 1 & tamano == 1 ~ 5,
+
+    #Cuenta propia
+    categoria == 2 & ((ciuo >= 1000 & ciuo < 1400)) ~ 1,
+    categoria == 2 & (ciuo >= 1400 & ciuo < 2000) ~ 2,
+
+    categoria == 2 & ciuo %in% c(2165, 2221, 2222, 2513:2519, 2320, 2330, 2341, 2342,
+                                 2351:2359, 2421:2424, 2621, 2622, 2651:2659, 2636) ~ 2,
+    categoria == 2 & (ciuo >= 2000 & ciuo < 3000) ~ 1,
+
+    categoria == 2 & ciuo %in% c(3221, 3222, 3311:3314, 3411:3413) ~ 3,
+    categoria == 2 & (ciuo >= 3000 & ciuo < 4000) ~ 2,
+
+    categoria == 2 & (ciuo %in% c(5211, 5212, 5413, 5414) |
+                        (ciuo >= 9000 & ciuo < 9999) | (ciuo >= 6300 & ciuo < 7000)) ~ 10,
+    categoria == 2 & ((ciuo >= 4000 & ciuo < 6000) | (ciuo >= 7000 & ciuo < 9000)) ~ 6,
+    categoria == 2 & (ciuo >= 6000 & ciuo < 6300) ~ 7,
+
+    #Empleados
+    categoria == 3 & (ciuo >= 1000 & ciuo < 1400) ~ 1,
+    categoria == 3 & (ciuo >= 1400 & ciuo < 2000) ~ 2,
+
+    categoria == 3 & ciuo %in% c(2165, 2221, 2222, 2513:2519, 2320, 2330, 2341, 2342,
+                                 2351:2359, 2421:2424, 2621, 2622, 2651:2659, 2636) ~ 2,
+    categoria == 3 & (ciuo >= 2000 & ciuo < 3000) ~ 1,
+
+    categoria == 3 & ciuo %in% c(3221, 3222, 3311:3314, 3411:3413) & (sv != 1 | is.na(sv)) ~ 3,
+    categoria == 3 & (ciuo >= 3000 & ciuo < 4000) ~ 2,
+
+    categoria == 3 & ciuo %in% c(4412, 4419) & (sv != 1 | is.na(sv)) ~ 4,
+    categoria == 3 & (ciuo >= 4000 & ciuo < 5000) & (sv != 1 | is.na(sv)) ~ 3,
+
+    categoria == 3 & ciuo %in% c(5111:5113) & (sv != 1 | is.na(sv)) ~ 3,
+    categoria == 3 & ciuo %in% c(5120, 5141, 5142, 5153, 5163, 5164, 5165, 5169) & (sv != 1 | is.na(sv)) ~ 9,
+    categoria == 3 & ciuo %in% c(5211, 5212, 5413, 5414, 5419) ~ 10,
+    categoria == 3 & ciuo %in% c(5411, 5412) ~ 10,
+    categoria == 3 & (ciuo >= 5000 & ciuo < 6000) & (sv != 1 | is.na(sv)) ~ 4,
+
+    categoria == 3 & (ciuo >= 3000 & ciuo < 6000) & sv == 1 ~ 2, #supervisores NM
+
+    categoria == 3 & (ciuo >= 6000 & ciuo < 7000) ~ 11,
+
+    categoria == 3 & (ciuo >= 7000 & ciuo < 9000) & (sv != 1 | is.na(sv)) ~ 9,
+    categoria == 3 & (ciuo >= 9000 & ciuo < 9999) & (sv != 1 | is.na(sv)) ~ 10,
+    categoria == 3 & (ciuo >= 7000 & ciuo < 9999) & sv == 1 ~ 8, #supervisores M
+    ciuo == 110 ~ 2,
+    ciuo == 210 | ciuo == 310 ~ 8,
+    TRUE ~ NA_real_
+  ))
+
+base2010$egp_f <- factor(base2010$egp, labels = c("I", "II", "IIIa", "IIIb",
+                                                  "IVa", "IVb", "IVc", "V",
+                                                  "VI", "VIIa", "VIIb"))
+
+base2010$egp5 <- car::recode(base2010$egp, "1:2=1; 3:4=2; 5:7=3; 8:9=4; 10:11=5")
+base2010$egp5_f <- factor(base2010$egp5, labels = c("I+II", "III", "IV", "V+VI", "VII"))
+
+
+#Base2015
+base2015 <- base2015 %>%
+  mutate(egp = case_when(
+    #Patrones
+    categoria == 1 & tamano == 2 ~ 1,
+    categoria == 1 & tamano == 1 & rural != 1 ~ 5,
+    categoria == 1 & tamano == 1 & rural == 1 ~ 7,
+
+    #Cuenta propia
+    categoria == 2 & ((ciuo >= 1000 & ciuo < 1400)) ~ 1,
+    categoria == 2 & (ciuo >= 1400 & ciuo < 2000) ~ 2,
+
+    categoria == 2 & ciuo %in% c(2165, 2221, 2222, 2513:2519, 2320, 2330, 2341, 2342,
+                                 2351:2359, 2421:2424, 2621, 2622, 2651:2659, 2636) ~ 2,
+    categoria == 2 & (ciuo >= 2000 & ciuo < 3000) ~ 1,
+
+    categoria == 2 & ciuo %in% c(3221, 3222, 3311:3314, 3411:3413) ~ 3,
+    categoria == 2 & (ciuo >= 3000 & ciuo < 4000) ~ 2,
+
+    categoria == 2 & (ciuo %in% c(5211, 5212, 5413, 5414) |
+                        (ciuo >= 9000 & ciuo < 9999) | (ciuo >= 6300 & ciuo < 7000)) ~ 10,
+    categoria == 2 & ((ciuo >= 4000 & ciuo < 6000) | (ciuo >= 7000 & ciuo < 9000)) ~ 6,
+    categoria == 2 & (ciuo >= 6000 & ciuo < 6300) ~ 7,
+
+    #Empleados
+    categoria == 3 & (ciuo >= 1000 & ciuo < 1400) ~ 1,
+    categoria == 3 & (ciuo >= 1400 & ciuo < 2000) ~ 2,
+
+    categoria == 3 & ciuo %in% c(2165, 2221, 2222, 2513:2519, 2320, 2330, 2341, 2342,
+                                 2351:2359, 2421:2424, 2621, 2622, 2651:2659, 2636) ~ 2,
+    categoria == 3 & (ciuo >= 2000 & ciuo < 3000) ~ 1,
+
+    categoria == 3 & ciuo %in% c(3221, 3222, 3311:3314, 3411:3413) & (sv != 1 | is.na(sv)) ~ 3,
+    categoria == 3 & (ciuo >= 3000 & ciuo < 4000) ~ 2,
+
+    categoria == 3 & ciuo %in% c(4412, 4419) & (sv != 1 | is.na(sv)) ~ 4,
+    categoria == 3 & (ciuo >= 4000 & ciuo < 5000) & (sv != 1 | is.na(sv)) ~ 3,
+
+    categoria == 3 & ciuo %in% c(5111:5113) & (sv != 1 | is.na(sv)) ~ 3,
+    categoria == 3 & ciuo %in% c(5120, 5141, 5142, 5153, 5163, 5164, 5165, 5169) & (sv != 1 | is.na(sv)) ~ 9,
+    categoria == 3 & ciuo %in% c(5211, 5212, 5413, 5414, 5419) ~ 10,
+    categoria == 3 & ciuo %in% c(5411, 5412) ~ 10,
+    categoria == 3 & (ciuo >= 5000 & ciuo < 6000) & (sv != 1 | is.na(sv)) ~ 4,
+
+    categoria == 3 & (ciuo >= 3000 & ciuo < 6000) & sv == 1 ~ 2, #supervisores NM
+
+    categoria == 3 & (ciuo >= 6000 & ciuo < 7000) ~ 11,
+
+    categoria == 3 & (ciuo >= 7000 & ciuo < 9000) & (sv != 1 | is.na(sv)) ~ 9,
+    categoria == 3 & (ciuo >= 9000 & ciuo < 9999) & (sv != 1 | is.na(sv)) ~ 10,
+    categoria == 3 & (ciuo >= 7000 & ciuo < 9999) & sv == 1 ~ 8, #supervisores M
+    ciuo == 110 ~ 2,
+    ciuo == 210 | ciuo == 310 ~ 8,
+    TRUE ~ NA_real_
+  ))
+
+base2015$egp_f <- factor(base2015$egp, labels = c("I", "II", "IIIa", "IIIb",
+                                          "IVa", "IVb", "IVc", "V",
+                                          "VI", "VIIa", "VIIb"))
+
+base2015$egp5 <- car::recode(base2015$egp, "1:2=1; 3:4=2; 5:7=3; 8:9=4; 10:11=5")
+base2015$egp5_f <- factor(base2015$egp5, labels = c("I+II", "III", "IV", "V+VI", "VII"))
+
+
+#base2021
+base2021 <- base2021 %>%
+  mutate(egp = case_when(
+    #Patrones
+    categoria == 1 & tamano == 2 ~ 1,
+    categoria == 1 & tamano == 1 & rural != 1 ~ 5,
+    categoria == 1 & tamano == 1 & rural == 1 ~ 7,
+
+    #Cuenta propia
+    categoria == 2 & ((ciuo >= 1000 & ciuo < 1400)) ~ 1,
+    categoria == 2 & (ciuo >= 1400 & ciuo < 2000) ~ 2,
+
+    categoria == 2 & ciuo %in% c(2165, 2221, 2222, 2513:2519, 2320, 2330, 2341, 2342,
+                                 2351:2359, 2421:2424, 2621, 2622, 2651:2659, 2636) ~ 2,
+    categoria == 2 & (ciuo >= 2000 & ciuo < 3000) ~ 1,
+
+    categoria == 2 & ciuo %in% c(3221, 3222, 3311:3314, 3411:3413) ~ 3,
+    categoria == 2 & (ciuo >= 3000 & ciuo < 4000) ~ 2,
+
+    categoria == 2 & (ciuo %in% c(5211, 5212, 5413, 5414) |
+                        (ciuo >= 9000 & ciuo < 9999) | (ciuo >= 6300 & ciuo < 7000)) ~ 10,
+    categoria == 2 & ((ciuo >= 4000 & ciuo < 6000) | (ciuo >= 7000 & ciuo < 9000)) ~ 6,
+    categoria == 2 & (ciuo >= 6000 & ciuo < 6300) ~ 7,
+
+    #Empleados
+    categoria == 3 & (ciuo >= 1000 & ciuo < 1400) ~ 1,
+    categoria == 3 & (ciuo >= 1400 & ciuo < 2000) ~ 2,
+
+    categoria == 3 & ciuo %in% c(2165, 2221, 2222, 2513:2519, 2320, 2330, 2341, 2342,
+                                 2351:2359, 2421:2424, 2621, 2622, 2651:2659, 2636) ~ 2,
+    categoria == 3 & (ciuo >= 2000 & ciuo < 3000) ~ 1,
+
+    categoria == 3 & ciuo %in% c(3221, 3222, 3311:3314, 3411:3413) & (sv != 1 | is.na(sv)) ~ 3,
+    categoria == 3 & (ciuo >= 3000 & ciuo < 4000) ~ 2,
+
+    categoria == 3 & ciuo %in% c(4412, 4419) & (sv != 1 | is.na(sv)) ~ 4,
+    categoria == 3 & (ciuo >= 4000 & ciuo < 5000) & (sv != 1 | is.na(sv)) ~ 3,
+
+    categoria == 3 & ciuo %in% c(5111:5113) & (sv != 1 | is.na(sv)) ~ 3,
+    categoria == 3 & ciuo %in% c(5120, 5141, 5142, 5153, 5163, 5164, 5165, 5169) & (sv != 1 | is.na(sv)) ~ 9,
+    categoria == 3 & ciuo %in% c(5211, 5212, 5413, 5414, 5419) ~ 10,
+    categoria == 3 & ciuo %in% c(5411, 5412) ~ 10,
+    categoria == 3 & (ciuo >= 5000 & ciuo < 6000) & (sv != 1 | is.na(sv)) ~ 4,
+
+    categoria == 3 & (ciuo >= 3000 & ciuo < 6000) & sv == 1 ~ 2, #supervisores NM
+
+    categoria == 3 & (ciuo >= 6000 & ciuo < 7000) ~ 11,
+
+    categoria == 3 & (ciuo >= 7000 & ciuo < 9000) & (sv != 1 | is.na(sv)) ~ 9,
+    categoria == 3 & (ciuo >= 9000 & ciuo < 9999) & (sv != 1 | is.na(sv)) ~ 10,
+    categoria == 3 & (ciuo >= 7000 & ciuo < 9999) & sv == 1 ~ 8, #supervisores M
+    ciuo == 110 ~ 2,
+    ciuo == 210 | ciuo == 310 ~ 8,
+    TRUE ~ NA_real_
+  ))
+
+base2021$egp_f <- factor(base2021$egp, labels = c("I", "II", "IIIa", "IIIb",
+                                                  "IVa", "IVb", "IVc", "V",
+                                                  "VI", "VIIa", "VIIb"))
+
+base2021$egp5 <- car::recode(base2021$egp, "1:2=1; 3:4=2; 5:7=3; 8:9=4; 10:11=5")
+base2021$egp5_f <- factor(base2021$egp5, labels = c("I+II", "III", "IV", "V+VI", "VII"))
+```
+
+
+# Resultados  
+
+## Tendencias a largo plazo sobre el posicionamiento subjetivo   
+
+```{r clase subjetiva, message=F, warning=F, fig.cap="Posicionamiento de clase subjetivo. GBA 1960-2021"}
+barra1960 <- base1960 %>%
+  drop_na(q36_f) %>%
+  group_by(q36_f) %>%
+  tally() %>%
+  mutate(porcentaje = n/sum(n)) %>%
+  ggplot(aes(x=q36_f, y=porcentaje)) +
+  geom_bar(stat = "identity") +
+  geom_text(aes(label = scales::percent(porcentaje, accuracy = 0.1),
+                y = porcentaje + 0.01),
+            position = position_dodge(.9), vjust = 0, size = 2.5) +
+  labs(title = "1960") +
+  theme(axis.title.y = element_blank(),
+        axis.title.x = element_blank(),
+        plot.title = element_text(size = 12),
+        axis.text.x = element_text(size = 6, angle = 30, vjust = .7),
+        axis.text.y = element_text(size = 8)) +
+  scale_x_discrete(labels = function(x) str_wrap(x, width = 10)) +
+  scale_y_continuous(labels=scales::percent, breaks = seq(0,.7, .1), limits = c(0,.6))
+
+barra2003 <- base2003 %>%
+  drop_na(clasesub_2003) %>%
+  group_by(clasesub_2003_f) %>%
+  tally() %>%
+  mutate(porcentaje = n/sum(n)) %>%
+  ggplot(aes(x=clasesub_2003_f, y=porcentaje)) +
+  geom_bar(stat = "identity") +
+  geom_text(aes(label = scales::percent(porcentaje, accuracy = 0.1),
+                y = porcentaje + 0.01),
+            position = position_dodge(.9), vjust = 0, size = 2.5) +
+  labs(title = "2003/2004") +
+  theme(axis.title.y = element_blank(),
+        axis.title.x = element_blank(),
+        plot.title = element_text(size = 12),
+        axis.text.x = element_text(size = 6, angle = 30, vjust = .7),
+        axis.text.y = element_text(size = 8)) +
+  scale_x_discrete(labels = function(x) str_wrap(x, width = 15)) +
+  scale_y_continuous(labels=scales::percent, breaks = seq(0,.7, .1), limits = c(0,.6))
+
+barra2007 <- base2007 %>%
+  filter(region == 1) %>%
+  drop_na(clasesub_2007) %>%
+  group_by(clasesub_2007_f) %>%
+  tally(pond18) %>%
+  mutate(porcentaje = n/sum(n)) %>%
+  ggplot(aes(x=clasesub_2007_f, y=porcentaje)) +
+  geom_bar(stat = "identity") +
+  geom_text(aes(label = scales::percent(porcentaje, accuracy = 0.1),
+                y = porcentaje + 0.01),
+            position = position_dodge(.9), vjust = 0, size = 2.5) +
+  labs(title = "2007/2008") +
+  theme(axis.title.y = element_blank(),
+        axis.title.x = element_blank(),
+        plot.title = element_text(size = 12),
+        axis.text.x = element_text(size = 6, angle = 30, vjust = .7),
+        axis.text.y = element_text(size = 8)) +
+  scale_x_discrete(labels = function(x) str_wrap(x, width = 15)) +
+  scale_y_continuous(labels=scales::percent, breaks = seq(0,.7, .1), limits = c(0,.6))
+
+barra2010 <- base2010 %>%
+  filter(Region == 1) %>%
+  drop_na(clasesub_2010) %>%
+  group_by(clasesub_2010_f) %>%
+  tally() %>%
+  mutate(porcentaje = n/sum(n)) %>%
+  ggplot(aes(x=clasesub_2010_f, y=porcentaje)) +
+  geom_bar(stat = "identity") +
+  geom_text(aes(label = scales::percent(porcentaje, accuracy = 0.1),
+                y = porcentaje + 0.01),
+            position = position_dodge(.9), vjust = 0, size = 2.5) +
+  labs(title = "2009/2010") +
+  theme(axis.title.y = element_blank(),
+        axis.title.x = element_blank(),
+        plot.title = element_text(size = 12),
+        axis.text.x = element_text(size = 6, angle = 30, vjust = .7),
+        axis.text.y = element_text(size = 8)) +
+  scale_x_discrete(labels = function(x) str_wrap(x, width = 15)) +
+  scale_y_continuous(labels=scales::percent, breaks = seq(0,.7, .1), limits = c(0,.6))
+
+
+barra2015 <- base2015 %>%
+  filter(region == 1) %>%
+  drop_na(clasesub_2015) %>%
+  group_by(clasesub_2015_f) %>%
+  tally(f_calib3) %>%
+  mutate(porcentaje = n/sum(n)) %>%
+  ggplot(aes(x=clasesub_2015_f, y=porcentaje)) +
+  geom_bar(stat = "identity") +
+  geom_text(aes(label = scales::percent(porcentaje, accuracy = 0.1),
+                y = porcentaje + 0.01),
+            position = position_dodge(.9), vjust = 0, size = 2.5) +
+  labs(title = "2014/2015") +
+  theme(axis.title.y = element_blank(),
+        axis.title.x = element_blank(),
+        plot.title = element_text(size = 12),
+        axis.text.x = element_text(size = 6, angle = 30, vjust = .7),
+        axis.text.y = element_text(size = 8)) +
+  scale_x_discrete(labels = function(x) str_wrap(x, width = 15)) +
+  scale_y_continuous(labels=scales::percent, breaks = seq(0,.7, .1), limits = c(0,.6))
+
+
+barra2021 <- base2021 %>%
+  filter(REGION == "GBA") %>%
+  drop_na(clasesub_2021_f) %>%
+  group_by(clasesub_2021_f) %>%
+  tally(POND2R_FIN_n) %>%
+  mutate(porcentaje = n/sum(n)) %>%
+  ggplot(aes(x=clasesub_2021_f, y=porcentaje)) +
+  geom_bar(stat = "identity") +
+  geom_text(aes(label = scales::percent(porcentaje, accuracy = 0.1),
+                y = porcentaje + 0.01),
+            position = position_dodge(.9), vjust = 0, size = 2.5) +
+  labs(title = "2021") +
+  theme(axis.title.y = element_blank(),
+        axis.title.x = element_blank(),
+        plot.title = element_text(size = 12),
+        axis.text.x = element_text(size = 6, angle = 30, vjust = .7),
+        axis.text.y = element_text(size = 8)) +
+  scale_x_discrete(labels = function(x) str_wrap(x, width = 15)) +
+  scale_y_continuous(labels=scales::percent, breaks = seq(0,.7, .1), limits = c(0,.6))
+
+
+grid.arrange(barra1960, barra2003, barra2007, barra2010,
+                                barra2015, barra2021, ncol = 3)
+```
+
+```{r clase objetiva, message=F, warning=F, fig.cap="Posicionamiento de clase objetivo. GBA 1960-2021"}
+
+barra1960 <- base1960 %>%
+  drop_na(egp5_f) %>%
+  group_by(egp5_f) %>%
+  tally() %>%
+  mutate(porcentaje = n/sum(n)) %>%
+  ggplot(aes(x=egp5_f, y=porcentaje)) +
+  geom_bar(stat = "identity") +
+  geom_text(aes(label = scales::percent(porcentaje, accuracy = 0.1),
+                y = porcentaje + 0.01),
+            position = position_dodge(.9), vjust = 0, size = 2.5) +
+  labs(title = "1960") +
+  theme(axis.title.y = element_blank(),
+        axis.title.x = element_blank(),
+        plot.title = element_text(size = 12),
+        axis.text.x = element_text(size = 7),
+        axis.text.y = element_text(size = 8)) +
+  scale_x_discrete(labels = function(x) str_wrap(x, width = 10)) +
+  scale_y_continuous(labels=scales::percent, breaks = seq(0,.7, .05), limits = c(0,.35))
+
+
+barra2003 <- base2003 %>%
+  drop_na(egp5_f) %>%
+  group_by(egp5_f) %>%
+  tally() %>%
+  mutate(porcentaje = n/sum(n)) %>%
+  ggplot(aes(x=egp5_f, y=porcentaje)) +
+  geom_bar(stat = "identity") +
+  geom_text(aes(label = scales::percent(porcentaje, accuracy = 0.1),
+                y = porcentaje + 0.01),
+            position = position_dodge(.9), vjust = 0, size = 2.5) +
+  labs(title = "2003/2004") +
+  theme(axis.title.y = element_blank(),
+        axis.title.x = element_blank(),
+        plot.title = element_text(size = 12),
+        axis.text.x = element_text(size = 7),
+        axis.text.y = element_text(size = 8)) +
+  scale_x_discrete(labels = function(x) str_wrap(x, width = 10)) +
+  scale_y_continuous(labels=scales::percent, breaks = seq(0,.7, .05), limits = c(0,.35))
+
+barra2007 <- base2007 %>%
+  filter(region == 1) %>%
+  drop_na(egp5_f) %>%
+  group_by(egp5_f) %>%
+  tally(pond18) %>%
+  mutate(porcentaje = n/sum(n)) %>%
+  ggplot(aes(x=egp5_f, y=porcentaje)) +
+  geom_bar(stat = "identity") +
+  geom_text(aes(label = scales::percent(porcentaje, accuracy = 0.1),
+                y = porcentaje + 0.01),
+            position = position_dodge(.9), vjust = 0, size = 2.5) +
+  labs(title = "2007/2008") +
+  theme(axis.title.y = element_blank(),
+        axis.title.x = element_blank(),
+        plot.title = element_text(size = 12),
+        axis.text.x = element_text(size = 7),
+        axis.text.y = element_text(size = 8)) +
+  scale_x_discrete(labels = function(x) str_wrap(x, width = 10)) +
+  scale_y_continuous(labels=scales::percent, breaks = seq(0,.7, .05), limits = c(0,.35))
+
+barra2010 <- base2010 %>%
+  filter(Region == 1) %>%
+  drop_na(egp5_f) %>%
+  group_by(egp5_f) %>%
+  tally() %>%
+  mutate(porcentaje = n/sum(n)) %>%
+  ggplot(aes(x=egp5_f, y=porcentaje)) +
+  geom_bar(stat = "identity") +
+  geom_text(aes(label = scales::percent(porcentaje, accuracy = 0.1),
+                y = porcentaje + 0.01),
+            position = position_dodge(.9), vjust = 0, size = 2.5) +
+  labs(title = "2009/2010") +
+  theme(axis.title.y = element_blank(),
+        axis.title.x = element_blank(),
+        plot.title = element_text(size = 12),
+        axis.text.x = element_text(size = 7),
+        axis.text.y = element_text(size = 8)) +
+  scale_x_discrete(labels = function(x) str_wrap(x, width = 10)) +
+  scale_y_continuous(labels=scales::percent, breaks = seq(0,.7, .05), limits = c(0,.35))
+
+
+barra2015 <- base2015 %>%
+  filter(region == 1) %>%
+  drop_na(egp5_f) %>%
+  group_by(egp5_f) %>%
+  tally(f_calib3) %>%
+  mutate(porcentaje = n/sum(n)) %>%
+  ggplot(aes(x=egp5_f, y=porcentaje)) +
+  geom_bar(stat = "identity") +
+  geom_text(aes(label = scales::percent(porcentaje, accuracy = 0.1),
+                y = porcentaje + 0.01),
+            position = position_dodge(.9), vjust = 0, size = 2.5) +
+  labs(title = "2014/2015") +
+  theme(axis.title.y = element_blank(),
+        axis.title.x = element_blank(),
+        plot.title = element_text(size = 12),
+        axis.text.x = element_text(size = 7),
+        axis.text.y = element_text(size = 8)) +
+  scale_x_discrete(labels = function(x) str_wrap(x, width = 7)) +
+  scale_y_continuous(labels=scales::percent, breaks = seq(0,.7, .05), limits = c(0,.35))
+
+
+barra2021 <- base2021 %>%
+  filter(REGION == "GBA") %>%
+  drop_na(egp5_f) %>%
+  group_by(egp5_f) %>%
+  tally(POND2R_FIN_n) %>%
+  mutate(porcentaje = n/sum(n)) %>%
+  ggplot(aes(x=egp5_f, y=porcentaje)) +
+  geom_bar(stat = "identity") +
+  geom_text(aes(label = scales::percent(porcentaje, accuracy = 0.1),
+                y = porcentaje + 0.01),
+            position = position_dodge(.9), vjust = 0, size = 2.5) +
+  labs(title = "2021") +
+  theme(axis.title.y = element_blank(),
+        axis.title.x = element_blank(),
+        plot.title = element_text(size = 12),
+        axis.text.x = element_text(size = 7),
+        axis.text.y = element_text(size = 8)) +
+  scale_x_discrete(labels = function(x) str_wrap(x, width = 10)) +
+  scale_y_continuous(labels=scales::percent, breaks = seq(0,.7, .05), limits = c(0,.35))
+
+
+grid.arrange(barra1960, barra2003, barra2007, barra2010,
+                                barra2015, barra2021,
+                                ncol = 3)
+
+```
+
+```{r comparacion clase obj-sub, message=F, warning=F, fig.cap="Composición de clase subjetiva según posicionamiento objetivo. GBA 1960-2021"}
+
+barra1960 <- base1960 %>%
+  drop_na(egp5_f, clase_recod_f) %>%
+  group_by(clase_recod_f, egp5_f) %>%
+  tally() %>%
+  mutate(porcentaje = n/sum(n)) %>%
+  ggplot(aes(x=clase_recod_f, y=porcentaje, fill=egp5_f)) +
+  geom_col() +
+  geom_text(aes(label = scales::percent(porcentaje, accuracy = 0.1),
+                y = porcentaje + 0.01),
+            position = position_stack(.5), vjust = 1.1, size = 2.5) +
+  scale_fill_ucscgb() +
+  labs(title = "1960",
+       fill = "Clase objetiva") +
+  theme(axis.title.y = element_blank(),
+        axis.title.x = element_blank(),
+        plot.title = element_text(size = 12, hjust = 0.5),
+        axis.text.x = element_text(size = 7),
+        axis.text.y = element_blank(),
+        legend.position= "none") +
+  scale_x_discrete(labels = function(x) str_wrap(x, width = 10)) +
+  scale_y_continuous(labels=scales::percent, breaks = seq(0,1, .1))
+
+
+barra2003 <- base2003 %>%
+  drop_na(egp5_f, clasesub_recod_f) %>%
+  group_by(clasesub_recod_f, egp5_f) %>%
+  tally() %>%
+  mutate(porcentaje = n/sum(n)) %>%
+  ggplot(aes(x=clasesub_recod_f, y=porcentaje, fill=egp5_f)) +
+  geom_col() +
+  geom_text(aes(label = scales::percent(porcentaje, accuracy = 0.1),
+                y = porcentaje + 0.01),
+            position = position_stack(.5), vjust = 1.1, size = 2.5) +
+  scale_fill_ucscgb() +
+  labs(title = "2003/2004") +
+  theme(axis.title.y = element_blank(),
+        axis.title.x = element_blank(),
+        plot.title = element_text(size = 12, hjust = 0.5),
+        axis.text.x = element_text(size = 7),
+        axis.text.y = element_blank(),
+        legend.position= "none") +
+  scale_x_discrete(labels = function(x) str_wrap(x, width = 10)) +
+  scale_y_continuous(labels=scales::percent, breaks = seq(0,1, .1))
+
+
+barra2007 <- base2007 %>%
+  drop_na(egp5_f, clasesub_recod_f) %>%
+  group_by(clasesub_recod_f, egp5_f) %>%
+  tally() %>%
+  mutate(porcentaje = n/sum(n)) %>%
+  ggplot(aes(x=clasesub_recod_f, y=porcentaje, fill=egp5_f)) +
+  geom_col() +
+  geom_text(aes(label = scales::percent(porcentaje, accuracy = 0.1),
+                y = porcentaje + 0.01),
+            position = position_stack(.5), vjust = 1.2, size = 2.5) +
+  scale_fill_ucscgb() +
+  labs(title = "2007/2008") +
+  theme(axis.title.y = element_blank(),
+        axis.title.x = element_blank(),
+        plot.title = element_text(size = 12, hjust = 0.5),
+        axis.text.x = element_text(size = 7),
+        axis.text.y = element_blank(),
+        legend.position= "none") +
+  scale_x_discrete(labels = function(x) str_wrap(x, width = 10)) +
+  scale_y_continuous(labels=scales::percent, breaks = seq(0,1, .1))
+
+barra2010 <- base2010 %>%
+  drop_na(egp5_f, clasesub_2010_f) %>%
+  group_by(clasesub_2010_f, egp5_f) %>%
+  tally() %>%
+  mutate(porcentaje = n/sum(n)) %>%
+  ggplot(aes(x=clasesub_2010_f, y=porcentaje, fill=egp5_f)) +
+  geom_col() +
+  geom_text(aes(label = scales::percent(porcentaje, accuracy = 0.1),
+                y = porcentaje + 0.01),
+            position = position_stack(.5), vjust = 1.2, size = 2.5) +
+  scale_fill_ucscgb() +
+  labs(title = "2009/2010") +
+  theme(axis.title.y = element_blank(),
+        axis.title.x = element_blank(),
+        plot.title = element_text(size = 12, hjust = 0.5),
+        axis.text.x = element_text(size = 7),
+        axis.text.y = element_blank(),
+        legend.position= "none") +
+  scale_x_discrete(labels = function(x) str_wrap(x, width = 10)) +
+  scale_y_continuous(labels=scales::percent, breaks = seq(0,1, .1))
+
+
+barra2015 <- base2015 %>%
+  drop_na(egp5_f, clasesub_recod_f) %>%
+  group_by(clasesub_recod_f, egp5_f) %>%
+  tally() %>%
+  mutate(porcentaje = n/sum(n)) %>%
+  ggplot(aes(x=clasesub_recod_f, y=porcentaje, fill=egp5_f)) +
+  geom_col() +
+  geom_text(aes(label = scales::percent(porcentaje, accuracy = 0.1),
+                y = porcentaje + 0.01),
+            position = position_stack(.5), vjust = 1.2, size = 2.5) +
+  scale_fill_ucscgb() +
+  labs(title = "2014/2015") +
+  theme(axis.title.y = element_blank(),
+        axis.title.x = element_blank(),
+        plot.title = element_text(size = 12, hjust = 0.5),
+        axis.text.x = element_text(size = 7),
+        axis.text.y = element_blank(),
+        legend.position= "none") +
+  scale_x_discrete(labels = function(x) str_wrap(x, width = 10)) +
+  scale_y_continuous(labels=scales::percent, breaks = seq(0,1, .1))
+
+
+barra2021 <- base2021 %>%
+  drop_na(egp5_f, clasesub_recod_f) %>%
+  group_by(clasesub_recod_f, egp5_f) %>%
+  tally() %>%
+  mutate(porcentaje = n/sum(n)) %>%
+  ggplot(aes(x=clasesub_recod_f, y=porcentaje, fill=egp5_f)) +
+  geom_col() +
+  geom_text(aes(label = scales::percent(porcentaje, accuracy = 0.1),
+                y = porcentaje + 0.01),
+            position = position_stack(.5), vjust = 1.2, size = 2.5) +
+  scale_fill_ucscgb() +
+  labs(title = "2021",
+       fill = "Clase objetiva") +
+  theme(axis.title.y = element_blank(),
+        axis.title.x = element_blank(),
+        plot.title = element_text(size = 12, hjust = 0.5),
+        axis.text.x = element_text(size = 7),
+        axis.text.y = element_blank(),
+        legend.position = "none") +
+  scale_x_discrete(labels = function(x) str_wrap(x, width = 9)) +
+  scale_y_continuous(labels=scales::percent, breaks = seq(0,1, .1))
+
+
+ggarrange(barra1960, barra2003, barra2007, barra2010,
+                                barra2015, barra2021,
+                                ncol = 3, nrow = 2, common.legend = TRUE, legend = "bottom")
+
+```
+
+
+```{r consistencia, message=F, warning=F, fig.cap="Consistencia de clase. GBA 1960-2021"}
+barra1960 <- base1960 %>%
+  drop_na(clasesub_dic, egp5) %>%
+  mutate(consistencia = case_when(clasesub_dic == 1 & egp5 <= 3 ~ "Consistencia",
+                                  clasesub_dic == 2 & egp5 > 3 ~ "Consistencia",
+                                  clasesub_dic == 1 & egp5 > 3 ~ "Inconsistencia",
+                                  clasesub_dic == 2 & egp5 <= 3 ~ "Inconsistencia",
+                                  TRUE ~ NA_character_)) %>%
+  group_by(clasesub_dic_f, consistencia) %>%
+  tally() %>%
+  mutate(porcentaje = n/sum(n)) %>%
+  ggplot(aes(x=clasesub_dic_f, y=porcentaje, fill=consistencia)) +
+  geom_col() +
+  geom_text(aes(label = scales::percent(porcentaje, accuracy = 0.1),
+                y = porcentaje + 0.01),
+            position = position_stack(.5), vjust = 1.1, size = 2.5) +
+  scale_fill_ucscgb() +
+  labs(title = "1960") +
+  theme(axis.title.y = element_blank(),
+        axis.title.x = element_blank(),
+        plot.title = element_text(size = 12, hjust = 0.5),
+        axis.text.x = element_text(size = 8),
+        axis.text.y = element_blank(),
+        legend.position= "none",
+        legend.title = element_blank()) +
+  scale_x_discrete() +
+  scale_y_continuous(labels=scales::percent, breaks = seq(0,1, .1))
+
+
+barra2003 <- base2003 %>%
+  drop_na(clasesub_dic, egp5) %>%
+  mutate(consistencia = case_when(clasesub_dic == 1 & egp5 <= 3 ~ "Consistencia",
+                                  clasesub_dic == 2 & egp5 > 3 ~ "Consistencia",
+                                  clasesub_dic == 1 & egp5 > 3 ~ "Inconsistencia",
+                                  clasesub_dic == 2 & egp5 <= 3 ~ "Inconsistencia",
+                                  TRUE ~ NA_character_)) %>%
+  group_by(clasesub_dic_f, consistencia) %>%
+  tally() %>%
+  mutate(porcentaje = n/sum(n)) %>%
+  ggplot(aes(x=clasesub_dic_f, y=porcentaje, fill=consistencia)) +
+  geom_col() +
+  geom_text(aes(label = scales::percent(porcentaje, accuracy = 0.1),
+                y = porcentaje + 0.01),
+            position = position_stack(.5), vjust = 1.1, size = 2.5) +
+  scale_fill_ucscgb() +
+  labs(title = "2003/2004") +
+  theme(axis.title.y = element_blank(),
+        axis.title.x = element_blank(),
+        plot.title = element_text(size = 12, hjust = 0.5),
+        axis.text.x = element_text(size = 8),
+        axis.text.y = element_blank(),
+        legend.position= "none") +
+  scale_x_discrete() +
+  scale_y_continuous(labels=scales::percent, breaks = seq(0,1, .1))
+
+barra2007 <- base2007 %>%
+  drop_na(clasesub_dic, egp5) %>%
+  mutate(consistencia = case_when(clasesub_dic == 1 & egp5 <= 3 ~ "Consistencia",
+                                  clasesub_dic == 2 & egp5 > 3 ~ "Consistencia",
+                                  clasesub_dic == 1 & egp5 > 3 ~ "Inconsistencia",
+                                  clasesub_dic == 2 & egp5 <= 3 ~ "Inconsistencia",
+                                  TRUE ~ NA_character_)) %>%
+  group_by(clasesub_dic_f, consistencia) %>%
+  tally() %>%
+  mutate(porcentaje = n/sum(n)) %>%
+  ggplot(aes(x=clasesub_dic_f, y=porcentaje, fill=consistencia)) +
+  geom_col() +
+  geom_text(aes(label = scales::percent(porcentaje, accuracy = 0.1),
+                y = porcentaje + 0.01),
+            position = position_stack(.5), vjust = 1.1, size = 2.5) +
+  scale_fill_ucscgb() +
+  labs(title = "2007/2008") +
+  theme(axis.title.y = element_blank(),
+        axis.title.x = element_blank(),
+        plot.title = element_text(size = 12, hjust = 0.5),
+        axis.text.x = element_text(size = 8),
+        axis.text.y = element_blank(),
+        legend.position= "none") +
+  scale_x_discrete() +
+  scale_y_continuous(labels=scales::percent, breaks = seq(0,1, .1))
+
+barra2010 <- base2010 %>%
+  drop_na(clasesub_dic, egp5) %>%
+  mutate(consistencia = case_when(clasesub_dic == 1 & egp5 <= 3 ~ "Consistencia",
+                                  clasesub_dic == 2 & egp5 > 3 ~ "Consistencia",
+                                  clasesub_dic == 1 & egp5 > 3 ~ "Inconsistencia",
+                                  clasesub_dic == 2 & egp5 <= 3 ~ "Inconsistencia",
+                                  TRUE ~ NA_character_)) %>%
+  group_by(clasesub_dic_f, consistencia) %>%
+  tally() %>%
+  mutate(porcentaje = n/sum(n)) %>%
+  ggplot(aes(x=clasesub_dic_f, y=porcentaje, fill=consistencia)) +
+  geom_col() +
+  geom_text(aes(label = scales::percent(porcentaje, accuracy = 0.1),
+                y = porcentaje + 0.01),
+            position = position_stack(.5), vjust = 1.1, size = 2.5) +
+  scale_fill_ucscgb() +
+  labs(title = "2009/2010") +
+  theme(axis.title.y = element_blank(),
+        axis.title.x = element_blank(),
+        plot.title = element_text(size = 12, hjust = 0.5),
+        axis.text.x = element_text(size = 8),
+        axis.text.y = element_blank(),
+        legend.position= "none") +
+  scale_x_discrete() +
+  scale_y_continuous(labels=scales::percent, breaks = seq(0,1, .1))
+
+
+barra2015 <- base2015 %>%
+  drop_na(clasesub_dic, egp5) %>%
+  mutate(consistencia = case_when(clasesub_dic == 1 & egp5 <= 3 ~ "Consistencia",
+                                  clasesub_dic == 2 & egp5 > 3 ~ "Consistencia",
+                                  clasesub_dic == 1 & egp5 > 3 ~ "Inconsistencia",
+                                  clasesub_dic == 2 & egp5 <= 3 ~ "Inconsistencia",
+                                  TRUE ~ NA_character_)) %>%
+  group_by(clasesub_dic_f, consistencia) %>%
+  tally() %>%
+  mutate(porcentaje = n/sum(n)) %>%
+  ggplot(aes(x=clasesub_dic_f, y=porcentaje, fill=consistencia)) +
+  geom_col() +
+  geom_text(aes(label = scales::percent(porcentaje, accuracy = 0.1),
+                y = porcentaje + 0.01),
+            position = position_stack(.5), vjust = 1.1, size = 2.5) +
+  scale_fill_ucscgb() +
+  labs(title = "2014/2015") +
+  theme(axis.title.y = element_blank(),
+        axis.title.x = element_blank(),
+        plot.title = element_text(size = 12, hjust = 0.5),
+        axis.text.x = element_text(size = 8),
+        axis.text.y = element_blank(),
+        legend.position= "none") +
+  scale_x_discrete() +
+  scale_y_continuous(labels=scales::percent, breaks = seq(0,1, .1))
+
+
+barra2021 <- base2021 %>%
+  drop_na(clasesub_dic, egp5) %>%
+  mutate(consistencia = case_when(clasesub_dic == 1 & egp5 <= 3 ~ "Consistencia",
+                                  clasesub_dic == 2 & egp5 > 3 ~ "Consistencia",
+                                  clasesub_dic == 1 & egp5 > 3 ~ "Inconsistencia",
+                                  clasesub_dic == 2 & egp5 <= 3 ~ "Inconsistencia",
+                                  TRUE ~ NA_character_)) %>%
+  group_by(clasesub_dic_f, consistencia) %>%
+  tally() %>%
+  mutate(porcentaje = n/sum(n)) %>%
+  ggplot(aes(x=clasesub_dic_f, y=porcentaje, fill=consistencia)) +
+  geom_col() +
+  geom_text(aes(label = scales::percent(porcentaje, accuracy = 0.1),
+                y = porcentaje + 0.01),
+            position = position_stack(.5), vjust = 1.1, size = 2.5) +
+  scale_fill_ucscgb() +
+  labs(title = "2021") +
+  theme(axis.title.y = element_blank(),
+        axis.title.x = element_blank(),
+        plot.title = element_text(size = 12, hjust = 0.5),
+        axis.text.x = element_text(size = 8),
+        axis.text.y = element_blank(),
+        legend.position= "none") +
+  scale_x_discrete() +
+  scale_y_continuous(labels=scales::percent, breaks = seq(0,1, .1))
+
+
+ggarrange(barra1960, barra2003, barra2007, barra2010,
+                             barra2015, barra2021,
+                             ncol = 3, nrow = 2, common.legend = TRUE, legend = "bottom")
+```
+

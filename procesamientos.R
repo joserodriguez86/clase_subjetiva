@@ -1,5 +1,5 @@
 # Cargo librerías y bases--------------------
-pacman::p_load(tidyverse, haven, gridExtra, grid, occupar)
+pacman::p_load(tidyverse, haven, gridExtra, grid, occupar, ggpubr)
 
 load("bases/germani_sampleb.RData")
 base1960 <- sample_B
@@ -35,6 +35,8 @@ base1960 <- base1960 %>%
          clase_recod_f = factor(clase_recod, labels = c("Clase media / alta",
                                                             "Clase media-baja",
                                                             "Clase baja")),
+         clasesub_dic = car::recode(clase_recod, "1:2=1; 3=2"),
+         clasesub_dic_f = factor(clasesub_dic, labels = c("Clases medias", "Clase obrera / baja")),
          egp5 = case_when(q3 > 0 & q3 <= 2 ~ 1,
                                  q3 == 3 | q3 == 4 ~ 3,
                                  q3 == 5 & (v8 >= 4 & v8 <9) ~ 3,
@@ -87,6 +89,8 @@ base2003 <- base2003 %>%
                                                             "Clase media",
                                                             "Clase obrera",
                                                             "Clase baja")),
+         clasesub_dic = car::recode(clasesub_recod, "1:2=1; 3:4=2"),
+         clasesub_dic_f = factor(clasesub_dic, labels = c("Clases medias", "Clase obrera / baja")),
          ocupacion = p57bciuo_u,
          sv = case_when(p57d1_u == 4 | p57d2_u >= 2 ~ 1,
                         TRUE ~ 0),
@@ -121,8 +125,10 @@ base2007 <- base2007 %>%
          clasesub_recod = car::recode(clasesub_2007, "1:3=1; 4=2; 5=3; 6=4"),
          clasesub_recod_f = factor(clasesub_recod, labels = c("Clase media-alta",
                                                               "Clase media",
-                                                              "Clase obrera",
+                                                              "Clase media-baja",
                                                               "Clase baja")),
+         clasesub_dic = car::recode(clasesub_recod, "1:3=1; 4=2"),
+         clasesub_dic_f = factor(clasesub_dic, labels = c("Clases medias", "Clase obrera / baja")),
          ocupacion = as.integer(p046a),
          sv = case_when(p051 == 1 ~ 1,
                         TRUE ~ 0),
@@ -154,6 +160,8 @@ base2010 <- base2010 %>%
                                                             "Clase media-baja",
                                                             "Clase obrera",
                                                             "Clase baja")),
+         clasesub_dic = car::recode(clasesub_2010, "1:3=1; 4:5=2"),
+         clasesub_dic_f = factor(clasesub_dic, labels = c("Clases medias", "Clase obrera / baja")),
          ocupacion = as.integer(s.59),
          sv = case_when(S.55 == 1 ~ 1,
                         TRUE ~ 0),
@@ -195,6 +203,8 @@ base2015 <- base2015 %>%
                                                               "Clase media-baja",
                                                               "Clase obrera",
                                                               "Clase baja")),
+         clasesub_dic = car::recode(clasesub_recod, "1:3=1; 4:5=2"),
+         clasesub_dic_f = factor(clasesub_dic, labels = c("Clases medias", "Clase obrera / baja")),
          ciuo = v183ciuo,
          sv = car::recode(v186, "2=0; 9=NA"),
          categoria = case_when(cat_ocup == 1 ~ 1,
@@ -225,6 +235,8 @@ base2021 <- base2021 %>%
                                                               "Clase media-baja",
                                                               "Clase trabajadora",
                                                               "Clase baja")),
+         clasesub_dic = car::recode(clasesub_recod, "1:3=1; 4:5=2"),
+         clasesub_dic_f = factor(clasesub_dic, labels = c("Clases medias", "Clase obrera / baja")),
          ciuo = CIUO_encuestado,
          sv = car::recode(M3.9, "1:2=1; 3=0; 99=NA"),
          categoria = case_when(M3.5 == 1 ~ 1,
@@ -852,6 +864,7 @@ ggsave(filename = "salidas/clases_obj_20032021.png", dpi = 300, type = "cairo", 
 
 
 #Comparación clase subjetiva - objetiva ----------------
+##Gráficos 1-----------------
 
 barra1960 <- base1960 %>%
   drop_na(egp5_f, clase_recod_f) %>%
@@ -992,3 +1005,171 @@ clases_20032021 <- ggarrange(barra1960, barra2003, barra2007, barra2010,
 
 ggsave(filename = "salidas/composicion2_20032021.png", dpi = 300, type = "cairo", width = 8, height = 6, clases_20032021)
 
+
+##Gráficos 2 consistencia---------------
+barra1960 <- base1960 %>%
+  drop_na(clasesub_dic, egp5) %>%
+  mutate(consistencia = case_when(clasesub_dic == 1 & egp5 <= 3 ~ "Consistencia",
+                                  clasesub_dic == 2 & egp5 > 3 ~ "Consistencia",
+                                  clasesub_dic == 1 & egp5 > 3 ~ "Inconsistencia",
+                                  clasesub_dic == 2 & egp5 <= 3 ~ "Inconsistencia",
+                                  TRUE ~ NA_character_)) %>%
+  group_by(clasesub_dic_f, consistencia) %>%
+  tally() %>%
+  mutate(porcentaje = n/sum(n)) %>%
+  ggplot(aes(x=clasesub_dic_f, y=porcentaje, fill=consistencia)) +
+  geom_col() +
+  geom_text(aes(label = scales::percent(porcentaje, accuracy = 0.1),
+                y = porcentaje + 0.01),
+            position = position_stack(.5), vjust = 1.1, size = 2.5) +
+  theme_classic() +
+  labs(title = "1960") +
+  theme(axis.title.y = element_blank(),
+        axis.title.x = element_blank(),
+        plot.title = element_text(size = 12, hjust = 0.5),
+        axis.text.x = element_text(size = 8),
+        axis.text.y = element_blank(),
+        legend.position= "none",
+        legend.title = element_blank()) +
+  scale_x_discrete() +
+  scale_y_continuous(labels=scales::percent, breaks = seq(0,1, .1))
+
+
+barra2003 <- base2003 %>%
+  drop_na(clasesub_dic, egp5) %>%
+  mutate(consistencia = case_when(clasesub_dic == 1 & egp5 <= 3 ~ "Consistencia",
+                                  clasesub_dic == 2 & egp5 > 3 ~ "Consistencia",
+                                  clasesub_dic == 1 & egp5 > 3 ~ "Inconsistencia",
+                                  clasesub_dic == 2 & egp5 <= 3 ~ "Inconsistencia",
+                                  TRUE ~ NA_character_)) %>%
+  group_by(clasesub_dic_f, consistencia) %>%
+  tally() %>%
+  mutate(porcentaje = n/sum(n)) %>%
+  ggplot(aes(x=clasesub_dic_f, y=porcentaje, fill=consistencia)) +
+  geom_col() +
+  geom_text(aes(label = scales::percent(porcentaje, accuracy = 0.1),
+                y = porcentaje + 0.01),
+            position = position_stack(.5), vjust = 1.1, size = 2.5) +
+  theme_classic() +
+  labs(title = "2003/2004") +
+  theme(axis.title.y = element_blank(),
+        axis.title.x = element_blank(),
+        plot.title = element_text(size = 12, hjust = 0.5),
+        axis.text.x = element_text(size = 8),
+        axis.text.y = element_blank(),
+        legend.position= "none") +
+  scale_x_discrete() +
+  scale_y_continuous(labels=scales::percent, breaks = seq(0,1, .1))
+
+barra2007 <- base2007 %>%
+  drop_na(clasesub_dic, egp5) %>%
+  mutate(consistencia = case_when(clasesub_dic == 1 & egp5 <= 3 ~ "Consistencia",
+                                  clasesub_dic == 2 & egp5 > 3 ~ "Consistencia",
+                                  clasesub_dic == 1 & egp5 > 3 ~ "Inconsistencia",
+                                  clasesub_dic == 2 & egp5 <= 3 ~ "Inconsistencia",
+                                  TRUE ~ NA_character_)) %>%
+  group_by(clasesub_dic_f, consistencia) %>%
+  tally() %>%
+  mutate(porcentaje = n/sum(n)) %>%
+  ggplot(aes(x=clasesub_dic_f, y=porcentaje, fill=consistencia)) +
+  geom_col() +
+  geom_text(aes(label = scales::percent(porcentaje, accuracy = 0.1),
+                y = porcentaje + 0.01),
+            position = position_stack(.5), vjust = 1.1, size = 2.5) +
+  theme_classic() +
+  labs(title = "2007/2008") +
+  theme(axis.title.y = element_blank(),
+        axis.title.x = element_blank(),
+        plot.title = element_text(size = 12, hjust = 0.5),
+        axis.text.x = element_text(size = 8),
+        axis.text.y = element_blank(),
+        legend.position= "none") +
+  scale_x_discrete() +
+  scale_y_continuous(labels=scales::percent, breaks = seq(0,1, .1))
+
+barra2010 <- base2010 %>%
+  drop_na(clasesub_dic, egp5) %>%
+  mutate(consistencia = case_when(clasesub_dic == 1 & egp5 <= 3 ~ "Consistencia",
+                                  clasesub_dic == 2 & egp5 > 3 ~ "Consistencia",
+                                  clasesub_dic == 1 & egp5 > 3 ~ "Inconsistencia",
+                                  clasesub_dic == 2 & egp5 <= 3 ~ "Inconsistencia",
+                                  TRUE ~ NA_character_)) %>%
+  group_by(clasesub_dic_f, consistencia) %>%
+  tally() %>%
+  mutate(porcentaje = n/sum(n)) %>%
+  ggplot(aes(x=clasesub_dic_f, y=porcentaje, fill=consistencia)) +
+  geom_col() +
+  geom_text(aes(label = scales::percent(porcentaje, accuracy = 0.1),
+                y = porcentaje + 0.01),
+            position = position_stack(.5), vjust = 1.1, size = 2.5) +
+  theme_classic() +
+  labs(title = "2009/2010") +
+  theme(axis.title.y = element_blank(),
+        axis.title.x = element_blank(),
+        plot.title = element_text(size = 12, hjust = 0.5),
+        axis.text.x = element_text(size = 8),
+        axis.text.y = element_blank(),
+        legend.position= "none") +
+  scale_x_discrete() +
+  scale_y_continuous(labels=scales::percent, breaks = seq(0,1, .1))
+
+
+barra2015 <- base2015 %>%
+  drop_na(clasesub_dic, egp5) %>%
+  mutate(consistencia = case_when(clasesub_dic == 1 & egp5 <= 3 ~ "Consistencia",
+                                  clasesub_dic == 2 & egp5 > 3 ~ "Consistencia",
+                                  clasesub_dic == 1 & egp5 > 3 ~ "Inconsistencia",
+                                  clasesub_dic == 2 & egp5 <= 3 ~ "Inconsistencia",
+                                  TRUE ~ NA_character_)) %>%
+  group_by(clasesub_dic_f, consistencia) %>%
+  tally() %>%
+  mutate(porcentaje = n/sum(n)) %>%
+  ggplot(aes(x=clasesub_dic_f, y=porcentaje, fill=consistencia)) +
+  geom_col() +
+  geom_text(aes(label = scales::percent(porcentaje, accuracy = 0.1),
+                y = porcentaje + 0.01),
+            position = position_stack(.5), vjust = 1.1, size = 2.5) +
+  theme_classic() +
+  labs(title = "2014/2015") +
+  theme(axis.title.y = element_blank(),
+        axis.title.x = element_blank(),
+        plot.title = element_text(size = 12, hjust = 0.5),
+        axis.text.x = element_text(size = 8),
+        axis.text.y = element_blank(),
+        legend.position= "none") +
+  scale_x_discrete() +
+  scale_y_continuous(labels=scales::percent, breaks = seq(0,1, .1))
+
+
+barra2021 <- base2021 %>%
+  drop_na(clasesub_dic, egp5) %>%
+  mutate(consistencia = case_when(clasesub_dic == 1 & egp5 <= 3 ~ "Consistencia",
+                                  clasesub_dic == 2 & egp5 > 3 ~ "Consistencia",
+                                  clasesub_dic == 1 & egp5 > 3 ~ "Inconsistencia",
+                                  clasesub_dic == 2 & egp5 <= 3 ~ "Inconsistencia",
+                                  TRUE ~ NA_character_)) %>%
+  group_by(clasesub_dic_f, consistencia) %>%
+  tally() %>%
+  mutate(porcentaje = n/sum(n)) %>%
+  ggplot(aes(x=clasesub_dic_f, y=porcentaje, fill=consistencia)) +
+  geom_col() +
+  geom_text(aes(label = scales::percent(porcentaje, accuracy = 0.1),
+                y = porcentaje + 0.01),
+            position = position_stack(.5), vjust = 1.1, size = 2.5) +
+  theme_classic() +
+  labs(title = "2021") +
+  theme(axis.title.y = element_blank(),
+        axis.title.x = element_blank(),
+        plot.title = element_text(size = 12, hjust = 0.5),
+        axis.text.x = element_text(size = 8),
+        axis.text.y = element_blank(),
+        legend.position= "none") +
+  scale_x_discrete() +
+  scale_y_continuous(labels=scales::percent, breaks = seq(0,1, .1))
+
+
+clases_20032021 <- ggarrange(barra1960, barra2003, barra2007, barra2010,
+                             barra2015, barra2021,
+                             ncol = 3, nrow = 2, common.legend = TRUE, legend = "bottom")
+
+ggsave(filename = "salidas/consistencia_20032021.png", dpi = 300, type = "cairo", width = 8, height = 6, clases_20032021)
