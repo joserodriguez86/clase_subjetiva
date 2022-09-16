@@ -8,6 +8,7 @@ output:
     self_contained: true
     lightbox: true
     highlight: tango
+    code_folding: hide
 ---
 
 #Armado de las bases de datos  
@@ -15,9 +16,12 @@ output:
 Se importan las bases de datos.  
 
 ```{r carga librerías, message=F, warning=F}
-pacman::p_load(tidyverse, haven, gridExtra, grid, occupar, ggpubr, ggsci)
+pacman::p_load(tidyverse, haven, gridExtra, grid, occupar, ggpubr, ggsci, gtsummary,
+               survey, jtools, huxtable)
 
 theme_set(theme_classic())
+
+rm(list = ls())
 
 load("bases/germani_sampleb.RData")
 base1960 <- sample_B
@@ -26,8 +30,8 @@ base2007 <- read_spss("bases/base_2007.sav")
 base2010 <- read_spss("bases/base_2010.sav")
 base2015 <- read_spss("bases/base_2015.sav")
 load("bases/base_2021.RData")
-base2021 <- base_hogar
-rm(base_hogar)
+base2021 <- base_pirc
+rm(base_pirc)
 ```
 
 Se construyen las principales variables a utilizar.  
@@ -248,7 +252,41 @@ base2021 <- base2021 %>%
                             M3.6 > 2 & M3.6 < 99 ~ 2,
                             TRUE ~ NA_real_),
          rural = case_when(CAES_letra == "A" ~ 1,
-                           TRUE ~ 0))
+                           TRUE ~ 0),
+         sexo_f = factor(SEXO, labels = c("Varón", "Mujer")),
+         edad_grupo = factor(car::recode(M2.4, "18:29=1; 30:39=2; 40:65=3;
+                                    66:hi=4; else=NA"),
+                             labels = c("18-29", "30-39", "40-65", "66-")),
+         nivel_ed = case_when(M2.9 == 0 | M2.9 == 1 | M2.9 == 2 | M2.9 == 3 | 
+                              M2.9 == 9 | M2.9 == 10 ~ "Primario",
+                              M2.9 == 4 | M2.9 == 5 ~ "Secundario",
+                              M2.9 >= 6 & M2.9 <= 8 ~ "Superior",
+                              TRUE ~ NA_character_),
+         formal = case_when(M3.10 == 1 | M3.10 == 2 | M3.15 == 3 ~ "Formal",
+                              TRUE ~ "Informal"),
+         rama = case_when(CAES_letra %in% c("A", "B") ~ "Act. primarias",
+                          CAES_letra %in% c("C", "D", "E") ~ "Industria",
+                          CAES_letra == "F" ~ "Construcción",
+                          CAES_letra %in% c("G", "H", "I", "J", "K", "L",
+                                            "M", "N", "P", "Q", "R", "S",
+                                            "T") ~ "Servicios",
+                          CAES_letra %in% c("O", "U") ~ "Adm. pública"),
+         afiliacion = case_when(M3.13.A == 1 ~ "Sindicalizado",
+                                TRUE ~ "No sindicalizado"),
+         sv_o = car::recode(M12.22, "1:2=1; 3=0; 99=NA"),
+         categoria_o = case_when(M12.20 == 1 ~ 1,
+                               M12.20 == 2 & sv_o < 3 ~ 1,
+                               M12.20 == 2 & (sv_o >= 3 | is.na(sv_o)) ~ 2,
+                               M12.20 >= 3 & M12.20 < 99 ~ 3,
+                               TRUE ~ NA_real_),
+         tamano_o = case_when(M12.21 <= 2 ~ 1,
+                            M12.21 > 2 & M12.21 < 99 ~ 2,
+                            TRUE ~ NA_real_),
+         rural_o = case_when(M12.19 == 1 ~ 1,
+                           TRUE ~ 0),
+         politica = car::recode(M16.1, "c(1,4)=1; 2:3=2; 5=3; 6=4; 7:8=5; else=NA"),
+         politica = factor(politica, labels = c("Peronismo", "UCR/PRO", "Izquierda",
+                                                "Libertarios", "Ninguno")))
 ```
 
 
@@ -525,6 +563,8 @@ base2015$egp5_f <- factor(base2015$egp5, labels = c("I+II", "III", "IV", "V+VI",
 
 
 #base2021
+
+##Destino
 base2021 <- base2021 %>%
   mutate(egp = case_when(
     #Patrones
@@ -586,6 +626,71 @@ base2021$egp_f <- factor(base2021$egp, labels = c("I", "II", "IIIa", "IIIb",
 
 base2021$egp5 <- car::recode(base2021$egp, "1:2=1; 3:4=2; 5:7=3; 8:9=4; 10:11=5")
 base2021$egp5_f <- factor(base2021$egp5, labels = c("I+II", "III", "IV", "V+VI", "VII"))
+
+
+##Origen
+base2021 <- base2021 %>%
+  mutate(egp_origen = case_when(
+    #Patrones
+    categoria_o == 1 & tamano_o == 2 ~ 1,
+    categoria_o == 1 & tamano_o == 1 & rural_o != 1 ~ 5,
+    categoria_o == 1 & tamano_o == 1 & rural_o == 1 ~ 7,
+
+    #Cuenta propia
+    categoria_o == 2 & ((CIUO_origen >= 1000 & CIUO_origen < 1400)) ~ 1,
+    categoria_o == 2 & (CIUO_origen >= 1400 & CIUO_origen < 2000) ~ 2,
+
+    categoria_o == 2 & CIUO_origen %in% c(2165, 2221, 2222, 2513:2519, 2320, 2330, 2341, 2342,
+                                 2351:2359, 2421:2424, 2621, 2622, 2651:2659, 2636) ~ 2,
+    categoria_o == 2 & (CIUO_origen >= 2000 & CIUO_origen < 3000) ~ 1,
+
+    categoria_o == 2 & CIUO_origen %in% c(3221, 3222, 3311:3314, 3411:3413) ~ 3,
+    categoria_o == 2 & (CIUO_origen >= 3000 & CIUO_origen < 4000) ~ 2,
+
+    categoria_o == 2 & (CIUO_origen %in% c(5211, 5212, 5413, 5414) |
+                        (CIUO_origen >= 9000 & CIUO_origen < 9999) | (CIUO_origen >= 6300 & CIUO_origen < 7000)) ~ 10,
+    categoria_o == 2 & ((CIUO_origen >= 4000 & CIUO_origen < 6000) | (CIUO_origen >= 7000 & CIUO_origen < 9000)) ~ 6,
+    categoria_o == 2 & (CIUO_origen >= 6000 & CIUO_origen < 6300) ~ 7,
+
+    #Empleados
+    categoria_o == 3 & (CIUO_origen >= 1000 & CIUO_origen < 1400) ~ 1,
+    categoria_o == 3 & (CIUO_origen >= 1400 & CIUO_origen < 2000) ~ 2,
+
+    categoria_o == 3 & CIUO_origen %in% c(2165, 2221, 2222, 2513:2519, 2320, 2330, 2341, 2342,
+                                 2351:2359, 2421:2424, 2621, 2622, 2651:2659, 2636) ~ 2,
+    categoria_o == 3 & (CIUO_origen >= 2000 & CIUO_origen < 3000) ~ 1,
+
+    categoria_o == 3 & CIUO_origen %in% c(3221, 3222, 3311:3314, 3411:3413) & (sv_o != 1 | is.na(sv_o)) ~ 3,
+    categoria_o == 3 & (CIUO_origen >= 3000 & CIUO_origen < 4000) ~ 2,
+
+    categoria_o == 3 & CIUO_origen %in% c(4412, 4419) & (sv_o != 1 | is.na(sv_o)) ~ 4,
+    categoria_o == 3 & (CIUO_origen >= 4000 & CIUO_origen < 5000) & (sv_o != 1 | is.na(sv_o)) ~ 3,
+
+    categoria_o == 3 & CIUO_origen %in% c(5111:5113) & (sv_o != 1 | is.na(sv_o)) ~ 3,
+    categoria_o == 3 & CIUO_origen %in% c(5120, 5141, 5142, 5153, 5163, 5164, 5165, 5169) & (sv_o != 1 | is.na(sv_o)) ~ 9,
+    categoria_o == 3 & CIUO_origen %in% c(5211, 5212, 5413, 5414, 5419) ~ 10,
+    categoria_o == 3 & CIUO_origen %in% c(5411, 5412) ~ 10,
+    categoria_o == 3 & (CIUO_origen >= 5000 & CIUO_origen < 6000) & (sv_o != 1 | is.na(sv_o)) ~ 4,
+
+    categoria_o == 3 & (CIUO_origen >= 3000 & CIUO_origen < 6000) & sv_o == 1 ~ 2, #supervisores NM
+
+    categoria_o == 3 & (CIUO_origen >= 6000 & CIUO_origen < 7000) ~ 11,
+
+    categoria_o == 3 & (CIUO_origen >= 7000 & CIUO_origen < 9000) & (sv_o != 1 | is.na(sv_o)) ~ 9,
+    categoria_o == 3 & (CIUO_origen >= 9000 & CIUO_origen < 9999) & (sv_o != 1 | is.na(sv_o)) ~ 10,
+    categoria_o == 3 & (CIUO_origen >= 7000 & CIUO_origen < 9999) & sv_o == 1 ~ 8, #supervisores M
+    CIUO_origen == 110 ~ 2,
+    CIUO_origen == 210 | CIUO_origen == 310 ~ 8,
+    TRUE ~ NA_real_
+  ))
+
+base2021$egp_origen_f <- factor(base2021$egp, labels = c("I", "II", "IIIa", "IIIb",
+                                                  "IVa", "IVb", "IVc", "V",
+                                                  "VI", "VIIa", "VIIb"))
+
+base2021$egp5_origen <- car::recode(base2021$egp_origen, "1:2=1; 3:4=2; 5:7=3; 8:9=4; 10:11=5")
+base2021$egp5_origen_f <- factor(base2021$egp5_origen, 
+                                 labels = c("I+II", "III", "IV", "V+VI", "VII"))
 ```
 
 
@@ -1156,5 +1261,76 @@ barra2021 <- base2021 %>%
 ggarrange(barra1960, barra2003, barra2007, barra2010,
                              barra2015, barra2021,
                              ncol = 3, nrow = 2, common.legend = TRUE, legend = "bottom")
+```
+
+
+## Determinantes del posicionamiento subjetivo de clase (2021)  
+
+### Descriptivos  
+
+```{r descriptivos, warning=F, message=F, echo=F}
+theme_gtsummary_language("es", decimal.mark = ",", big.mark = ".")
+
+base2021 %>%
+  filter(M2.12 < 3 & !is.na(egp_f)) %>% 
+  svydesign(data = ., ids = ~ 1, weights = ~POND2R_FIN_n) %>%
+  tbl_svysummary(include = c(egp5_f, egp5_origen_f, nivel_ed_f, sexo_f, edad_grupo,
+                             formal, afiliacion, rama, politica, ing_lab_imp),
+                 label = c(egp5_f ~ "Clase encuestado",
+                           egp5_origen_f ~ "Clase origen",
+                           nivel_ed_f ~ "Nivel educativo",
+                           sexo_f ~ "Sexo",
+                           edad_grupo ~ "Edad",
+                           formal ~ "Condición laboral",
+                           afiliacion ~ "Afiliación",
+                           rama ~ "Rama de actividad",
+                           politica ~ "Posicionamiento político",
+                           ing_lab_imp ~ "Ingreso laboral"), 
+                 statistic = list(all_continuous() ~ "{mean} ({sd})", 
+                                  all_categorical() ~ "{n} ({p}%)",
+                                  all_character() ~ "{n} ({p}%)"),
+                 digits = list(all_categorical() ~ c(0, 1),
+                               all_character() ~ c(0, 1)),
+                 missing = "no") 
+
+```
+
+
+### Regresión logística binomial  
+
+```{r binomial, warning=F, message=F, echo=F, results='asis'}
+base2021$clasesub_dic[base2021$clasesub_dic == 2] <- 0
+base2021$egp5_f <- relevel(base2021$egp5_f, ref = "VII")
+base2021$egp5_origen_f <- relevel(base2021$egp5_origen_f, ref = "VII")
+base2021$rama <- relevel(as.factor(base2021$rama), ref = "Industria")
+base2021$politica <- relevel(base2021$politica, ref = "Ninguno")
+
+binomial1 <- glm(clasesub_dic ~ egp5_f + sexo_f + edad_grupo + nivel_ed_f,
+                 data = base2021, weights = POND2R_FIN_n, family = binomial(link = "logit"))
+
+binomial2 <- glm(clasesub_dic ~ egp5_f + sexo_f + edad_grupo + nivel_ed_f + formal + rama,
+                 data = base2021, weights = POND2R_FIN_n, family = binomial(link = "logit"))
+
+binomial3 <- glm(clasesub_dic ~ egp5_f + sexo_f + edad_grupo + nivel_ed_f + formal + rama +
+                   afiliacion + politica,
+                 data = base2021, weights = POND2R_FIN_n, family = binomial(link = "logit"))
+
+binomial4 <- glm(clasesub_dic ~ egp5_f + sexo_f + edad_grupo + nivel_ed_f + formal + rama +
+                   afiliacion + politica + egp5_origen_f,
+                 data = base2021, weights = POND2R_FIN_n, family = binomial(link = "logit"))
+
+
+regresion_binomial <- export_summs(binomial1, binomial2, binomial3, binomial4, exp = T,
+                                   stars = c(`***` = 0.01, `**` = 0.05, `*` = 0.1))
+
+regresion_binomial %>% 
+  set_caption("Regresión logística. Odds ratios Clase media vs clase trabajadora") %>% 
+  map_background_color(-1, -1, by_regex(
+        "\\*" = "yellow"
+      ))
+
+plot_summs(binomial1, 
+           binomial4)
+
 ```
 

@@ -7,7 +7,7 @@
 
         <meta name="author" content="José Rodríguez de la Fuente - Gonzalo Assusa" />
     
-        <meta name="date" content="2022-09-08" />
+        <meta name="date" content="2022-09-16" />
     
     <title>Tendencias pasadas y recientes sobre el posicionamiento de clase subjetiva en Argentina (1960-2021). Explicaciones desde la posición de clase y el origen social.</title>
 
@@ -178,6 +178,79 @@ window.buildTabsets = function(tocID) {
   });
 };
 
+</script>
+        <script>
+window.initializeCodeFolding = function(show) {
+
+  // handlers for show-all and hide all
+  $("#rmd-show-all-code").click(function() {
+    $('div.r-code-collapse').each(function() {
+      $(this).collapse('show');
+    });
+  });
+  $("#rmd-hide-all-code").click(function() {
+    $('div.r-code-collapse').each(function() {
+      $(this).collapse('hide');
+    });
+  });
+
+  // index for unique code element ids
+  var currentIndex = 1;
+
+  // select all R code blocks
+  var rCodeBlocks = $('pre.r, pre.python, pre.bash, pre.sql, pre.cpp, pre.stan, pre.julia, pre.foldable');
+  rCodeBlocks.each(function() {
+
+    // create a collapsable div to wrap the code in
+    var div = $('<div class="collapse r-code-collapse"></div>');
+    var showThis = (show || $(this).hasClass('fold-show')) && !$(this).hasClass('fold-hide');
+    var id = 'rcode-643E0F36' + currentIndex++;
+    div.attr('id', id);
+    $(this).before(div);
+    $(this).detach().appendTo(div);
+
+    // add a show code button right above
+    var showCodeText = $('<span>' + (showThis ? 'Hide' : 'Code') + '</span>');
+    var showCodeButton = $('<button type="button" class="btn btn-default btn-xs btn-secondary btn-sm code-folding-btn pull-right float-right"></button>');
+    showCodeButton.append(showCodeText);
+    showCodeButton
+        .attr('data-toggle', 'collapse')
+        .attr('data-target', '#' + id)
+        .attr('aria-expanded', showThis)
+        .attr('aria-controls', id);
+
+    var buttonRow = $('<div class="row"></div>');
+    var buttonCol = $('<div class="col-md-12"></div>');
+
+    buttonCol.append(showCodeButton);
+    buttonRow.append(buttonCol);
+
+    div.before(buttonRow);
+
+    // show the div if necessary
+    if (showThis) div.collapse('show');
+
+    // update state of button on show/hide
+    //   * Change text
+    //   * add a class for intermediate states styling
+    div.on('hide.bs.collapse', function () {
+      showCodeText.text('Code');
+      showCodeButton.addClass('btn-collapsing');
+    });
+    div.on('hidden.bs.collapse', function () {
+      showCodeButton.removeClass('btn-collapsing');
+    });
+    div.on('show.bs.collapse', function () {
+      showCodeText.text('Hide');
+      showCodeButton.addClass('btn-expanding');
+    });
+    div.on('shown.bs.collapse', function () {
+      showCodeButton.removeClass('btn-expanding');
+    });
+
+  });
+
+}
 </script>
         <style type="text/css">
 .mfp-bg {
@@ -1740,6 +1813,11 @@ Prism.languages.r={comment:/#.*/,string:{pattern:/(['"])(?:\\.|(?!\1)[^\\\r\n])*
     </script>
 
     <!-- code folding -->
+        <script>
+      $(document).ready(function () {
+	  	  	  window.initializeCodeFolding("hide" === "show");
+	        });
+    </script>
     
     <!-- code download -->
     
@@ -1822,6 +1900,8 @@ Prism.languages.r={comment:/#.*/,string:{pattern:/(['"])(?:\\.|(?!\1)[^\\\r\n])*
             <ul>
             <li><a href="#tendencias-a-largo-plazo-sobre-el-posicionamiento-subjetivo" id="toc-tendencias-a-largo-plazo-sobre-el-posicionamiento-subjetivo">Tendencias
             a largo plazo sobre el posicionamiento subjetivo</a></li>
+            <li><a href="#determinantes-del-posicionamiento-subjetivo-de-clase-2021" id="toc-determinantes-del-posicionamiento-subjetivo-de-clase-2021">Determinantes
+            del posicionamiento subjetivo de clase (2021)</a></li>
             </ul></li>
             </ul>
           </div>
@@ -1830,6 +1910,13 @@ Prism.languages.r={comment:/#.*/,string:{pattern:/(['"])(?:\\.|(?!\1)[^\\\r\n])*
         <div class="Main">
           <div class="Content" id="content"> 
    
+      <div class="btn-group pull-right">
+     <button type="button" class="btn btn-default btn-xs dropdown-toggle" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false"><span>Code</span> <span class="caret"></span></button>
+     <ul class="dropdown-menu" style="min-width: 50px;">
+	    	    <li><a id="rmd-show-all-code" href="#">Show All Code</a></li>
+	    <li><a id="rmd-hide-all-code" href="#">Hide All Code</a></li>
+	    	    	         </ul>
+   </div>
    
         
       <h1 class="title">Tendencias pasadas y recientes sobre el
@@ -1840,7 +1927,7 @@ Explicaciones desde la posición de clase y el origen social.</h1>
            <span class="glyphicon glyphicon-user"></span> José Rodríguez
 de la Fuente - Gonzalo Assusa
       </p>
-         <p class="date"><span class="glyphicon glyphicon-calendar"></span> 2022-09-08</p>
+         <p class="date"><span class="glyphicon glyphicon-calendar"></span> 2022-09-16</p>
            
 
    
@@ -1850,9 +1937,12 @@ de la Fuente - Gonzalo Assusa
 <div class="page-content has-page-title">
 <p>#Armado de las bases de datos</p>
 <p>Se importan las bases de datos.</p>
-<pre class="r"><code>pacman::p_load(tidyverse, haven, gridExtra, grid, occupar, ggpubr, ggsci)
+<pre class="r"><code>pacman::p_load(tidyverse, haven, gridExtra, grid, occupar, ggpubr, ggsci, gtsummary,
+               survey, jtools, huxtable)
 
 theme_set(theme_classic())
+
+rm(list = ls())
 
 load(&quot;bases/germani_sampleb.RData&quot;)
 base1960 &lt;- sample_B
@@ -1861,8 +1951,8 @@ base2007 &lt;- read_spss(&quot;bases/base_2007.sav&quot;)
 base2010 &lt;- read_spss(&quot;bases/base_2010.sav&quot;)
 base2015 &lt;- read_spss(&quot;bases/base_2015.sav&quot;)
 load(&quot;bases/base_2021.RData&quot;)
-base2021 &lt;- base_hogar
-rm(base_hogar)</code></pre>
+base2021 &lt;- base_pirc
+rm(base_pirc)</code></pre>
 <p>Se construyen las principales variables a utilizar.</p>
 <pre class="r"><code>#1960
 
@@ -2079,7 +2169,41 @@ base2021 &lt;- base2021 %&gt;%
                             M3.6 &gt; 2 &amp; M3.6 &lt; 99 ~ 2,
                             TRUE ~ NA_real_),
          rural = case_when(CAES_letra == &quot;A&quot; ~ 1,
-                           TRUE ~ 0))</code></pre>
+                           TRUE ~ 0),
+         sexo_f = factor(SEXO, labels = c(&quot;Varón&quot;, &quot;Mujer&quot;)),
+         edad_grupo = factor(car::recode(M2.4, &quot;18:29=1; 30:39=2; 40:65=3;
+                                    66:hi=4; else=NA&quot;),
+                             labels = c(&quot;18-29&quot;, &quot;30-39&quot;, &quot;40-65&quot;, &quot;66-&quot;)),
+         nivel_ed = case_when(M2.9 == 0 | M2.9 == 1 | M2.9 == 2 | M2.9 == 3 | 
+                              M2.9 == 9 | M2.9 == 10 ~ &quot;Primario&quot;,
+                              M2.9 == 4 | M2.9 == 5 ~ &quot;Secundario&quot;,
+                              M2.9 &gt;= 6 &amp; M2.9 &lt;= 8 ~ &quot;Superior&quot;,
+                              TRUE ~ NA_character_),
+         formal = case_when(M3.10 == 1 | M3.10 == 2 | M3.15 == 3 ~ &quot;Formal&quot;,
+                              TRUE ~ &quot;Informal&quot;),
+         rama = case_when(CAES_letra %in% c(&quot;A&quot;, &quot;B&quot;) ~ &quot;Act. primarias&quot;,
+                          CAES_letra %in% c(&quot;C&quot;, &quot;D&quot;, &quot;E&quot;) ~ &quot;Industria&quot;,
+                          CAES_letra == &quot;F&quot; ~ &quot;Construcción&quot;,
+                          CAES_letra %in% c(&quot;G&quot;, &quot;H&quot;, &quot;I&quot;, &quot;J&quot;, &quot;K&quot;, &quot;L&quot;,
+                                            &quot;M&quot;, &quot;N&quot;, &quot;P&quot;, &quot;Q&quot;, &quot;R&quot;, &quot;S&quot;,
+                                            &quot;T&quot;) ~ &quot;Servicios&quot;,
+                          CAES_letra %in% c(&quot;O&quot;, &quot;U&quot;) ~ &quot;Adm. pública&quot;),
+         afiliacion = case_when(M3.13.A == 1 ~ &quot;Sindicalizado&quot;,
+                                TRUE ~ &quot;No sindicalizado&quot;),
+         sv_o = car::recode(M12.22, &quot;1:2=1; 3=0; 99=NA&quot;),
+         categoria_o = case_when(M12.20 == 1 ~ 1,
+                               M12.20 == 2 &amp; sv_o &lt; 3 ~ 1,
+                               M12.20 == 2 &amp; (sv_o &gt;= 3 | is.na(sv_o)) ~ 2,
+                               M12.20 &gt;= 3 &amp; M12.20 &lt; 99 ~ 3,
+                               TRUE ~ NA_real_),
+         tamano_o = case_when(M12.21 &lt;= 2 ~ 1,
+                            M12.21 &gt; 2 &amp; M12.21 &lt; 99 ~ 2,
+                            TRUE ~ NA_real_),
+         rural_o = case_when(M12.19 == 1 ~ 1,
+                           TRUE ~ 0),
+         politica = car::recode(M16.1, &quot;c(1,4)=1; 2:3=2; 5=3; 6=4; 7:8=5; else=NA&quot;),
+         politica = factor(politica, labels = c(&quot;Peronismo&quot;, &quot;UCR/PRO&quot;, &quot;Izquierda&quot;,
+                                                &quot;Libertarios&quot;, &quot;Ninguno&quot;)))</code></pre>
 <div id="construcción-de-egp" class="section level1">
 <h1>Construcción de EGP</h1>
 <p>Se construye la variable egp para cada base de datos.</p>
@@ -2351,6 +2475,8 @@ base2015$egp5_f &lt;- factor(base2015$egp5, labels = c(&quot;I+II&quot;, &quot;I
 
 
 #base2021
+
+##Destino
 base2021 &lt;- base2021 %&gt;%
   mutate(egp = case_when(
     #Patrones
@@ -2411,7 +2537,72 @@ base2021$egp_f &lt;- factor(base2021$egp, labels = c(&quot;I&quot;, &quot;II&quo
                                                   &quot;VI&quot;, &quot;VIIa&quot;, &quot;VIIb&quot;))
 
 base2021$egp5 &lt;- car::recode(base2021$egp, &quot;1:2=1; 3:4=2; 5:7=3; 8:9=4; 10:11=5&quot;)
-base2021$egp5_f &lt;- factor(base2021$egp5, labels = c(&quot;I+II&quot;, &quot;III&quot;, &quot;IV&quot;, &quot;V+VI&quot;, &quot;VII&quot;))</code></pre>
+base2021$egp5_f &lt;- factor(base2021$egp5, labels = c(&quot;I+II&quot;, &quot;III&quot;, &quot;IV&quot;, &quot;V+VI&quot;, &quot;VII&quot;))
+
+
+##Origen
+base2021 &lt;- base2021 %&gt;%
+  mutate(egp_origen = case_when(
+    #Patrones
+    categoria_o == 1 &amp; tamano_o == 2 ~ 1,
+    categoria_o == 1 &amp; tamano_o == 1 &amp; rural_o != 1 ~ 5,
+    categoria_o == 1 &amp; tamano_o == 1 &amp; rural_o == 1 ~ 7,
+
+    #Cuenta propia
+    categoria_o == 2 &amp; ((CIUO_origen &gt;= 1000 &amp; CIUO_origen &lt; 1400)) ~ 1,
+    categoria_o == 2 &amp; (CIUO_origen &gt;= 1400 &amp; CIUO_origen &lt; 2000) ~ 2,
+
+    categoria_o == 2 &amp; CIUO_origen %in% c(2165, 2221, 2222, 2513:2519, 2320, 2330, 2341, 2342,
+                                 2351:2359, 2421:2424, 2621, 2622, 2651:2659, 2636) ~ 2,
+    categoria_o == 2 &amp; (CIUO_origen &gt;= 2000 &amp; CIUO_origen &lt; 3000) ~ 1,
+
+    categoria_o == 2 &amp; CIUO_origen %in% c(3221, 3222, 3311:3314, 3411:3413) ~ 3,
+    categoria_o == 2 &amp; (CIUO_origen &gt;= 3000 &amp; CIUO_origen &lt; 4000) ~ 2,
+
+    categoria_o == 2 &amp; (CIUO_origen %in% c(5211, 5212, 5413, 5414) |
+                        (CIUO_origen &gt;= 9000 &amp; CIUO_origen &lt; 9999) | (CIUO_origen &gt;= 6300 &amp; CIUO_origen &lt; 7000)) ~ 10,
+    categoria_o == 2 &amp; ((CIUO_origen &gt;= 4000 &amp; CIUO_origen &lt; 6000) | (CIUO_origen &gt;= 7000 &amp; CIUO_origen &lt; 9000)) ~ 6,
+    categoria_o == 2 &amp; (CIUO_origen &gt;= 6000 &amp; CIUO_origen &lt; 6300) ~ 7,
+
+    #Empleados
+    categoria_o == 3 &amp; (CIUO_origen &gt;= 1000 &amp; CIUO_origen &lt; 1400) ~ 1,
+    categoria_o == 3 &amp; (CIUO_origen &gt;= 1400 &amp; CIUO_origen &lt; 2000) ~ 2,
+
+    categoria_o == 3 &amp; CIUO_origen %in% c(2165, 2221, 2222, 2513:2519, 2320, 2330, 2341, 2342,
+                                 2351:2359, 2421:2424, 2621, 2622, 2651:2659, 2636) ~ 2,
+    categoria_o == 3 &amp; (CIUO_origen &gt;= 2000 &amp; CIUO_origen &lt; 3000) ~ 1,
+
+    categoria_o == 3 &amp; CIUO_origen %in% c(3221, 3222, 3311:3314, 3411:3413) &amp; (sv_o != 1 | is.na(sv_o)) ~ 3,
+    categoria_o == 3 &amp; (CIUO_origen &gt;= 3000 &amp; CIUO_origen &lt; 4000) ~ 2,
+
+    categoria_o == 3 &amp; CIUO_origen %in% c(4412, 4419) &amp; (sv_o != 1 | is.na(sv_o)) ~ 4,
+    categoria_o == 3 &amp; (CIUO_origen &gt;= 4000 &amp; CIUO_origen &lt; 5000) &amp; (sv_o != 1 | is.na(sv_o)) ~ 3,
+
+    categoria_o == 3 &amp; CIUO_origen %in% c(5111:5113) &amp; (sv_o != 1 | is.na(sv_o)) ~ 3,
+    categoria_o == 3 &amp; CIUO_origen %in% c(5120, 5141, 5142, 5153, 5163, 5164, 5165, 5169) &amp; (sv_o != 1 | is.na(sv_o)) ~ 9,
+    categoria_o == 3 &amp; CIUO_origen %in% c(5211, 5212, 5413, 5414, 5419) ~ 10,
+    categoria_o == 3 &amp; CIUO_origen %in% c(5411, 5412) ~ 10,
+    categoria_o == 3 &amp; (CIUO_origen &gt;= 5000 &amp; CIUO_origen &lt; 6000) &amp; (sv_o != 1 | is.na(sv_o)) ~ 4,
+
+    categoria_o == 3 &amp; (CIUO_origen &gt;= 3000 &amp; CIUO_origen &lt; 6000) &amp; sv_o == 1 ~ 2, #supervisores NM
+
+    categoria_o == 3 &amp; (CIUO_origen &gt;= 6000 &amp; CIUO_origen &lt; 7000) ~ 11,
+
+    categoria_o == 3 &amp; (CIUO_origen &gt;= 7000 &amp; CIUO_origen &lt; 9000) &amp; (sv_o != 1 | is.na(sv_o)) ~ 9,
+    categoria_o == 3 &amp; (CIUO_origen &gt;= 9000 &amp; CIUO_origen &lt; 9999) &amp; (sv_o != 1 | is.na(sv_o)) ~ 10,
+    categoria_o == 3 &amp; (CIUO_origen &gt;= 7000 &amp; CIUO_origen &lt; 9999) &amp; sv_o == 1 ~ 8, #supervisores M
+    CIUO_origen == 110 ~ 2,
+    CIUO_origen == 210 | CIUO_origen == 310 ~ 8,
+    TRUE ~ NA_real_
+  ))
+
+base2021$egp_origen_f &lt;- factor(base2021$egp, labels = c(&quot;I&quot;, &quot;II&quot;, &quot;IIIa&quot;, &quot;IIIb&quot;,
+                                                  &quot;IVa&quot;, &quot;IVb&quot;, &quot;IVc&quot;, &quot;V&quot;,
+                                                  &quot;VI&quot;, &quot;VIIa&quot;, &quot;VIIb&quot;))
+
+base2021$egp5_origen &lt;- car::recode(base2021$egp_origen, &quot;1:2=1; 3:4=2; 5:7=3; 8:9=4; 10:11=5&quot;)
+base2021$egp5_origen_f &lt;- factor(base2021$egp5_origen, 
+                                 labels = c(&quot;I+II&quot;, &quot;III&quot;, &quot;IV&quot;, &quot;V+VI&quot;, &quot;VII&quot;))</code></pre>
 </div>
 <div id="resultados" class="section level1">
 <h1>Resultados</h1>
@@ -2989,6 +3180,646 @@ ggarrange(barra1960, barra2003, barra2007, barra2010,
 <p class="caption">
 Consistencia de clase. GBA 1960-2021
 </p>
+</div>
+</div>
+<div id="determinantes-del-posicionamiento-subjetivo-de-clase-2021" class="section level2">
+<h2>Determinantes del posicionamiento subjetivo de clase (2021)</h2>
+<div id="descriptivos" class="section level3">
+<h3>Descriptivos</h3>
+<div id="sqrenzradc" style="overflow-x:auto;overflow-y:auto;width:auto;height:auto;">
+<style>html {
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, 'Helvetica Neue', 'Fira Sans', 'Droid Sans', Arial, sans-serif;
+}
+
+#sqrenzradc .gt_table {
+  display: table;
+  border-collapse: collapse;
+  margin-left: auto;
+  margin-right: auto;
+  color: #333333;
+  font-size: 16px;
+  font-weight: normal;
+  font-style: normal;
+  background-color: #FFFFFF;
+  width: auto;
+  border-top-style: solid;
+  border-top-width: 2px;
+  border-top-color: #A8A8A8;
+  border-right-style: none;
+  border-right-width: 2px;
+  border-right-color: #D3D3D3;
+  border-bottom-style: solid;
+  border-bottom-width: 2px;
+  border-bottom-color: #A8A8A8;
+  border-left-style: none;
+  border-left-width: 2px;
+  border-left-color: #D3D3D3;
+}
+
+#sqrenzradc .gt_heading {
+  background-color: #FFFFFF;
+  text-align: center;
+  border-bottom-color: #FFFFFF;
+  border-left-style: none;
+  border-left-width: 1px;
+  border-left-color: #D3D3D3;
+  border-right-style: none;
+  border-right-width: 1px;
+  border-right-color: #D3D3D3;
+}
+
+#sqrenzradc .gt_title {
+  color: #333333;
+  font-size: 125%;
+  font-weight: initial;
+  padding-top: 4px;
+  padding-bottom: 4px;
+  padding-left: 5px;
+  padding-right: 5px;
+  border-bottom-color: #FFFFFF;
+  border-bottom-width: 0;
+}
+
+#sqrenzradc .gt_subtitle {
+  color: #333333;
+  font-size: 85%;
+  font-weight: initial;
+  padding-top: 0;
+  padding-bottom: 6px;
+  padding-left: 5px;
+  padding-right: 5px;
+  border-top-color: #FFFFFF;
+  border-top-width: 0;
+}
+
+#sqrenzradc .gt_bottom_border {
+  border-bottom-style: solid;
+  border-bottom-width: 2px;
+  border-bottom-color: #D3D3D3;
+}
+
+#sqrenzradc .gt_col_headings {
+  border-top-style: solid;
+  border-top-width: 2px;
+  border-top-color: #D3D3D3;
+  border-bottom-style: solid;
+  border-bottom-width: 2px;
+  border-bottom-color: #D3D3D3;
+  border-left-style: none;
+  border-left-width: 1px;
+  border-left-color: #D3D3D3;
+  border-right-style: none;
+  border-right-width: 1px;
+  border-right-color: #D3D3D3;
+}
+
+#sqrenzradc .gt_col_heading {
+  color: #333333;
+  background-color: #FFFFFF;
+  font-size: 100%;
+  font-weight: normal;
+  text-transform: inherit;
+  border-left-style: none;
+  border-left-width: 1px;
+  border-left-color: #D3D3D3;
+  border-right-style: none;
+  border-right-width: 1px;
+  border-right-color: #D3D3D3;
+  vertical-align: bottom;
+  padding-top: 5px;
+  padding-bottom: 6px;
+  padding-left: 5px;
+  padding-right: 5px;
+  overflow-x: hidden;
+}
+
+#sqrenzradc .gt_column_spanner_outer {
+  color: #333333;
+  background-color: #FFFFFF;
+  font-size: 100%;
+  font-weight: normal;
+  text-transform: inherit;
+  padding-top: 0;
+  padding-bottom: 0;
+  padding-left: 4px;
+  padding-right: 4px;
+}
+
+#sqrenzradc .gt_column_spanner_outer:first-child {
+  padding-left: 0;
+}
+
+#sqrenzradc .gt_column_spanner_outer:last-child {
+  padding-right: 0;
+}
+
+#sqrenzradc .gt_column_spanner {
+  border-bottom-style: solid;
+  border-bottom-width: 2px;
+  border-bottom-color: #D3D3D3;
+  vertical-align: bottom;
+  padding-top: 5px;
+  padding-bottom: 5px;
+  overflow-x: hidden;
+  display: inline-block;
+  width: 100%;
+}
+
+#sqrenzradc .gt_group_heading {
+  padding-top: 8px;
+  padding-bottom: 8px;
+  padding-left: 5px;
+  padding-right: 5px;
+  color: #333333;
+  background-color: #FFFFFF;
+  font-size: 100%;
+  font-weight: initial;
+  text-transform: inherit;
+  border-top-style: solid;
+  border-top-width: 2px;
+  border-top-color: #D3D3D3;
+  border-bottom-style: solid;
+  border-bottom-width: 2px;
+  border-bottom-color: #D3D3D3;
+  border-left-style: none;
+  border-left-width: 1px;
+  border-left-color: #D3D3D3;
+  border-right-style: none;
+  border-right-width: 1px;
+  border-right-color: #D3D3D3;
+  vertical-align: middle;
+}
+
+#sqrenzradc .gt_empty_group_heading {
+  padding: 0.5px;
+  color: #333333;
+  background-color: #FFFFFF;
+  font-size: 100%;
+  font-weight: initial;
+  border-top-style: solid;
+  border-top-width: 2px;
+  border-top-color: #D3D3D3;
+  border-bottom-style: solid;
+  border-bottom-width: 2px;
+  border-bottom-color: #D3D3D3;
+  vertical-align: middle;
+}
+
+#sqrenzradc .gt_from_md > :first-child {
+  margin-top: 0;
+}
+
+#sqrenzradc .gt_from_md > :last-child {
+  margin-bottom: 0;
+}
+
+#sqrenzradc .gt_row {
+  padding-top: 8px;
+  padding-bottom: 8px;
+  padding-left: 5px;
+  padding-right: 5px;
+  margin: 10px;
+  border-top-style: solid;
+  border-top-width: 1px;
+  border-top-color: #D3D3D3;
+  border-left-style: none;
+  border-left-width: 1px;
+  border-left-color: #D3D3D3;
+  border-right-style: none;
+  border-right-width: 1px;
+  border-right-color: #D3D3D3;
+  vertical-align: middle;
+  overflow-x: hidden;
+}
+
+#sqrenzradc .gt_stub {
+  color: #333333;
+  background-color: #FFFFFF;
+  font-size: 100%;
+  font-weight: initial;
+  text-transform: inherit;
+  border-right-style: solid;
+  border-right-width: 2px;
+  border-right-color: #D3D3D3;
+  padding-left: 5px;
+  padding-right: 5px;
+}
+
+#sqrenzradc .gt_stub_row_group {
+  color: #333333;
+  background-color: #FFFFFF;
+  font-size: 100%;
+  font-weight: initial;
+  text-transform: inherit;
+  border-right-style: solid;
+  border-right-width: 2px;
+  border-right-color: #D3D3D3;
+  padding-left: 5px;
+  padding-right: 5px;
+  vertical-align: top;
+}
+
+#sqrenzradc .gt_row_group_first td {
+  border-top-width: 2px;
+}
+
+#sqrenzradc .gt_summary_row {
+  color: #333333;
+  background-color: #FFFFFF;
+  text-transform: inherit;
+  padding-top: 8px;
+  padding-bottom: 8px;
+  padding-left: 5px;
+  padding-right: 5px;
+}
+
+#sqrenzradc .gt_first_summary_row {
+  border-top-style: solid;
+  border-top-color: #D3D3D3;
+}
+
+#sqrenzradc .gt_first_summary_row.thick {
+  border-top-width: 2px;
+}
+
+#sqrenzradc .gt_last_summary_row {
+  padding-top: 8px;
+  padding-bottom: 8px;
+  padding-left: 5px;
+  padding-right: 5px;
+  border-bottom-style: solid;
+  border-bottom-width: 2px;
+  border-bottom-color: #D3D3D3;
+}
+
+#sqrenzradc .gt_grand_summary_row {
+  color: #333333;
+  background-color: #FFFFFF;
+  text-transform: inherit;
+  padding-top: 8px;
+  padding-bottom: 8px;
+  padding-left: 5px;
+  padding-right: 5px;
+}
+
+#sqrenzradc .gt_first_grand_summary_row {
+  padding-top: 8px;
+  padding-bottom: 8px;
+  padding-left: 5px;
+  padding-right: 5px;
+  border-top-style: double;
+  border-top-width: 6px;
+  border-top-color: #D3D3D3;
+}
+
+#sqrenzradc .gt_striped {
+  background-color: rgba(128, 128, 128, 0.05);
+}
+
+#sqrenzradc .gt_table_body {
+  border-top-style: solid;
+  border-top-width: 2px;
+  border-top-color: #D3D3D3;
+  border-bottom-style: solid;
+  border-bottom-width: 2px;
+  border-bottom-color: #D3D3D3;
+}
+
+#sqrenzradc .gt_footnotes {
+  color: #333333;
+  background-color: #FFFFFF;
+  border-bottom-style: none;
+  border-bottom-width: 2px;
+  border-bottom-color: #D3D3D3;
+  border-left-style: none;
+  border-left-width: 2px;
+  border-left-color: #D3D3D3;
+  border-right-style: none;
+  border-right-width: 2px;
+  border-right-color: #D3D3D3;
+}
+
+#sqrenzradc .gt_footnote {
+  margin: 0px;
+  font-size: 90%;
+  padding-left: 4px;
+  padding-right: 4px;
+  padding-left: 5px;
+  padding-right: 5px;
+}
+
+#sqrenzradc .gt_sourcenotes {
+  color: #333333;
+  background-color: #FFFFFF;
+  border-bottom-style: none;
+  border-bottom-width: 2px;
+  border-bottom-color: #D3D3D3;
+  border-left-style: none;
+  border-left-width: 2px;
+  border-left-color: #D3D3D3;
+  border-right-style: none;
+  border-right-width: 2px;
+  border-right-color: #D3D3D3;
+}
+
+#sqrenzradc .gt_sourcenote {
+  font-size: 90%;
+  padding-top: 4px;
+  padding-bottom: 4px;
+  padding-left: 5px;
+  padding-right: 5px;
+}
+
+#sqrenzradc .gt_left {
+  text-align: left;
+}
+
+#sqrenzradc .gt_center {
+  text-align: center;
+}
+
+#sqrenzradc .gt_right {
+  text-align: right;
+  font-variant-numeric: tabular-nums;
+}
+
+#sqrenzradc .gt_font_normal {
+  font-weight: normal;
+}
+
+#sqrenzradc .gt_font_bold {
+  font-weight: bold;
+}
+
+#sqrenzradc .gt_font_italic {
+  font-style: italic;
+}
+
+#sqrenzradc .gt_super {
+  font-size: 65%;
+}
+
+#sqrenzradc .gt_two_val_uncert {
+  display: inline-block;
+  line-height: 1em;
+  text-align: right;
+  font-size: 60%;
+  vertical-align: -0.25em;
+  margin-left: 0.1em;
+}
+
+#sqrenzradc .gt_footnote_marks {
+  font-style: italic;
+  font-weight: normal;
+  font-size: 75%;
+  vertical-align: 0.4em;
+}
+
+#sqrenzradc .gt_asterisk {
+  font-size: 100%;
+  vertical-align: 0;
+}
+
+#sqrenzradc .gt_slash_mark {
+  font-size: 0.7em;
+  line-height: 0.7em;
+  vertical-align: 0.15em;
+}
+
+#sqrenzradc .gt_fraction_numerator {
+  font-size: 0.6em;
+  line-height: 0.6em;
+  vertical-align: 0.45em;
+}
+
+#sqrenzradc .gt_fraction_denominator {
+  font-size: 0.6em;
+  line-height: 0.6em;
+  vertical-align: -0.05em;
+}
+</style>
+<table class="gt_table">
+  
+  <thead class="gt_col_headings">
+    <tr>
+      <th class="gt_col_heading gt_columns_bottom_border gt_left" rowspan="1" colspan="1"><strong>Característica</strong></th>
+      <th class="gt_col_heading gt_columns_bottom_border gt_center" rowspan="1" colspan="1"><strong>N = 3.844</strong><sup class="gt_footnote_marks">1</sup></th>
+    </tr>
+  </thead>
+  <tbody class="gt_table_body">
+    <tr><td class="gt_row gt_left">Clase encuestado</td>
+<td class="gt_row gt_center"></td></tr>
+    <tr><td class="gt_row gt_left" style="text-align: left; text-indent: 10px;">I+II</td>
+<td class="gt_row gt_center">1.026 (26,7%)</td></tr>
+    <tr><td class="gt_row gt_left" style="text-align: left; text-indent: 10px;">III</td>
+<td class="gt_row gt_center">929 (24,2%)</td></tr>
+    <tr><td class="gt_row gt_left" style="text-align: left; text-indent: 10px;">IV</td>
+<td class="gt_row gt_center">669 (17,4%)</td></tr>
+    <tr><td class="gt_row gt_left" style="text-align: left; text-indent: 10px;">V+VI</td>
+<td class="gt_row gt_center">566 (14,7%)</td></tr>
+    <tr><td class="gt_row gt_left" style="text-align: left; text-indent: 10px;">VII</td>
+<td class="gt_row gt_center">654 (17,0%)</td></tr>
+    <tr><td class="gt_row gt_left">Clase origen</td>
+<td class="gt_row gt_center"></td></tr>
+    <tr><td class="gt_row gt_left" style="text-align: left; text-indent: 10px;">I+II</td>
+<td class="gt_row gt_center">635 (17,3%)</td></tr>
+    <tr><td class="gt_row gt_left" style="text-align: left; text-indent: 10px;">III</td>
+<td class="gt_row gt_center">407 (11,1%)</td></tr>
+    <tr><td class="gt_row gt_left" style="text-align: left; text-indent: 10px;">IV</td>
+<td class="gt_row gt_center">1.037 (28,3%)</td></tr>
+    <tr><td class="gt_row gt_left" style="text-align: left; text-indent: 10px;">V+VI</td>
+<td class="gt_row gt_center">833 (22,8%)</td></tr>
+    <tr><td class="gt_row gt_left" style="text-align: left; text-indent: 10px;">VII</td>
+<td class="gt_row gt_center">750 (20,5%)</td></tr>
+    <tr><td class="gt_row gt_left">Nivel educativo</td>
+<td class="gt_row gt_center"></td></tr>
+    <tr><td class="gt_row gt_left" style="text-align: left; text-indent: 10px;">Primario</td>
+<td class="gt_row gt_center">593 (15,4%)</td></tr>
+    <tr><td class="gt_row gt_left" style="text-align: left; text-indent: 10px;">Secundario</td>
+<td class="gt_row gt_center">1.854 (48,2%)</td></tr>
+    <tr><td class="gt_row gt_left" style="text-align: left; text-indent: 10px;">Superior</td>
+<td class="gt_row gt_center">1.397 (36,3%)</td></tr>
+    <tr><td class="gt_row gt_left">Sexo</td>
+<td class="gt_row gt_center"></td></tr>
+    <tr><td class="gt_row gt_left" style="text-align: left; text-indent: 10px;">Varón</td>
+<td class="gt_row gt_center">1.893 (49,2%)</td></tr>
+    <tr><td class="gt_row gt_left" style="text-align: left; text-indent: 10px;">Mujer</td>
+<td class="gt_row gt_center">1.951 (50,8%)</td></tr>
+    <tr><td class="gt_row gt_left">Edad</td>
+<td class="gt_row gt_center"></td></tr>
+    <tr><td class="gt_row gt_left" style="text-align: left; text-indent: 10px;">18-29</td>
+<td class="gt_row gt_center">1.184 (30,8%)</td></tr>
+    <tr><td class="gt_row gt_left" style="text-align: left; text-indent: 10px;">30-39</td>
+<td class="gt_row gt_center">994 (25,9%)</td></tr>
+    <tr><td class="gt_row gt_left" style="text-align: left; text-indent: 10px;">40-65</td>
+<td class="gt_row gt_center">1.602 (41,7%)</td></tr>
+    <tr><td class="gt_row gt_left" style="text-align: left; text-indent: 10px;">66-</td>
+<td class="gt_row gt_center">64 (1,7%)</td></tr>
+    <tr><td class="gt_row gt_left">Condición laboral</td>
+<td class="gt_row gt_center"></td></tr>
+    <tr><td class="gt_row gt_left" style="text-align: left; text-indent: 10px;">Formal</td>
+<td class="gt_row gt_center">2.157 (56,1%)</td></tr>
+    <tr><td class="gt_row gt_left" style="text-align: left; text-indent: 10px;">Informal</td>
+<td class="gt_row gt_center">1.687 (43,9%)</td></tr>
+    <tr><td class="gt_row gt_left">Afiliación</td>
+<td class="gt_row gt_center"></td></tr>
+    <tr><td class="gt_row gt_left" style="text-align: left; text-indent: 10px;">No sindicalizado</td>
+<td class="gt_row gt_center">3.037 (79,0%)</td></tr>
+    <tr><td class="gt_row gt_left" style="text-align: left; text-indent: 10px;">Sindicalizado</td>
+<td class="gt_row gt_center">807 (21,0%)</td></tr>
+    <tr><td class="gt_row gt_left">Rama de actividad</td>
+<td class="gt_row gt_center"></td></tr>
+    <tr><td class="gt_row gt_left" style="text-align: left; text-indent: 10px;">Act. primarias</td>
+<td class="gt_row gt_center">46 (1,2%)</td></tr>
+    <tr><td class="gt_row gt_left" style="text-align: left; text-indent: 10px;">Adm. pública</td>
+<td class="gt_row gt_center">249 (6,5%)</td></tr>
+    <tr><td class="gt_row gt_left" style="text-align: left; text-indent: 10px;">Construcción</td>
+<td class="gt_row gt_center">295 (7,8%)</td></tr>
+    <tr><td class="gt_row gt_left" style="text-align: left; text-indent: 10px;">Industria</td>
+<td class="gt_row gt_center">375 (9,9%)</td></tr>
+    <tr><td class="gt_row gt_left" style="text-align: left; text-indent: 10px;">Servicios</td>
+<td class="gt_row gt_center">2.841 (74,6%)</td></tr>
+    <tr><td class="gt_row gt_left">Posicionamiento político</td>
+<td class="gt_row gt_center"></td></tr>
+    <tr><td class="gt_row gt_left" style="text-align: left; text-indent: 10px;">Peronismo</td>
+<td class="gt_row gt_center">1.019 (26,6%)</td></tr>
+    <tr><td class="gt_row gt_left" style="text-align: left; text-indent: 10px;">UCR/PRO</td>
+<td class="gt_row gt_center">465 (12,1%)</td></tr>
+    <tr><td class="gt_row gt_left" style="text-align: left; text-indent: 10px;">Izquierda</td>
+<td class="gt_row gt_center">327 (8,5%)</td></tr>
+    <tr><td class="gt_row gt_left" style="text-align: left; text-indent: 10px;">Libertarios</td>
+<td class="gt_row gt_center">84 (2,2%)</td></tr>
+    <tr><td class="gt_row gt_left" style="text-align: left; text-indent: 10px;">Ninguno</td>
+<td class="gt_row gt_center">1.939 (50,6%)</td></tr>
+    <tr><td class="gt_row gt_left">Ingreso laboral</td>
+<td class="gt_row gt_center">64.192 (53.812)</td></tr>
+  </tbody>
+  
+  <tfoot class="gt_footnotes">
+    <tr>
+      <td class="gt_footnote" colspan="2"><sup class="gt_footnote_marks">1</sup> n (%); Media (DE)</td>
+    </tr>
+  </tfoot>
+</table>
+</div>
+</div>
+<div id="regresión-logística-binomial" class="section level3">
+<h3>Regresión logística binomial</h3>
+<p><table class="huxtable" style="border-collapse: collapse; border: 0px; margin-bottom: 2em; margin-top: 2em; ; margin-left: auto; margin-right: auto;  " id="tab:binomial">
+<caption style="caption-side: top; text-align: center;">Regresión logística. Odds ratios Clase media vs clase trabajadora</caption><col><col><col><col><col><tr>
+<th style="vertical-align: top; text-align: center; white-space: normal; border-style: solid solid solid solid; border-width: 0.8pt 0pt 0pt 0pt;    padding: 6pt 6pt 6pt 6pt; font-weight: normal;"></th><th style="vertical-align: top; text-align: center; white-space: normal; border-style: solid solid solid solid; border-width: 0.8pt 0pt 0.4pt 0pt;    padding: 6pt 6pt 6pt 6pt; font-weight: normal;">Model 1</th><th style="vertical-align: top; text-align: center; white-space: normal; border-style: solid solid solid solid; border-width: 0.8pt 0pt 0.4pt 0pt;    padding: 6pt 6pt 6pt 6pt; font-weight: normal;">Model 2</th><th style="vertical-align: top; text-align: center; white-space: normal; border-style: solid solid solid solid; border-width: 0.8pt 0pt 0.4pt 0pt;    padding: 6pt 6pt 6pt 6pt; font-weight: normal;">Model 3</th><th style="vertical-align: top; text-align: center; white-space: normal; border-style: solid solid solid solid; border-width: 0.8pt 0pt 0.4pt 0pt;    padding: 6pt 6pt 6pt 6pt; font-weight: normal;">Model 4</th></tr>
+<tr>
+<th style="vertical-align: top; text-align: left; white-space: normal; padding: 6pt 6pt 6pt 6pt; font-weight: normal;">(Intercept)</th><td style="vertical-align: top; text-align: right; white-space: normal; border-style: solid solid solid solid; border-width: 0.4pt 0pt 0pt 0pt;    padding: 6pt 6pt 6pt 6pt; background-color: rgb(255, 255, 0); font-weight: normal;">0.33 ***</td><td style="vertical-align: top; text-align: right; white-space: normal; border-style: solid solid solid solid; border-width: 0.4pt 0pt 0pt 0pt;    padding: 6pt 6pt 6pt 6pt; background-color: rgb(255, 255, 0); font-weight: normal;">0.50 ***</td><td style="vertical-align: top; text-align: right; white-space: normal; border-style: solid solid solid solid; border-width: 0.4pt 0pt 0pt 0pt;    padding: 6pt 6pt 6pt 6pt; background-color: rgb(255, 255, 0); font-weight: normal;">0.58 ***</td><td style="vertical-align: top; text-align: right; white-space: normal; border-style: solid solid solid solid; border-width: 0.4pt 0pt 0pt 0pt;    padding: 6pt 6pt 6pt 6pt; background-color: rgb(255, 255, 0); font-weight: normal;">0.47 ***</td></tr>
+<tr>
+<th style="vertical-align: top; text-align: left; white-space: normal; padding: 6pt 6pt 6pt 6pt; font-weight: normal;"></th><td style="vertical-align: top; text-align: right; white-space: normal; padding: 6pt 6pt 6pt 6pt; font-weight: normal;">(0.12)&nbsp;&nbsp;&nbsp;</td><td style="vertical-align: top; text-align: right; white-space: normal; padding: 6pt 6pt 6pt 6pt; font-weight: normal;">(0.16)&nbsp;&nbsp;&nbsp;</td><td style="vertical-align: top; text-align: right; white-space: normal; padding: 6pt 6pt 6pt 6pt; font-weight: normal;">(0.17)&nbsp;&nbsp;&nbsp;</td><td style="vertical-align: top; text-align: right; white-space: normal; padding: 6pt 6pt 6pt 6pt; font-weight: normal;">(0.18)&nbsp;&nbsp;&nbsp;</td></tr>
+<tr>
+<th style="vertical-align: top; text-align: left; white-space: normal; padding: 6pt 6pt 6pt 6pt; font-weight: normal;">egp5_fI+II</th><td style="vertical-align: top; text-align: right; white-space: normal; padding: 6pt 6pt 6pt 6pt; background-color: rgb(255, 255, 0); font-weight: normal;">2.40 ***</td><td style="vertical-align: top; text-align: right; white-space: normal; padding: 6pt 6pt 6pt 6pt; background-color: rgb(255, 255, 0); font-weight: normal;">2.13 ***</td><td style="vertical-align: top; text-align: right; white-space: normal; padding: 6pt 6pt 6pt 6pt; background-color: rgb(255, 255, 0); font-weight: normal;">2.19 ***</td><td style="vertical-align: top; text-align: right; white-space: normal; padding: 6pt 6pt 6pt 6pt; background-color: rgb(255, 255, 0); font-weight: normal;">2.05 ***</td></tr>
+<tr>
+<th style="vertical-align: top; text-align: left; white-space: normal; padding: 6pt 6pt 6pt 6pt; font-weight: normal;"></th><td style="vertical-align: top; text-align: right; white-space: normal; padding: 6pt 6pt 6pt 6pt; font-weight: normal;">(0.10)&nbsp;&nbsp;&nbsp;</td><td style="vertical-align: top; text-align: right; white-space: normal; padding: 6pt 6pt 6pt 6pt; font-weight: normal;">(0.11)&nbsp;&nbsp;&nbsp;</td><td style="vertical-align: top; text-align: right; white-space: normal; padding: 6pt 6pt 6pt 6pt; font-weight: normal;">(0.11)&nbsp;&nbsp;&nbsp;</td><td style="vertical-align: top; text-align: right; white-space: normal; padding: 6pt 6pt 6pt 6pt; font-weight: normal;">(0.11)&nbsp;&nbsp;&nbsp;</td></tr>
+<tr>
+<th style="vertical-align: top; text-align: left; white-space: normal; padding: 6pt 6pt 6pt 6pt; font-weight: normal;">egp5_fIII</th><td style="vertical-align: top; text-align: right; white-space: normal; padding: 6pt 6pt 6pt 6pt; background-color: rgb(255, 255, 0); font-weight: normal;">1.45 ***</td><td style="vertical-align: top; text-align: right; white-space: normal; padding: 6pt 6pt 6pt 6pt; background-color: rgb(255, 255, 0); font-weight: normal;">1.33 ***</td><td style="vertical-align: top; text-align: right; white-space: normal; padding: 6pt 6pt 6pt 6pt; background-color: rgb(255, 255, 0); font-weight: normal;">1.35 ***</td><td style="vertical-align: top; text-align: right; white-space: normal; padding: 6pt 6pt 6pt 6pt; background-color: rgb(255, 255, 0); font-weight: normal;">1.28 **&nbsp;</td></tr>
+<tr>
+<th style="vertical-align: top; text-align: left; white-space: normal; padding: 6pt 6pt 6pt 6pt; font-weight: normal;"></th><td style="vertical-align: top; text-align: right; white-space: normal; padding: 6pt 6pt 6pt 6pt; font-weight: normal;">(0.10)&nbsp;&nbsp;&nbsp;</td><td style="vertical-align: top; text-align: right; white-space: normal; padding: 6pt 6pt 6pt 6pt; font-weight: normal;">(0.10)&nbsp;&nbsp;&nbsp;</td><td style="vertical-align: top; text-align: right; white-space: normal; padding: 6pt 6pt 6pt 6pt; font-weight: normal;">(0.10)&nbsp;&nbsp;&nbsp;</td><td style="vertical-align: top; text-align: right; white-space: normal; padding: 6pt 6pt 6pt 6pt; font-weight: normal;">(0.11)&nbsp;&nbsp;&nbsp;</td></tr>
+<tr>
+<th style="vertical-align: top; text-align: left; white-space: normal; padding: 6pt 6pt 6pt 6pt; font-weight: normal;">egp5_fIV</th><td style="vertical-align: top; text-align: right; white-space: normal; padding: 6pt 6pt 6pt 6pt; font-weight: normal;">0.94&nbsp;&nbsp;&nbsp;&nbsp;</td><td style="vertical-align: top; text-align: right; white-space: normal; padding: 6pt 6pt 6pt 6pt; font-weight: normal;">1.08&nbsp;&nbsp;&nbsp;&nbsp;</td><td style="vertical-align: top; text-align: right; white-space: normal; padding: 6pt 6pt 6pt 6pt; font-weight: normal;">1.02&nbsp;&nbsp;&nbsp;&nbsp;</td><td style="vertical-align: top; text-align: right; white-space: normal; padding: 6pt 6pt 6pt 6pt; font-weight: normal;">0.96&nbsp;&nbsp;&nbsp;&nbsp;</td></tr>
+<tr>
+<th style="vertical-align: top; text-align: left; white-space: normal; padding: 6pt 6pt 6pt 6pt; font-weight: normal;"></th><td style="vertical-align: top; text-align: right; white-space: normal; padding: 6pt 6pt 6pt 6pt; font-weight: normal;">(0.11)&nbsp;&nbsp;&nbsp;</td><td style="vertical-align: top; text-align: right; white-space: normal; padding: 6pt 6pt 6pt 6pt; font-weight: normal;">(0.11)&nbsp;&nbsp;&nbsp;</td><td style="vertical-align: top; text-align: right; white-space: normal; padding: 6pt 6pt 6pt 6pt; font-weight: normal;">(0.11)&nbsp;&nbsp;&nbsp;</td><td style="vertical-align: top; text-align: right; white-space: normal; padding: 6pt 6pt 6pt 6pt; font-weight: normal;">(0.12)&nbsp;&nbsp;&nbsp;</td></tr>
+<tr>
+<th style="vertical-align: top; text-align: left; white-space: normal; padding: 6pt 6pt 6pt 6pt; font-weight: normal;">egp5_fV+VI</th><td style="vertical-align: top; text-align: right; white-space: normal; padding: 6pt 6pt 6pt 6pt; font-weight: normal;">1.06&nbsp;&nbsp;&nbsp;&nbsp;</td><td style="vertical-align: top; text-align: right; white-space: normal; padding: 6pt 6pt 6pt 6pt; font-weight: normal;">1.02&nbsp;&nbsp;&nbsp;&nbsp;</td><td style="vertical-align: top; text-align: right; white-space: normal; padding: 6pt 6pt 6pt 6pt; font-weight: normal;">1.06&nbsp;&nbsp;&nbsp;&nbsp;</td><td style="vertical-align: top; text-align: right; white-space: normal; padding: 6pt 6pt 6pt 6pt; font-weight: normal;">1.02&nbsp;&nbsp;&nbsp;&nbsp;</td></tr>
+<tr>
+<th style="vertical-align: top; text-align: left; white-space: normal; padding: 6pt 6pt 6pt 6pt; font-weight: normal;"></th><td style="vertical-align: top; text-align: right; white-space: normal; padding: 6pt 6pt 6pt 6pt; font-weight: normal;">(0.11)&nbsp;&nbsp;&nbsp;</td><td style="vertical-align: top; text-align: right; white-space: normal; padding: 6pt 6pt 6pt 6pt; font-weight: normal;">(0.12)&nbsp;&nbsp;&nbsp;</td><td style="vertical-align: top; text-align: right; white-space: normal; padding: 6pt 6pt 6pt 6pt; font-weight: normal;">(0.12)&nbsp;&nbsp;&nbsp;</td><td style="vertical-align: top; text-align: right; white-space: normal; padding: 6pt 6pt 6pt 6pt; font-weight: normal;">(0.12)&nbsp;&nbsp;&nbsp;</td></tr>
+<tr>
+<th style="vertical-align: top; text-align: left; white-space: normal; padding: 6pt 6pt 6pt 6pt; font-weight: normal;">sexo_fMujer</th><td style="vertical-align: top; text-align: right; white-space: normal; padding: 6pt 6pt 6pt 6pt; background-color: rgb(255, 255, 0); font-weight: normal;">0.84 ***</td><td style="vertical-align: top; text-align: right; white-space: normal; padding: 6pt 6pt 6pt 6pt; background-color: rgb(255, 255, 0); font-weight: normal;">0.86 **&nbsp;</td><td style="vertical-align: top; text-align: right; white-space: normal; padding: 6pt 6pt 6pt 6pt; background-color: rgb(255, 255, 0); font-weight: normal;">0.83 ***</td><td style="vertical-align: top; text-align: right; white-space: normal; padding: 6pt 6pt 6pt 6pt; background-color: rgb(255, 255, 0); font-weight: normal;">0.85 **&nbsp;</td></tr>
+<tr>
+<th style="vertical-align: top; text-align: left; white-space: normal; padding: 6pt 6pt 6pt 6pt; font-weight: normal;"></th><td style="vertical-align: top; text-align: right; white-space: normal; padding: 6pt 6pt 6pt 6pt; font-weight: normal;">(0.06)&nbsp;&nbsp;&nbsp;</td><td style="vertical-align: top; text-align: right; white-space: normal; padding: 6pt 6pt 6pt 6pt; font-weight: normal;">(0.07)&nbsp;&nbsp;&nbsp;</td><td style="vertical-align: top; text-align: right; white-space: normal; padding: 6pt 6pt 6pt 6pt; font-weight: normal;">(0.07)&nbsp;&nbsp;&nbsp;</td><td style="vertical-align: top; text-align: right; white-space: normal; padding: 6pt 6pt 6pt 6pt; font-weight: normal;">(0.07)&nbsp;&nbsp;&nbsp;</td></tr>
+<tr>
+<th style="vertical-align: top; text-align: left; white-space: normal; padding: 6pt 6pt 6pt 6pt; font-weight: normal;">edad_grupo30-39</th><td style="vertical-align: top; text-align: right; white-space: normal; padding: 6pt 6pt 6pt 6pt; font-weight: normal;">0.96&nbsp;&nbsp;&nbsp;&nbsp;</td><td style="vertical-align: top; text-align: right; white-space: normal; padding: 6pt 6pt 6pt 6pt; background-color: rgb(255, 255, 0); font-weight: normal;">0.86 *&nbsp;&nbsp;</td><td style="vertical-align: top; text-align: right; white-space: normal; padding: 6pt 6pt 6pt 6pt; font-weight: normal;">0.91&nbsp;&nbsp;&nbsp;&nbsp;</td><td style="vertical-align: top; text-align: right; white-space: normal; padding: 6pt 6pt 6pt 6pt; font-weight: normal;">0.98&nbsp;&nbsp;&nbsp;&nbsp;</td></tr>
+<tr>
+<th style="vertical-align: top; text-align: left; white-space: normal; padding: 6pt 6pt 6pt 6pt; font-weight: normal;"></th><td style="vertical-align: top; text-align: right; white-space: normal; padding: 6pt 6pt 6pt 6pt; font-weight: normal;">(0.09)&nbsp;&nbsp;&nbsp;</td><td style="vertical-align: top; text-align: right; white-space: normal; padding: 6pt 6pt 6pt 6pt; font-weight: normal;">(0.09)&nbsp;&nbsp;&nbsp;</td><td style="vertical-align: top; text-align: right; white-space: normal; padding: 6pt 6pt 6pt 6pt; font-weight: normal;">(0.09)&nbsp;&nbsp;&nbsp;</td><td style="vertical-align: top; text-align: right; white-space: normal; padding: 6pt 6pt 6pt 6pt; font-weight: normal;">(0.09)&nbsp;&nbsp;&nbsp;</td></tr>
+<tr>
+<th style="vertical-align: top; text-align: left; white-space: normal; padding: 6pt 6pt 6pt 6pt; font-weight: normal;">edad_grupo40-65</th><td style="vertical-align: top; text-align: right; white-space: normal; padding: 6pt 6pt 6pt 6pt; font-weight: normal;">1.02&nbsp;&nbsp;&nbsp;&nbsp;</td><td style="vertical-align: top; text-align: right; white-space: normal; padding: 6pt 6pt 6pt 6pt; background-color: rgb(255, 255, 0); font-weight: normal;">0.87 *&nbsp;&nbsp;</td><td style="vertical-align: top; text-align: right; white-space: normal; padding: 6pt 6pt 6pt 6pt; background-color: rgb(255, 255, 0); font-weight: normal;">0.84 **&nbsp;</td><td style="vertical-align: top; text-align: right; white-space: normal; padding: 6pt 6pt 6pt 6pt; background-color: rgb(255, 255, 0); font-weight: normal;">0.86 *&nbsp;&nbsp;</td></tr>
+<tr>
+<th style="vertical-align: top; text-align: left; white-space: normal; padding: 6pt 6pt 6pt 6pt; font-weight: normal;"></th><td style="vertical-align: top; text-align: right; white-space: normal; padding: 6pt 6pt 6pt 6pt; font-weight: normal;">(0.08)&nbsp;&nbsp;&nbsp;</td><td style="vertical-align: top; text-align: right; white-space: normal; padding: 6pt 6pt 6pt 6pt; font-weight: normal;">(0.08)&nbsp;&nbsp;&nbsp;</td><td style="vertical-align: top; text-align: right; white-space: normal; padding: 6pt 6pt 6pt 6pt; font-weight: normal;">(0.08)&nbsp;&nbsp;&nbsp;</td><td style="vertical-align: top; text-align: right; white-space: normal; padding: 6pt 6pt 6pt 6pt; font-weight: normal;">(0.09)&nbsp;&nbsp;&nbsp;</td></tr>
+<tr>
+<th style="vertical-align: top; text-align: left; white-space: normal; padding: 6pt 6pt 6pt 6pt; font-weight: normal;">edad_grupo66-</th><td style="vertical-align: top; text-align: right; white-space: normal; padding: 6pt 6pt 6pt 6pt; background-color: rgb(255, 255, 0); font-weight: normal;">1.70 ***</td><td style="vertical-align: top; text-align: right; white-space: normal; padding: 6pt 6pt 6pt 6pt; background-color: rgb(255, 255, 0); font-weight: normal;">1.38 ***</td><td style="vertical-align: top; text-align: right; white-space: normal; padding: 6pt 6pt 6pt 6pt; background-color: rgb(255, 255, 0); font-weight: normal;">1.26 **&nbsp;</td><td style="vertical-align: top; text-align: right; white-space: normal; padding: 6pt 6pt 6pt 6pt; background-color: rgb(255, 255, 0); font-weight: normal;">1.30 **&nbsp;</td></tr>
+<tr>
+<th style="vertical-align: top; text-align: left; white-space: normal; padding: 6pt 6pt 6pt 6pt; font-weight: normal;"></th><td style="vertical-align: top; text-align: right; white-space: normal; padding: 6pt 6pt 6pt 6pt; font-weight: normal;">(0.10)&nbsp;&nbsp;&nbsp;</td><td style="vertical-align: top; text-align: right; white-space: normal; padding: 6pt 6pt 6pt 6pt; font-weight: normal;">(0.11)&nbsp;&nbsp;&nbsp;</td><td style="vertical-align: top; text-align: right; white-space: normal; padding: 6pt 6pt 6pt 6pt; font-weight: normal;">(0.11)&nbsp;&nbsp;&nbsp;</td><td style="vertical-align: top; text-align: right; white-space: normal; padding: 6pt 6pt 6pt 6pt; font-weight: normal;">(0.11)&nbsp;&nbsp;&nbsp;</td></tr>
+<tr>
+<th style="vertical-align: top; text-align: left; white-space: normal; padding: 6pt 6pt 6pt 6pt; font-weight: normal;">nivel_ed_fSecundario</th><td style="vertical-align: top; text-align: right; white-space: normal; padding: 6pt 6pt 6pt 6pt; background-color: rgb(255, 255, 0); font-weight: normal;">1.68 ***</td><td style="vertical-align: top; text-align: right; white-space: normal; padding: 6pt 6pt 6pt 6pt; background-color: rgb(255, 255, 0); font-weight: normal;">1.54 ***</td><td style="vertical-align: top; text-align: right; white-space: normal; padding: 6pt 6pt 6pt 6pt; background-color: rgb(255, 255, 0); font-weight: normal;">1.52 ***</td><td style="vertical-align: top; text-align: right; white-space: normal; padding: 6pt 6pt 6pt 6pt; background-color: rgb(255, 255, 0); font-weight: normal;">1.38 ***</td></tr>
+<tr>
+<th style="vertical-align: top; text-align: left; white-space: normal; padding: 6pt 6pt 6pt 6pt; font-weight: normal;"></th><td style="vertical-align: top; text-align: right; white-space: normal; padding: 6pt 6pt 6pt 6pt; font-weight: normal;">(0.09)&nbsp;&nbsp;&nbsp;</td><td style="vertical-align: top; text-align: right; white-space: normal; padding: 6pt 6pt 6pt 6pt; font-weight: normal;">(0.09)&nbsp;&nbsp;&nbsp;</td><td style="vertical-align: top; text-align: right; white-space: normal; padding: 6pt 6pt 6pt 6pt; font-weight: normal;">(0.09)&nbsp;&nbsp;&nbsp;</td><td style="vertical-align: top; text-align: right; white-space: normal; padding: 6pt 6pt 6pt 6pt; font-weight: normal;">(0.09)&nbsp;&nbsp;&nbsp;</td></tr>
+<tr>
+<th style="vertical-align: top; text-align: left; white-space: normal; padding: 6pt 6pt 6pt 6pt; font-weight: normal;">nivel_ed_fSuperior</th><td style="vertical-align: top; text-align: right; white-space: normal; padding: 6pt 6pt 6pt 6pt; background-color: rgb(255, 255, 0); font-weight: normal;">2.61 ***</td><td style="vertical-align: top; text-align: right; white-space: normal; padding: 6pt 6pt 6pt 6pt; background-color: rgb(255, 255, 0); font-weight: normal;">2.24 ***</td><td style="vertical-align: top; text-align: right; white-space: normal; padding: 6pt 6pt 6pt 6pt; background-color: rgb(255, 255, 0); font-weight: normal;">2.34 ***</td><td style="vertical-align: top; text-align: right; white-space: normal; padding: 6pt 6pt 6pt 6pt; background-color: rgb(255, 255, 0); font-weight: normal;">2.06 ***</td></tr>
+<tr>
+<th style="vertical-align: top; text-align: left; white-space: normal; padding: 6pt 6pt 6pt 6pt; font-weight: normal;"></th><td style="vertical-align: top; text-align: right; white-space: normal; padding: 6pt 6pt 6pt 6pt; font-weight: normal;">(0.10)&nbsp;&nbsp;&nbsp;</td><td style="vertical-align: top; text-align: right; white-space: normal; padding: 6pt 6pt 6pt 6pt; font-weight: normal;">(0.10)&nbsp;&nbsp;&nbsp;</td><td style="vertical-align: top; text-align: right; white-space: normal; padding: 6pt 6pt 6pt 6pt; font-weight: normal;">(0.10)&nbsp;&nbsp;&nbsp;</td><td style="vertical-align: top; text-align: right; white-space: normal; padding: 6pt 6pt 6pt 6pt; font-weight: normal;">(0.11)&nbsp;&nbsp;&nbsp;</td></tr>
+<tr>
+<th style="vertical-align: top; text-align: left; white-space: normal; padding: 6pt 6pt 6pt 6pt; font-weight: normal;">formalInformal</th><td style="vertical-align: top; text-align: right; white-space: normal; padding: 6pt 6pt 6pt 6pt; font-weight: normal;">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</td><td style="vertical-align: top; text-align: right; white-space: normal; padding: 6pt 6pt 6pt 6pt; background-color: rgb(255, 255, 0); font-weight: normal;">0.61 ***</td><td style="vertical-align: top; text-align: right; white-space: normal; padding: 6pt 6pt 6pt 6pt; background-color: rgb(255, 255, 0); font-weight: normal;">0.59 ***</td><td style="vertical-align: top; text-align: right; white-space: normal; padding: 6pt 6pt 6pt 6pt; background-color: rgb(255, 255, 0); font-weight: normal;">0.60 ***</td></tr>
+<tr>
+<th style="vertical-align: top; text-align: left; white-space: normal; padding: 6pt 6pt 6pt 6pt; font-weight: normal;"></th><td style="vertical-align: top; text-align: right; white-space: normal; padding: 6pt 6pt 6pt 6pt; font-weight: normal;">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</td><td style="vertical-align: top; text-align: right; white-space: normal; padding: 6pt 6pt 6pt 6pt; font-weight: normal;">(0.07)&nbsp;&nbsp;&nbsp;</td><td style="vertical-align: top; text-align: right; white-space: normal; padding: 6pt 6pt 6pt 6pt; font-weight: normal;">(0.08)&nbsp;&nbsp;&nbsp;</td><td style="vertical-align: top; text-align: right; white-space: normal; padding: 6pt 6pt 6pt 6pt; font-weight: normal;">(0.08)&nbsp;&nbsp;&nbsp;</td></tr>
+<tr>
+<th style="vertical-align: top; text-align: left; white-space: normal; padding: 6pt 6pt 6pt 6pt; font-weight: normal;">ramaAct. primarias</th><td style="vertical-align: top; text-align: right; white-space: normal; padding: 6pt 6pt 6pt 6pt; font-weight: normal;">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</td><td style="vertical-align: top; text-align: right; white-space: normal; padding: 6pt 6pt 6pt 6pt; font-weight: normal;">1.05&nbsp;&nbsp;&nbsp;&nbsp;</td><td style="vertical-align: top; text-align: right; white-space: normal; padding: 6pt 6pt 6pt 6pt; font-weight: normal;">1.00&nbsp;&nbsp;&nbsp;&nbsp;</td><td style="vertical-align: top; text-align: right; white-space: normal; padding: 6pt 6pt 6pt 6pt; font-weight: normal;">0.91&nbsp;&nbsp;&nbsp;&nbsp;</td></tr>
+<tr>
+<th style="vertical-align: top; text-align: left; white-space: normal; padding: 6pt 6pt 6pt 6pt; font-weight: normal;"></th><td style="vertical-align: top; text-align: right; white-space: normal; padding: 6pt 6pt 6pt 6pt; font-weight: normal;">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</td><td style="vertical-align: top; text-align: right; white-space: normal; padding: 6pt 6pt 6pt 6pt; font-weight: normal;">(0.28)&nbsp;&nbsp;&nbsp;</td><td style="vertical-align: top; text-align: right; white-space: normal; padding: 6pt 6pt 6pt 6pt; font-weight: normal;">(0.29)&nbsp;&nbsp;&nbsp;</td><td style="vertical-align: top; text-align: right; white-space: normal; padding: 6pt 6pt 6pt 6pt; font-weight: normal;">(0.30)&nbsp;&nbsp;&nbsp;</td></tr>
+<tr>
+<th style="vertical-align: top; text-align: left; white-space: normal; padding: 6pt 6pt 6pt 6pt; font-weight: normal;">ramaAdm. pública</th><td style="vertical-align: top; text-align: right; white-space: normal; padding: 6pt 6pt 6pt 6pt; font-weight: normal;">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</td><td style="vertical-align: top; text-align: right; white-space: normal; padding: 6pt 6pt 6pt 6pt; font-weight: normal;">1.19&nbsp;&nbsp;&nbsp;&nbsp;</td><td style="vertical-align: top; text-align: right; white-space: normal; padding: 6pt 6pt 6pt 6pt; font-weight: normal;">1.16&nbsp;&nbsp;&nbsp;&nbsp;</td><td style="vertical-align: top; text-align: right; white-space: normal; padding: 6pt 6pt 6pt 6pt; font-weight: normal;">1.15&nbsp;&nbsp;&nbsp;&nbsp;</td></tr>
+<tr>
+<th style="vertical-align: top; text-align: left; white-space: normal; padding: 6pt 6pt 6pt 6pt; font-weight: normal;"></th><td style="vertical-align: top; text-align: right; white-space: normal; padding: 6pt 6pt 6pt 6pt; font-weight: normal;">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</td><td style="vertical-align: top; text-align: right; white-space: normal; padding: 6pt 6pt 6pt 6pt; font-weight: normal;">(0.15)&nbsp;&nbsp;&nbsp;</td><td style="vertical-align: top; text-align: right; white-space: normal; padding: 6pt 6pt 6pt 6pt; font-weight: normal;">(0.16)&nbsp;&nbsp;&nbsp;</td><td style="vertical-align: top; text-align: right; white-space: normal; padding: 6pt 6pt 6pt 6pt; font-weight: normal;">(0.16)&nbsp;&nbsp;&nbsp;</td></tr>
+<tr>
+<th style="vertical-align: top; text-align: left; white-space: normal; padding: 6pt 6pt 6pt 6pt; font-weight: normal;">ramaConstrucción</th><td style="vertical-align: top; text-align: right; white-space: normal; padding: 6pt 6pt 6pt 6pt; font-weight: normal;">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</td><td style="vertical-align: top; text-align: right; white-space: normal; padding: 6pt 6pt 6pt 6pt; background-color: rgb(255, 255, 0); font-weight: normal;">0.71 **&nbsp;</td><td style="vertical-align: top; text-align: right; white-space: normal; padding: 6pt 6pt 6pt 6pt; background-color: rgb(255, 255, 0); font-weight: normal;">0.67 **&nbsp;</td><td style="vertical-align: top; text-align: right; white-space: normal; padding: 6pt 6pt 6pt 6pt; background-color: rgb(255, 255, 0); font-weight: normal;">0.68 **&nbsp;</td></tr>
+<tr>
+<th style="vertical-align: top; text-align: left; white-space: normal; padding: 6pt 6pt 6pt 6pt; font-weight: normal;"></th><td style="vertical-align: top; text-align: right; white-space: normal; padding: 6pt 6pt 6pt 6pt; font-weight: normal;">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</td><td style="vertical-align: top; text-align: right; white-space: normal; padding: 6pt 6pt 6pt 6pt; font-weight: normal;">(0.15)&nbsp;&nbsp;&nbsp;</td><td style="vertical-align: top; text-align: right; white-space: normal; padding: 6pt 6pt 6pt 6pt; font-weight: normal;">(0.16)&nbsp;&nbsp;&nbsp;</td><td style="vertical-align: top; text-align: right; white-space: normal; padding: 6pt 6pt 6pt 6pt; font-weight: normal;">(0.16)&nbsp;&nbsp;&nbsp;</td></tr>
+<tr>
+<th style="vertical-align: top; text-align: left; white-space: normal; padding: 6pt 6pt 6pt 6pt; font-weight: normal;">ramaServicios</th><td style="vertical-align: top; text-align: right; white-space: normal; padding: 6pt 6pt 6pt 6pt; font-weight: normal;">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</td><td style="vertical-align: top; text-align: right; white-space: normal; padding: 6pt 6pt 6pt 6pt; font-weight: normal;">1.01&nbsp;&nbsp;&nbsp;&nbsp;</td><td style="vertical-align: top; text-align: right; white-space: normal; padding: 6pt 6pt 6pt 6pt; font-weight: normal;">0.99&nbsp;&nbsp;&nbsp;&nbsp;</td><td style="vertical-align: top; text-align: right; white-space: normal; padding: 6pt 6pt 6pt 6pt; font-weight: normal;">0.99&nbsp;&nbsp;&nbsp;&nbsp;</td></tr>
+<tr>
+<th style="vertical-align: top; text-align: left; white-space: normal; padding: 6pt 6pt 6pt 6pt; font-weight: normal;"></th><td style="vertical-align: top; text-align: right; white-space: normal; padding: 6pt 6pt 6pt 6pt; font-weight: normal;">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</td><td style="vertical-align: top; text-align: right; white-space: normal; padding: 6pt 6pt 6pt 6pt; font-weight: normal;">(0.10)&nbsp;&nbsp;&nbsp;</td><td style="vertical-align: top; text-align: right; white-space: normal; padding: 6pt 6pt 6pt 6pt; font-weight: normal;">(0.11)&nbsp;&nbsp;&nbsp;</td><td style="vertical-align: top; text-align: right; white-space: normal; padding: 6pt 6pt 6pt 6pt; font-weight: normal;">(0.11)&nbsp;&nbsp;&nbsp;</td></tr>
+<tr>
+<th style="vertical-align: top; text-align: left; white-space: normal; padding: 6pt 6pt 6pt 6pt; font-weight: normal;">afiliacionSindicalizado</th><td style="vertical-align: top; text-align: right; white-space: normal; padding: 6pt 6pt 6pt 6pt; font-weight: normal;">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</td><td style="vertical-align: top; text-align: right; white-space: normal; padding: 6pt 6pt 6pt 6pt; font-weight: normal;">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</td><td style="vertical-align: top; text-align: right; white-space: normal; padding: 6pt 6pt 6pt 6pt; background-color: rgb(255, 255, 0); font-weight: normal;">0.78 ***</td><td style="vertical-align: top; text-align: right; white-space: normal; padding: 6pt 6pt 6pt 6pt; background-color: rgb(255, 255, 0); font-weight: normal;">0.76 ***</td></tr>
+<tr>
+<th style="vertical-align: top; text-align: left; white-space: normal; padding: 6pt 6pt 6pt 6pt; font-weight: normal;"></th><td style="vertical-align: top; text-align: right; white-space: normal; padding: 6pt 6pt 6pt 6pt; font-weight: normal;">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</td><td style="vertical-align: top; text-align: right; white-space: normal; padding: 6pt 6pt 6pt 6pt; font-weight: normal;">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</td><td style="vertical-align: top; text-align: right; white-space: normal; padding: 6pt 6pt 6pt 6pt; font-weight: normal;">(0.08)&nbsp;&nbsp;&nbsp;</td><td style="vertical-align: top; text-align: right; white-space: normal; padding: 6pt 6pt 6pt 6pt; font-weight: normal;">(0.08)&nbsp;&nbsp;&nbsp;</td></tr>
+<tr>
+<th style="vertical-align: top; text-align: left; white-space: normal; padding: 6pt 6pt 6pt 6pt; font-weight: normal;">politicaPeronismo</th><td style="vertical-align: top; text-align: right; white-space: normal; padding: 6pt 6pt 6pt 6pt; font-weight: normal;">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</td><td style="vertical-align: top; text-align: right; white-space: normal; padding: 6pt 6pt 6pt 6pt; font-weight: normal;">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</td><td style="vertical-align: top; text-align: right; white-space: normal; padding: 6pt 6pt 6pt 6pt; background-color: rgb(255, 255, 0); font-weight: normal;">0.85 **&nbsp;</td><td style="vertical-align: top; text-align: right; white-space: normal; padding: 6pt 6pt 6pt 6pt; background-color: rgb(255, 255, 0); font-weight: normal;">0.81 ***</td></tr>
+<tr>
+<th style="vertical-align: top; text-align: left; white-space: normal; padding: 6pt 6pt 6pt 6pt; font-weight: normal;"></th><td style="vertical-align: top; text-align: right; white-space: normal; padding: 6pt 6pt 6pt 6pt; font-weight: normal;">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</td><td style="vertical-align: top; text-align: right; white-space: normal; padding: 6pt 6pt 6pt 6pt; font-weight: normal;">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</td><td style="vertical-align: top; text-align: right; white-space: normal; padding: 6pt 6pt 6pt 6pt; font-weight: normal;">(0.08)&nbsp;&nbsp;&nbsp;</td><td style="vertical-align: top; text-align: right; white-space: normal; padding: 6pt 6pt 6pt 6pt; font-weight: normal;">(0.08)&nbsp;&nbsp;&nbsp;</td></tr>
+<tr>
+<th style="vertical-align: top; text-align: left; white-space: normal; padding: 6pt 6pt 6pt 6pt; font-weight: normal;">politicaUCR/PRO</th><td style="vertical-align: top; text-align: right; white-space: normal; padding: 6pt 6pt 6pt 6pt; font-weight: normal;">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</td><td style="vertical-align: top; text-align: right; white-space: normal; padding: 6pt 6pt 6pt 6pt; font-weight: normal;">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</td><td style="vertical-align: top; text-align: right; white-space: normal; padding: 6pt 6pt 6pt 6pt; background-color: rgb(255, 255, 0); font-weight: normal;">1.47 ***</td><td style="vertical-align: top; text-align: right; white-space: normal; padding: 6pt 6pt 6pt 6pt; background-color: rgb(255, 255, 0); font-weight: normal;">1.43 ***</td></tr>
+<tr>
+<th style="vertical-align: top; text-align: left; white-space: normal; padding: 6pt 6pt 6pt 6pt; font-weight: normal;"></th><td style="vertical-align: top; text-align: right; white-space: normal; padding: 6pt 6pt 6pt 6pt; font-weight: normal;">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</td><td style="vertical-align: top; text-align: right; white-space: normal; padding: 6pt 6pt 6pt 6pt; font-weight: normal;">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</td><td style="vertical-align: top; text-align: right; white-space: normal; padding: 6pt 6pt 6pt 6pt; font-weight: normal;">(0.09)&nbsp;&nbsp;&nbsp;</td><td style="vertical-align: top; text-align: right; white-space: normal; padding: 6pt 6pt 6pt 6pt; font-weight: normal;">(0.10)&nbsp;&nbsp;&nbsp;</td></tr>
+<tr>
+<th style="vertical-align: top; text-align: left; white-space: normal; padding: 6pt 6pt 6pt 6pt; font-weight: normal;">politicaIzquierda</th><td style="vertical-align: top; text-align: right; white-space: normal; padding: 6pt 6pt 6pt 6pt; font-weight: normal;">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</td><td style="vertical-align: top; text-align: right; white-space: normal; padding: 6pt 6pt 6pt 6pt; font-weight: normal;">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</td><td style="vertical-align: top; text-align: right; white-space: normal; padding: 6pt 6pt 6pt 6pt; background-color: rgb(255, 255, 0); font-weight: normal;">0.42 ***</td><td style="vertical-align: top; text-align: right; white-space: normal; padding: 6pt 6pt 6pt 6pt; background-color: rgb(255, 255, 0); font-weight: normal;">0.38 ***</td></tr>
+<tr>
+<th style="vertical-align: top; text-align: left; white-space: normal; padding: 6pt 6pt 6pt 6pt; font-weight: normal;"></th><td style="vertical-align: top; text-align: right; white-space: normal; padding: 6pt 6pt 6pt 6pt; font-weight: normal;">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</td><td style="vertical-align: top; text-align: right; white-space: normal; padding: 6pt 6pt 6pt 6pt; font-weight: normal;">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</td><td style="vertical-align: top; text-align: right; white-space: normal; padding: 6pt 6pt 6pt 6pt; font-weight: normal;">(0.13)&nbsp;&nbsp;&nbsp;</td><td style="vertical-align: top; text-align: right; white-space: normal; padding: 6pt 6pt 6pt 6pt; font-weight: normal;">(0.14)&nbsp;&nbsp;&nbsp;</td></tr>
+<tr>
+<th style="vertical-align: top; text-align: left; white-space: normal; padding: 6pt 6pt 6pt 6pt; font-weight: normal;">politicaLibertarios</th><td style="vertical-align: top; text-align: right; white-space: normal; padding: 6pt 6pt 6pt 6pt; font-weight: normal;">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</td><td style="vertical-align: top; text-align: right; white-space: normal; padding: 6pt 6pt 6pt 6pt; font-weight: normal;">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</td><td style="vertical-align: top; text-align: right; white-space: normal; padding: 6pt 6pt 6pt 6pt; background-color: rgb(255, 255, 0); font-weight: normal;">1.56 **&nbsp;</td><td style="vertical-align: top; text-align: right; white-space: normal; padding: 6pt 6pt 6pt 6pt; background-color: rgb(255, 255, 0); font-weight: normal;">1.48 *&nbsp;&nbsp;</td></tr>
+<tr>
+<th style="vertical-align: top; text-align: left; white-space: normal; padding: 6pt 6pt 6pt 6pt; font-weight: normal;"></th><td style="vertical-align: top; text-align: right; white-space: normal; padding: 6pt 6pt 6pt 6pt; font-weight: normal;">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</td><td style="vertical-align: top; text-align: right; white-space: normal; padding: 6pt 6pt 6pt 6pt; font-weight: normal;">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</td><td style="vertical-align: top; text-align: right; white-space: normal; padding: 6pt 6pt 6pt 6pt; font-weight: normal;">(0.23)&nbsp;&nbsp;&nbsp;</td><td style="vertical-align: top; text-align: right; white-space: normal; padding: 6pt 6pt 6pt 6pt; font-weight: normal;">(0.23)&nbsp;&nbsp;&nbsp;</td></tr>
+<tr>
+<th style="vertical-align: top; text-align: left; white-space: normal; padding: 6pt 6pt 6pt 6pt; font-weight: normal;">egp5_origen_fI+II</th><td style="vertical-align: top; text-align: right; white-space: normal; padding: 6pt 6pt 6pt 6pt; font-weight: normal;">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</td><td style="vertical-align: top; text-align: right; white-space: normal; padding: 6pt 6pt 6pt 6pt; font-weight: normal;">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</td><td style="vertical-align: top; text-align: right; white-space: normal; padding: 6pt 6pt 6pt 6pt; font-weight: normal;">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</td><td style="vertical-align: top; text-align: right; white-space: normal; padding: 6pt 6pt 6pt 6pt; background-color: rgb(255, 255, 0); font-weight: normal;">1.85 ***</td></tr>
+<tr>
+<th style="vertical-align: top; text-align: left; white-space: normal; padding: 6pt 6pt 6pt 6pt; font-weight: normal;"></th><td style="vertical-align: top; text-align: right; white-space: normal; padding: 6pt 6pt 6pt 6pt; font-weight: normal;">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</td><td style="vertical-align: top; text-align: right; white-space: normal; padding: 6pt 6pt 6pt 6pt; font-weight: normal;">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</td><td style="vertical-align: top; text-align: right; white-space: normal; padding: 6pt 6pt 6pt 6pt; font-weight: normal;">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</td><td style="vertical-align: top; text-align: right; white-space: normal; padding: 6pt 6pt 6pt 6pt; font-weight: normal;">(0.11)&nbsp;&nbsp;&nbsp;</td></tr>
+<tr>
+<th style="vertical-align: top; text-align: left; white-space: normal; padding: 6pt 6pt 6pt 6pt; font-weight: normal;">egp5_origen_fIII</th><td style="vertical-align: top; text-align: right; white-space: normal; padding: 6pt 6pt 6pt 6pt; font-weight: normal;">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</td><td style="vertical-align: top; text-align: right; white-space: normal; padding: 6pt 6pt 6pt 6pt; font-weight: normal;">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</td><td style="vertical-align: top; text-align: right; white-space: normal; padding: 6pt 6pt 6pt 6pt; font-weight: normal;">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</td><td style="vertical-align: top; text-align: right; white-space: normal; padding: 6pt 6pt 6pt 6pt; background-color: rgb(255, 255, 0); font-weight: normal;">1.31 **&nbsp;</td></tr>
+<tr>
+<th style="vertical-align: top; text-align: left; white-space: normal; padding: 6pt 6pt 6pt 6pt; font-weight: normal;"></th><td style="vertical-align: top; text-align: right; white-space: normal; padding: 6pt 6pt 6pt 6pt; font-weight: normal;">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</td><td style="vertical-align: top; text-align: right; white-space: normal; padding: 6pt 6pt 6pt 6pt; font-weight: normal;">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</td><td style="vertical-align: top; text-align: right; white-space: normal; padding: 6pt 6pt 6pt 6pt; font-weight: normal;">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</td><td style="vertical-align: top; text-align: right; white-space: normal; padding: 6pt 6pt 6pt 6pt; font-weight: normal;">(0.12)&nbsp;&nbsp;&nbsp;</td></tr>
+<tr>
+<th style="vertical-align: top; text-align: left; white-space: normal; padding: 6pt 6pt 6pt 6pt; font-weight: normal;">egp5_origen_fIV</th><td style="vertical-align: top; text-align: right; white-space: normal; padding: 6pt 6pt 6pt 6pt; font-weight: normal;">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</td><td style="vertical-align: top; text-align: right; white-space: normal; padding: 6pt 6pt 6pt 6pt; font-weight: normal;">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</td><td style="vertical-align: top; text-align: right; white-space: normal; padding: 6pt 6pt 6pt 6pt; font-weight: normal;">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</td><td style="vertical-align: top; text-align: right; white-space: normal; padding: 6pt 6pt 6pt 6pt; background-color: rgb(255, 255, 0); font-weight: normal;">1.41 ***</td></tr>
+<tr>
+<th style="vertical-align: top; text-align: left; white-space: normal; padding: 6pt 6pt 6pt 6pt; font-weight: normal;"></th><td style="vertical-align: top; text-align: right; white-space: normal; padding: 6pt 6pt 6pt 6pt; font-weight: normal;">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</td><td style="vertical-align: top; text-align: right; white-space: normal; padding: 6pt 6pt 6pt 6pt; font-weight: normal;">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</td><td style="vertical-align: top; text-align: right; white-space: normal; padding: 6pt 6pt 6pt 6pt; font-weight: normal;">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</td><td style="vertical-align: top; text-align: right; white-space: normal; padding: 6pt 6pt 6pt 6pt; font-weight: normal;">(0.09)&nbsp;&nbsp;&nbsp;</td></tr>
+<tr>
+<th style="vertical-align: top; text-align: left; white-space: normal; padding: 6pt 6pt 6pt 6pt; font-weight: normal;">egp5_origen_fV+VI</th><td style="vertical-align: top; text-align: right; white-space: normal; padding: 6pt 6pt 6pt 6pt; font-weight: normal;">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</td><td style="vertical-align: top; text-align: right; white-space: normal; padding: 6pt 6pt 6pt 6pt; font-weight: normal;">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</td><td style="vertical-align: top; text-align: right; white-space: normal; padding: 6pt 6pt 6pt 6pt; font-weight: normal;">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</td><td style="vertical-align: top; text-align: right; white-space: normal; padding: 6pt 6pt 6pt 6pt; background-color: rgb(255, 255, 0); font-weight: normal;">1.48 ***</td></tr>
+<tr>
+<th style="vertical-align: top; text-align: left; white-space: normal; padding: 6pt 6pt 6pt 6pt; font-weight: normal;"></th><td style="vertical-align: top; text-align: right; white-space: normal; border-style: solid solid solid solid; border-width: 0pt 0pt 0.4pt 0pt;    padding: 6pt 6pt 6pt 6pt; font-weight: normal;">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</td><td style="vertical-align: top; text-align: right; white-space: normal; border-style: solid solid solid solid; border-width: 0pt 0pt 0.4pt 0pt;    padding: 6pt 6pt 6pt 6pt; font-weight: normal;">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</td><td style="vertical-align: top; text-align: right; white-space: normal; border-style: solid solid solid solid; border-width: 0pt 0pt 0.4pt 0pt;    padding: 6pt 6pt 6pt 6pt; font-weight: normal;">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</td><td style="vertical-align: top; text-align: right; white-space: normal; border-style: solid solid solid solid; border-width: 0pt 0pt 0.4pt 0pt;    padding: 6pt 6pt 6pt 6pt; font-weight: normal;">(0.10)&nbsp;&nbsp;&nbsp;</td></tr>
+<tr>
+<th style="vertical-align: top; text-align: left; white-space: normal; padding: 6pt 6pt 6pt 6pt; font-weight: normal;">N</th><td style="vertical-align: top; text-align: right; white-space: normal; border-style: solid solid solid solid; border-width: 0.4pt 0pt 0pt 0pt;    padding: 6pt 6pt 6pt 6pt; font-weight: normal;">4827&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</td><td style="vertical-align: top; text-align: right; white-space: normal; border-style: solid solid solid solid; border-width: 0.4pt 0pt 0pt 0pt;    padding: 6pt 6pt 6pt 6pt; font-weight: normal;">4763&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</td><td style="vertical-align: top; text-align: right; white-space: normal; border-style: solid solid solid solid; border-width: 0.4pt 0pt 0pt 0pt;    padding: 6pt 6pt 6pt 6pt; font-weight: normal;">4739&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</td><td style="vertical-align: top; text-align: right; white-space: normal; border-style: solid solid solid solid; border-width: 0.4pt 0pt 0pt 0pt;    padding: 6pt 6pt 6pt 6pt; font-weight: normal;">4467&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</td></tr>
+<tr>
+<th style="vertical-align: top; text-align: left; white-space: normal; padding: 6pt 6pt 6pt 6pt; font-weight: normal;">AIC</th><td style="vertical-align: top; text-align: right; white-space: normal; padding: 6pt 6pt 6pt 6pt; font-weight: normal;">6021.00&nbsp;&nbsp;&nbsp;&nbsp;</td><td style="vertical-align: top; text-align: right; white-space: normal; padding: 6pt 6pt 6pt 6pt; font-weight: normal;">5887.15&nbsp;&nbsp;&nbsp;&nbsp;</td><td style="vertical-align: top; text-align: right; white-space: normal; padding: 6pt 6pt 6pt 6pt; font-weight: normal;">5796.49&nbsp;&nbsp;&nbsp;&nbsp;</td><td style="vertical-align: top; text-align: right; white-space: normal; padding: 6pt 6pt 6pt 6pt; font-weight: normal;">5547.54&nbsp;&nbsp;&nbsp;&nbsp;</td></tr>
+<tr>
+<th style="vertical-align: top; text-align: left; white-space: normal; padding: 6pt 6pt 6pt 6pt; font-weight: normal;">BIC</th><td style="vertical-align: top; text-align: right; white-space: normal; padding: 6pt 6pt 6pt 6pt; font-weight: normal;">6092.30&nbsp;&nbsp;&nbsp;&nbsp;</td><td style="vertical-align: top; text-align: right; white-space: normal; padding: 6pt 6pt 6pt 6pt; font-weight: normal;">5990.65&nbsp;&nbsp;&nbsp;&nbsp;</td><td style="vertical-align: top; text-align: right; white-space: normal; padding: 6pt 6pt 6pt 6pt; font-weight: normal;">5932.23&nbsp;&nbsp;&nbsp;&nbsp;</td><td style="vertical-align: top; text-align: right; white-space: normal; padding: 6pt 6pt 6pt 6pt; font-weight: normal;">5707.65&nbsp;&nbsp;&nbsp;&nbsp;</td></tr>
+<tr>
+<th style="vertical-align: top; text-align: left; white-space: normal; border-style: solid solid solid solid; border-width: 0pt 0pt 0.8pt 0pt;    padding: 6pt 6pt 6pt 6pt; font-weight: normal;">Pseudo R2</th><td style="vertical-align: top; text-align: right; white-space: normal; border-style: solid solid solid solid; border-width: 0pt 0pt 0.8pt 0pt;    padding: 6pt 6pt 6pt 6pt; font-weight: normal;">0.11&nbsp;&nbsp;&nbsp;&nbsp;</td><td style="vertical-align: top; text-align: right; white-space: normal; border-style: solid solid solid solid; border-width: 0pt 0pt 0.8pt 0pt;    padding: 6pt 6pt 6pt 6pt; font-weight: normal;">0.13&nbsp;&nbsp;&nbsp;&nbsp;</td><td style="vertical-align: top; text-align: right; white-space: normal; border-style: solid solid solid solid; border-width: 0pt 0pt 0.8pt 0pt;    padding: 6pt 6pt 6pt 6pt; font-weight: normal;">0.14&nbsp;&nbsp;&nbsp;&nbsp;</td><td style="vertical-align: top; text-align: right; white-space: normal; border-style: solid solid solid solid; border-width: 0pt 0pt 0.8pt 0pt;    padding: 6pt 6pt 6pt 6pt; font-weight: normal;">0.15&nbsp;&nbsp;&nbsp;&nbsp;</td></tr>
+<tr>
+<th colspan="5" style="vertical-align: top; text-align: left; white-space: normal; border-style: solid solid solid solid; border-width: 0.8pt 0pt 0pt 0pt;    padding: 6pt 6pt 6pt 6pt; font-weight: normal;"> *** p &lt; 0.01;  ** p &lt; 0.05;  * p &lt; 0.1.</th></tr>
+</table>
+<img src="data:image/png;base64,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" width="768" /></p>
 </div>
 </div>
 </div>
