@@ -1895,6 +1895,8 @@ Prism.languages.r={comment:/#.*/,string:{pattern:/(['"])(?:\\.|(?!\1)[^\\\r\n])*
         <div class="Sidebar">
           <div class="SidebarItems" id="toc">
             <ul>
+            <li><a href="#armado-de-las-bases-de-datos" id="toc-armado-de-las-bases-de-datos">Armado de las bases de
+            datos</a></li>
             <li><a href="#construcción-de-egp" id="toc-construcción-de-egp">Construcción de EGP</a></li>
             <li><a href="#resultados" id="toc-resultados">Resultados</a>
             <ul>
@@ -1935,7 +1937,8 @@ de la Fuente - Gonzalo Assusa
    
 <!-- Don't indent these lines or it will mess pre blocks indentation --> 
 <div class="page-content has-page-title">
-<p>#Armado de las bases de datos</p>
+<div id="armado-de-las-bases-de-datos" class="section level1">
+<h1>Armado de las bases de datos</h1>
 <p>Se importan las bases de datos.</p>
 <pre class="r"><code>pacman::p_load(tidyverse, haven, gridExtra, grid, occupar, ggpubr, ggsci, gtsummary,
                survey, jtools, huxtable, nnet, broom)
@@ -2204,6 +2207,7 @@ base2021 &lt;- base2021 %&gt;%
          politica = car::recode(M16.1, &quot;c(1,4)=1; 2:3=2; 5=3; 6=4; 7:8=5; else=NA&quot;),
          politica = factor(politica, labels = c(&quot;Peronismo&quot;, &quot;UCR/PRO&quot;, &quot;Izquierda&quot;,
                                                 &quot;Libertarios&quot;, &quot;Ninguno&quot;)))</code></pre>
+</div>
 <div id="construcción-de-egp" class="section level1">
 <h1>Construcción de EGP</h1>
 <p>Se construye la variable egp para cada base de datos.</p>
@@ -3186,12 +3190,12 @@ Consistencia de clase. GBA 1960-2021
 <h2>Determinantes del posicionamiento subjetivo de clase (2021)</h2>
 <div id="descriptivos" class="section level3">
 <h3>Descriptivos</h3>
-<div id="csxllfomir" style="overflow-x:auto;overflow-y:auto;width:auto;height:auto;">
+<div id="kzhlhltocg" style="overflow-x:auto;overflow-y:auto;width:auto;height:auto;">
 <style>html {
   font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, 'Helvetica Neue', 'Fira Sans', 'Droid Sans', Arial, sans-serif;
 }
 
-#csxllfomir .gt_table {
+#kzhlhltocg .gt_table {
   display: table;
   border-collapse: collapse;
   margin-left: auto;
@@ -3216,7 +3220,7 @@ Consistencia de clase. GBA 1960-2021
   border-left-color: #D3D3D3;
 }
 
-#csxllfomir .gt_heading {
+#kzhlhltocg .gt_heading {
   background-color: #FFFFFF;
   text-align: center;
   border-bottom-color: #FFFFFF;
@@ -3228,7 +3232,7 @@ Consistencia de clase. GBA 1960-2021
   border-right-color: #D3D3D3;
 }
 
-#csxllfomir .gt_title {
+#kzhlhltocg .gt_title {
   color: #333333;
   font-size: 125%;
   font-weight: initial;
@@ -3240,7 +3244,7 @@ Consistencia de clase. GBA 1960-2021
   border-bottom-width: 0;
 }
 
-#csxllfomir .gt_subtitle {
+#kzhlhltocg .gt_subtitle {
   color: #333333;
   font-size: 85%;
   font-weight: initial;
@@ -3252,13 +3256,13 @@ Consistencia de clase. GBA 1960-2021
   border-top-width: 0;
 }
 
-#csxllfomir .gt_bottom_border {
+#kzhlhltocg .gt_bottom_border {
   border-bottom-style: solid;
   border-bottom-width: 2px;
   border-bottom-color: #D3D3D3;
 }
 
-#csxllfomir .gt_col_headings {
+#kzhlhltocg .gt_col_headings {
   border-top-style: solid;
   border-top-width: 2px;
   border-top-color: #D3D3D3;
@@ -3273,7 +3277,7 @@ Consistencia de clase. GBA 1960-2021
   border-right-color: #D3D3D3;
 }
 
-#csxllfomir .gt_col_heading {
+#kzhlhltocg .gt_col_heading {
   color: #333333;
   background-color: #FFFFFF;
   font-size: 100%;
@@ -3293,7 +3297,7 @@ Consistencia de clase. GBA 1960-2021
   overflow-x: hidden;
 }
 
-#csxllfomir .gt_column_spanner_outer {
+#kzhlhltocg .gt_column_spanner_outer {
   color: #333333;
   background-color: #FFFFFF;
   font-size: 100%;
@@ -3305,15 +3309,15 @@ Consistencia de clase. GBA 1960-2021
   padding-right: 4px;
 }
 
-#csxllfomir .gt_column_spanner_outer:first-child {
+#kzhlhltocg .gt_column_spanner_outer:first-child {
   padding-left: 0;
 }
 
-#csxllfomir .gt_column_spanner_outer:last-child {
+#kzhlhltocg .gt_column_spanner_outer:last-child {
   padding-right: 0;
 }
 
-#csxllfomir .gt_column_spanner {
+#kzhlhltocg .gt_column_spanner {
   border-bottom-style: solid;
   border-bottom-width: 2px;
   border-bottom-color: #D3D3D3;
@@ -3325,7 +3329,7 @@ Consistencia de clase. GBA 1960-2021
   width: 100%;
 }
 
-#csxllfomir .gt_group_heading {
+#kzhlhltocg .gt_group_heading {
   padding-top: 8px;
   padding-bottom: 8px;
   padding-left: 5px;
@@ -3350,7 +3354,7 @@ Consistencia de clase. GBA 1960-2021
   vertical-align: middle;
 }
 
-#csxllfomir .gt_empty_group_heading {
+#kzhlhltocg .gt_empty_group_heading {
   padding: 0.5px;
   color: #333333;
   background-color: #FFFFFF;
@@ -3365,15 +3369,15 @@ Consistencia de clase. GBA 1960-2021
   vertical-align: middle;
 }
 
-#csxllfomir .gt_from_md > :first-child {
+#kzhlhltocg .gt_from_md > :first-child {
   margin-top: 0;
 }
 
-#csxllfomir .gt_from_md > :last-child {
+#kzhlhltocg .gt_from_md > :last-child {
   margin-bottom: 0;
 }
 
-#csxllfomir .gt_row {
+#kzhlhltocg .gt_row {
   padding-top: 8px;
   padding-bottom: 8px;
   padding-left: 5px;
@@ -3392,7 +3396,7 @@ Consistencia de clase. GBA 1960-2021
   overflow-x: hidden;
 }
 
-#csxllfomir .gt_stub {
+#kzhlhltocg .gt_stub {
   color: #333333;
   background-color: #FFFFFF;
   font-size: 100%;
@@ -3405,7 +3409,7 @@ Consistencia de clase. GBA 1960-2021
   padding-right: 5px;
 }
 
-#csxllfomir .gt_stub_row_group {
+#kzhlhltocg .gt_stub_row_group {
   color: #333333;
   background-color: #FFFFFF;
   font-size: 100%;
@@ -3419,11 +3423,11 @@ Consistencia de clase. GBA 1960-2021
   vertical-align: top;
 }
 
-#csxllfomir .gt_row_group_first td {
+#kzhlhltocg .gt_row_group_first td {
   border-top-width: 2px;
 }
 
-#csxllfomir .gt_summary_row {
+#kzhlhltocg .gt_summary_row {
   color: #333333;
   background-color: #FFFFFF;
   text-transform: inherit;
@@ -3433,16 +3437,16 @@ Consistencia de clase. GBA 1960-2021
   padding-right: 5px;
 }
 
-#csxllfomir .gt_first_summary_row {
+#kzhlhltocg .gt_first_summary_row {
   border-top-style: solid;
   border-top-color: #D3D3D3;
 }
 
-#csxllfomir .gt_first_summary_row.thick {
+#kzhlhltocg .gt_first_summary_row.thick {
   border-top-width: 2px;
 }
 
-#csxllfomir .gt_last_summary_row {
+#kzhlhltocg .gt_last_summary_row {
   padding-top: 8px;
   padding-bottom: 8px;
   padding-left: 5px;
@@ -3452,7 +3456,7 @@ Consistencia de clase. GBA 1960-2021
   border-bottom-color: #D3D3D3;
 }
 
-#csxllfomir .gt_grand_summary_row {
+#kzhlhltocg .gt_grand_summary_row {
   color: #333333;
   background-color: #FFFFFF;
   text-transform: inherit;
@@ -3462,7 +3466,7 @@ Consistencia de clase. GBA 1960-2021
   padding-right: 5px;
 }
 
-#csxllfomir .gt_first_grand_summary_row {
+#kzhlhltocg .gt_first_grand_summary_row {
   padding-top: 8px;
   padding-bottom: 8px;
   padding-left: 5px;
@@ -3472,11 +3476,11 @@ Consistencia de clase. GBA 1960-2021
   border-top-color: #D3D3D3;
 }
 
-#csxllfomir .gt_striped {
+#kzhlhltocg .gt_striped {
   background-color: rgba(128, 128, 128, 0.05);
 }
 
-#csxllfomir .gt_table_body {
+#kzhlhltocg .gt_table_body {
   border-top-style: solid;
   border-top-width: 2px;
   border-top-color: #D3D3D3;
@@ -3485,7 +3489,7 @@ Consistencia de clase. GBA 1960-2021
   border-bottom-color: #D3D3D3;
 }
 
-#csxllfomir .gt_footnotes {
+#kzhlhltocg .gt_footnotes {
   color: #333333;
   background-color: #FFFFFF;
   border-bottom-style: none;
@@ -3499,7 +3503,7 @@ Consistencia de clase. GBA 1960-2021
   border-right-color: #D3D3D3;
 }
 
-#csxllfomir .gt_footnote {
+#kzhlhltocg .gt_footnote {
   margin: 0px;
   font-size: 90%;
   padding-left: 4px;
@@ -3508,7 +3512,7 @@ Consistencia de clase. GBA 1960-2021
   padding-right: 5px;
 }
 
-#csxllfomir .gt_sourcenotes {
+#kzhlhltocg .gt_sourcenotes {
   color: #333333;
   background-color: #FFFFFF;
   border-bottom-style: none;
@@ -3522,7 +3526,7 @@ Consistencia de clase. GBA 1960-2021
   border-right-color: #D3D3D3;
 }
 
-#csxllfomir .gt_sourcenote {
+#kzhlhltocg .gt_sourcenote {
   font-size: 90%;
   padding-top: 4px;
   padding-bottom: 4px;
@@ -3530,36 +3534,36 @@ Consistencia de clase. GBA 1960-2021
   padding-right: 5px;
 }
 
-#csxllfomir .gt_left {
+#kzhlhltocg .gt_left {
   text-align: left;
 }
 
-#csxllfomir .gt_center {
+#kzhlhltocg .gt_center {
   text-align: center;
 }
 
-#csxllfomir .gt_right {
+#kzhlhltocg .gt_right {
   text-align: right;
   font-variant-numeric: tabular-nums;
 }
 
-#csxllfomir .gt_font_normal {
+#kzhlhltocg .gt_font_normal {
   font-weight: normal;
 }
 
-#csxllfomir .gt_font_bold {
+#kzhlhltocg .gt_font_bold {
   font-weight: bold;
 }
 
-#csxllfomir .gt_font_italic {
+#kzhlhltocg .gt_font_italic {
   font-style: italic;
 }
 
-#csxllfomir .gt_super {
+#kzhlhltocg .gt_super {
   font-size: 65%;
 }
 
-#csxllfomir .gt_two_val_uncert {
+#kzhlhltocg .gt_two_val_uncert {
   display: inline-block;
   line-height: 1em;
   text-align: right;
@@ -3568,31 +3572,31 @@ Consistencia de clase. GBA 1960-2021
   margin-left: 0.1em;
 }
 
-#csxllfomir .gt_footnote_marks {
+#kzhlhltocg .gt_footnote_marks {
   font-style: italic;
   font-weight: normal;
   font-size: 75%;
   vertical-align: 0.4em;
 }
 
-#csxllfomir .gt_asterisk {
+#kzhlhltocg .gt_asterisk {
   font-size: 100%;
   vertical-align: 0;
 }
 
-#csxllfomir .gt_slash_mark {
+#kzhlhltocg .gt_slash_mark {
   font-size: 0.7em;
   line-height: 0.7em;
   vertical-align: 0.15em;
 }
 
-#csxllfomir .gt_fraction_numerator {
+#kzhlhltocg .gt_fraction_numerator {
   font-size: 0.6em;
   line-height: 0.6em;
   vertical-align: 0.45em;
 }
 
-#csxllfomir .gt_fraction_denominator {
+#kzhlhltocg .gt_fraction_denominator {
   font-size: 0.6em;
   line-height: 0.6em;
   vertical-align: -0.05em;
