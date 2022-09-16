@@ -11,7 +11,7 @@ output:
     code_folding: hide
 ---
 
-#Armado de las bases de datos  
+# Armado de las bases de datos  
 
 Se importan las bases de datos.  
 
