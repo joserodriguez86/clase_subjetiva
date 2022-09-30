@@ -23,6 +23,7 @@ theme_set(theme_classic())
 
 rm(list = ls())
 
+#bases argentinas
 load("bases/germani_sampleb.RData")
 base1960 <- sample_B
 base2003 <- read_spss("bases/base_2003_2004.sav")
@@ -32,6 +33,13 @@ base2015 <- read_spss("bases/base_2015.sav")
 load("bases/base_2021.RData")
 base2021 <- base_pirc
 rm(base_pirc)
+
+#World Values Survey
+wvs <- readRDS("bases/WVS_Trend_v2_0.rds")
+
+#Latinobarómetro
+latino <- readRDS("bases/latinobarometro.RDS")
+
 ```
 
 Se construyen las principales variables a utilizar.  
@@ -267,7 +275,8 @@ base2021 <- base2021 %>%
          rama = case_when(CAES_letra %in% c("A", "B") ~ "Act. primarias",
                           CAES_letra %in% c("C", "D", "E") ~ "Industria",
                           CAES_letra == "F" ~ "Construcción",
-                          CAES_letra %in% c("G", "H", "I", "J", "K", "L",
+                          CAES_letra == "G" ~ "Comercio",
+                          CAES_letra %in% c("H", "I", "J", "K", "L",
                                             "M", "N", "P", "Q", "R", "S",
                                             "T") ~ "Servicios",
                           CAES_letra %in% c("O", "U") ~ "Adm. pública"),
@@ -284,9 +293,23 @@ base2021 <- base2021 %>%
                             TRUE ~ NA_real_),
          rural_o = case_when(M12.19 == 1 ~ 1,
                            TRUE ~ 0),
-         politica = car::recode(M16.1, "c(1,4)=1; 2:3=2; 5=3; 6=4; 7:8=5; else=NA"),
-         politica = factor(politica, labels = c("Peronismo", "UCR/PRO", "Izquierda",
+         ipcf = itf_imp / MIEMBROS,
+         log_ipcf = log(ipcf),
+         politica = car::recode(M16.1, "1=1; 4=2; 2:3=3; 5=4; 6=5; 7:8=6; else=NA"),
+         politica = factor(politica, labels = c("Kirchnerismo", "Peronismo no K", "UCR/PRO", "Izquierda",
                                                 "Libertarios", "Ninguno")))
+
+wvs <- wvs %>% 
+  mutate(clase_sub = car::recode(X045, "1:2 = 1; 3=2; 4=3; 5=4; else=NA"),
+         clase_sub_f = factor(clase_sub, labels = c("C. Media-alta",
+                                                    "C. Media-baja", "C. Trabajadora",
+                                                    "C. Baja"))) %>% 
+  filter(S003 == 32)
+
+latino <- latino %>% 
+  mutate(clase_sub = car::recode(clase_sub, "1:2=1; 3=2; 4=3; 5=4; else=NA"),
+         clase_sub_f = factor(clase_sub, labels = c("C. Media-alta", "C. Media",
+                                                    "C. Media-baja", "C. Baja")))
 ```
 
 
@@ -698,7 +721,7 @@ base2021$egp5_origen_f <- factor(base2021$egp5_origen,
 
 ## Tendencias a largo plazo sobre el posicionamiento subjetivo   
 
-```{r clase subjetiva, message=F, warning=F, fig.cap="Posicionamiento de clase subjetivo. GBA 1960-2021"}
+```{r clase subjetiva, message=F, warning=F, fig.cap="Posicionamiento de clase subjetivo. GBA 1960. Argentina 2003-2021"}
 barra1960 <- base1960 %>%
   drop_na(q36_f) %>%
   group_by(q36_f) %>%
@@ -738,7 +761,7 @@ barra2003 <- base2003 %>%
   scale_y_continuous(labels=scales::percent, breaks = seq(0,.7, .1), limits = c(0,.6))
 
 barra2007 <- base2007 %>%
-  filter(region == 1) %>%
+  # filter(region == 1) %>%
   drop_na(clasesub_2007) %>%
   group_by(clasesub_2007_f) %>%
   tally(pond18) %>%
@@ -758,7 +781,7 @@ barra2007 <- base2007 %>%
   scale_y_continuous(labels=scales::percent, breaks = seq(0,.7, .1), limits = c(0,.6))
 
 barra2010 <- base2010 %>%
-  filter(Region == 1) %>%
+  # filter(Region == 1) %>%
   drop_na(clasesub_2010) %>%
   group_by(clasesub_2010_f) %>%
   tally() %>%
@@ -779,7 +802,7 @@ barra2010 <- base2010 %>%
 
 
 barra2015 <- base2015 %>%
-  filter(region == 1) %>%
+  # filter(region == 1) %>%
   drop_na(clasesub_2015) %>%
   group_by(clasesub_2015_f) %>%
   tally(f_calib3) %>%
@@ -800,7 +823,7 @@ barra2015 <- base2015 %>%
 
 
 barra2021 <- base2021 %>%
-  filter(REGION == "GBA") %>%
+  # filter(REGION == "GBA") %>%
   drop_na(clasesub_2021_f) %>%
   group_by(clasesub_2021_f) %>%
   tally(POND2R_FIN_n) %>%
@@ -824,7 +847,52 @@ grid.arrange(barra1960, barra2003, barra2007, barra2010,
                                 barra2015, barra2021, ncol = 3)
 ```
 
-```{r clase objetiva, message=F, warning=F, fig.cap="Posicionamiento de clase objetivo. GBA 1960-2021"}
+```{r clase subjetiva wvs, message=F, warning=F, fig.cap="Posicionamiento de clase subjetivo. Argentina 1984-2017"}
+wvs %>%
+  filter(S020 >= 1995) %>% 
+  drop_na(clase_sub_f) %>%
+  group_by(S020, clase_sub_f) %>%
+  tally(S017) %>%
+  mutate(porcentaje = n/sum(n)) %>%
+  ggplot(aes(x=clase_sub_f, y=porcentaje)) +
+  geom_bar(stat = "identity") +
+  geom_text(aes(label = scales::percent(porcentaje, accuracy = 0.1),
+                y = porcentaje + 0.01),
+            position = position_dodge(.9), vjust = 0, size = 2.5) +
+  labs(caption = "Fuente: elaboración propia en base a World Values Survey Time-Series (1981-2020)") +
+  theme(axis.title.y = element_blank(),
+        axis.title.x = element_blank(),
+        plot.title = element_text(size = 12),
+        axis.text.x = element_text(size = 8, vjust = .7),
+        axis.text.y = element_text(size = 8)) +
+  scale_x_discrete(labels = function(x) str_wrap(x, width = 10)) +
+  scale_y_continuous(labels=scales::percent, breaks = seq(0,.7, .1), limits = c(0,.6)) +
+  facet_wrap(~S020, ncol = 3)
+```
+
+```{r clase subjetiva latinobarometro, message=F, warning=F, fig.cap="Posicionamiento de clase subjetivo. Argentina 2011-2020"}
+latino %>%
+  drop_na(clase_sub_f) %>%
+  group_by(anio, clase_sub_f) %>%
+  tally(wt) %>%
+  mutate(porcentaje = n/sum(n)) %>%
+  ggplot(aes(x=clase_sub_f, y=porcentaje)) +
+  geom_bar(stat = "identity") +
+  geom_text(aes(label = scales::percent(porcentaje, accuracy = 0.1),
+                y = porcentaje + 0.01),
+            position = position_dodge(.9), vjust = 0, size = 2.5) +
+  labs(caption = "Fuente: elaboración propia en base a Latinobarometro (2011-2020)") +
+  theme(axis.title.y = element_blank(),
+        axis.title.x = element_blank(),
+        plot.title = element_text(size = 12),
+        axis.text.x = element_text(size = 8, vjust = .7),
+        axis.text.y = element_text(size = 8)) +
+  scale_x_discrete(labels = function(x) str_wrap(x, width = 10)) +
+  scale_y_continuous(labels=scales::percent, breaks = seq(0,.7, .1), limits = c(0,.6)) +
+  facet_wrap(~anio, ncol = 3)
+```
+
+```{r clase objetiva, message=F, warning=F, fig.cap="Posicionamiento de clase objetivo. GBA 1960. Argentina 2003-2021"}
 
 barra1960 <- base1960 %>%
   drop_na(egp5_f) %>%
@@ -866,7 +934,7 @@ barra2003 <- base2003 %>%
   scale_y_continuous(labels=scales::percent, breaks = seq(0,.7, .05), limits = c(0,.35))
 
 barra2007 <- base2007 %>%
-  filter(region == 1) %>%
+  # filter(region == 1) %>%
   drop_na(egp5_f) %>%
   group_by(egp5_f) %>%
   tally(pond18) %>%
@@ -886,7 +954,7 @@ barra2007 <- base2007 %>%
   scale_y_continuous(labels=scales::percent, breaks = seq(0,.7, .05), limits = c(0,.35))
 
 barra2010 <- base2010 %>%
-  filter(Region == 1) %>%
+  # filter(Region == 1) %>%
   drop_na(egp5_f) %>%
   group_by(egp5_f) %>%
   tally() %>%
@@ -907,7 +975,7 @@ barra2010 <- base2010 %>%
 
 
 barra2015 <- base2015 %>%
-  filter(region == 1) %>%
+  # filter(region == 1) %>%
   drop_na(egp5_f) %>%
   group_by(egp5_f) %>%
   tally(f_calib3) %>%
@@ -928,7 +996,7 @@ barra2015 <- base2015 %>%
 
 
 barra2021 <- base2021 %>%
-  filter(REGION == "GBA") %>%
+  # filter(REGION == "GBA") %>%
   drop_na(egp5_f) %>%
   group_by(egp5_f) %>%
   tally(POND2R_FIN_n) %>%
@@ -954,7 +1022,7 @@ grid.arrange(barra1960, barra2003, barra2007, barra2010,
 
 ```
 
-```{r comparacion clase obj-sub, message=F, warning=F, fig.cap="Composición de clase subjetiva según posicionamiento objetivo. GBA 1960-2021"}
+```{r comparacion clase obj-sub, message=F, warning=F, fig.cap="Composición de clase subjetiva según posicionamiento objetivo. GBA 1960. Argentina 2003-2021"}
 
 barra1960 <- base1960 %>%
   drop_na(egp5_f, clase_recod_f) %>%
@@ -1096,7 +1164,7 @@ ggarrange(barra1960, barra2003, barra2007, barra2010,
 ```
 
 
-```{r consistencia, message=F, warning=F, fig.cap="Consistencia de clase. GBA 1960-2021"}
+```{r consistencia, message=F, warning=F, fig.cap="Consistencia de clase. GBA 1960. Argentina 2003-2021"}
 barra1960 <- base1960 %>%
   drop_na(clasesub_dic, egp5) %>%
   mutate(consistencia = case_when(clasesub_dic == 1 & egp5 <= 3 ~ "Consistencia",
@@ -1272,18 +1340,20 @@ ggarrange(barra1960, barra2003, barra2007, barra2010,
 theme_gtsummary_language("es", decimal.mark = ",", big.mark = ".")
 
 base2021 %>%
+  filter(M2.12 <= 2) %>% 
   svydesign(data = ., ids = ~ 1, weights = ~POND2R_FIN_n) %>%
-  tbl_svysummary(include = c(egp5_f, egp5_origen_f, nivel_ed_f, sexo_f, edad_grupo,
-                             formal, afiliacion, rama, politica),
+  tbl_svysummary(include = c(egp5_f, egp5_origen_f, nivel_ed_f, sexo_f,
+                             formal, afiliacion, rama, politica, M2.4, ipcf),
                  label = c(egp5_f ~ "Clase encuestado",
                            egp5_origen_f ~ "Clase origen",
                            nivel_ed_f ~ "Nivel educativo",
                            sexo_f ~ "Sexo",
-                           edad_grupo ~ "Edad",
+                           M2.4 ~ "Edad",
                            formal ~ "Condición laboral",
                            afiliacion ~ "Afiliación",
                            rama ~ "Rama de actividad",
-                           politica ~ "Posicionamiento político"), 
+                           politica ~ "Posicionamiento político",
+                           ipcf ~ "Ingreso per cápita familiar"), 
                  statistic = list(all_continuous() ~ "{mean} ({sd})", 
                                   all_categorical() ~ "{n} ({p}%)",
                                   all_character() ~ "{n} ({p}%)"),
@@ -1297,23 +1367,26 @@ base2021 %>%
 ### Regresión logística binomial  
 
 ```{r binomial, warning=F, message=F, echo=F, results='asis'}
+base2021 <- base2021 %>%
+  filter(M2.12 <= 2)
+
 base2021$clasesub_dic[base2021$clasesub_dic == 2] <- 0
 base2021$egp5_f <- relevel(base2021$egp5_f, ref = "VII")
 base2021$egp5_origen_f <- relevel(base2021$egp5_origen_f, ref = "VII")
 base2021$rama <- relevel(as.factor(base2021$rama), ref = "Construcción")
 base2021$politica <- relevel(base2021$politica, ref = "Ninguno")
 
-binomial1 <- glm(clasesub_dic ~ egp5_f + sexo_f + edad_grupo + nivel_ed_f,
+binomial1 <- glm(clasesub_dic ~ egp5_f + sexo_f + M2.4 + nivel_ed_f + ipcf,
                  data = base2021, weights = POND2R_FIN_n, family = binomial(link = "logit"))
 
-binomial2 <- glm(clasesub_dic ~ egp5_f + sexo_f + edad_grupo + nivel_ed_f + formal + rama,
+binomial2 <- glm(clasesub_dic ~ egp5_f + sexo_f + M2.4 + nivel_ed_f + ipcf + formal + rama,
                  data = base2021, weights = POND2R_FIN_n, family = binomial(link = "logit"))
 
-binomial3 <- glm(clasesub_dic ~ egp5_f + sexo_f + edad_grupo + nivel_ed_f + formal + rama +
+binomial3 <- glm(clasesub_dic ~ egp5_f + sexo_f + M2.4 + nivel_ed_f + ipcf + formal + rama +
                    afiliacion + politica,
                  data = base2021, weights = POND2R_FIN_n, family = binomial(link = "logit"))
 
-binomial4 <- glm(clasesub_dic ~ egp5_f + sexo_f + edad_grupo + nivel_ed_f + formal + rama +
+binomial4 <- glm(clasesub_dic ~ egp5_f + sexo_f + M2.4 + nivel_ed_f + ipcf + formal + rama +
                    afiliacion + politica + egp5_origen_f,
                  data = base2021, weights = POND2R_FIN_n, family = binomial(link = "logit"))
 
@@ -1323,7 +1396,7 @@ binomial4 <- glm(clasesub_dic ~ egp5_f + sexo_f + edad_grupo + nivel_ed_f + form
 
 
 regresion_binomial <- export_summs(binomial1, binomial2, binomial3, binomial4, exp = T,
-                                   stars = c(`***` = 0.01, `**` = 0.05, `*` = 0.1))
+                                   stars = c(`***` = 0.01, `**` = 0.05, `*` = 0.1), scale = T)
 
 regresion_binomial %>% 
   set_caption("Regresión logística. Odds ratios Clase media vs clase trabajadora") %>% 
@@ -1332,7 +1405,7 @@ regresion_binomial %>%
       ))
 
 plot_summs(binomial1, 
-           binomial4)
+           binomial4, scale = T)
 
 ```
 
@@ -1343,20 +1416,22 @@ base2021 <- base2021 %>%
   mutate(clasesub4 = factor(car::recode(M11.6, "1:3 = 1; 4=2; 5=3; 6=4"),
                             labels = c("Clase media", "Clase media-baja", "Clase trabajadora",
                                        "Clase baja")),
-         clasesub4 = relevel(clasesub4, ref = "Clase baja"))
+         clasesub4 = relevel(clasesub4, ref = "Clase media-baja"))
 
-multinomial <- multinom(clasesub4 ~ egp5_f + sexo_f + edad_grupo + nivel_ed_f + formal + rama +
+multinomial <- multinom(clasesub4 ~ egp5_f + sexo_f + M2.4 + nivel_ed_f + ipcf + formal + rama +
                    afiliacion + politica + egp5_origen_f, data = base2021, weights = POND2R_FIN_n,
                    trace = F)
 
 tidied <- tidy(multinomial)
-models <- list()
-models[["Media vs baja"]] <- tidy_replace(multinomial, tidied[tidied$y.level == "Clase media", ])
-models[["Media-baja vs baja"]] <- tidy_replace(multinomial, tidied[tidied$y.level == "Clase media-baja", ])
-models[["Trabajadora vs baja"]] <- tidy_replace(multinomial, tidied[tidied$y.level == "Clase trabajadora", ])
+tidied$estimate <- exp(tidied$estimate)
 
-reg_multinomial <- export_summs(models, statistics = c("AIC", "deviance"), exp = T,
-             stars = c(`***` = 0.01, `**` = 0.05, `*` = 0.1))
+models <- list()
+models[["Media vs media-baja"]] <- tidy_replace(multinomial, tidied[tidied$y.level == "Clase media", ])
+models[["Trabajadora vs media-baja"]] <- tidy_replace(multinomial, tidied[tidied$y.level == "Clase trabajadora", ])
+models[["Baja vs media-baja"]] <- tidy_replace(multinomial, tidied[tidied$y.level == "Clase baja", ])
+
+reg_multinomial <- export_summs(models, statistics = c("AIC", "deviance"),
+             stars = c(`***` = 0.01, `**` = 0.05, `*` = 0.1), scale = T)
 
 reg_multinomial %>% 
   set_caption("Regresión multinomial. Categoría de referencia: clase baja") %>% 
