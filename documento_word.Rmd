@@ -1,0 +1,8 @@
+---
+title: "Tendencias pasadas y recientes sobre el posicionamiento de clase subjetiva
+  en Argentina (1960-2021). Explicaciones desde la posición de clase y el origen social."
+author: "José Rodríguez de la Fuente - Gonzalo Assusa"
+date: "`r Sys.Date()`"
+output: word_document
+---
+

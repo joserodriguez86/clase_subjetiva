@@ -843,8 +843,16 @@ barra2021 <- base2021 %>%
   scale_y_continuous(labels=scales::percent, breaks = seq(0,.7, .1), limits = c(0,.6))
 
 
-grid.arrange(barra1960, barra2003, barra2007, barra2010,
-                                barra2015, barra2021, ncol = 3)
+barras_1960_2021 <- grid.arrange(barra1960, barra2003, barra2007, barra2010,
+                                barra2015, barra2021, ncol = 3,
+                                bottom = textGrob("Fuente: elaboración propia en base a encuestas de hogares 1960-2021",
+    gp = gpar(fontsize = 9),
+    hjust = .1))
+
+ggsave(barras_1960_2021, filename = "salidas/barras_subjetiva_1960_2021.jpg", dpi = 300, width = 8, height = 6)
+
+barras_1960_2021
+
 ```
 
 ```{r clase subjetiva wvs, message=F, warning=F, fig.cap="Posicionamiento de clase subjetivo. Argentina 1984-2017"}
@@ -868,6 +876,9 @@ wvs %>%
   scale_x_discrete(labels = function(x) str_wrap(x, width = 10)) +
   scale_y_continuous(labels=scales::percent, breaks = seq(0,.7, .1), limits = c(0,.6)) +
   facet_wrap(~S020, ncol = 3)
+
+ggsave(filename = "salidas/barras_subjetiva_wvs.jpg", dpi = 300, width = 8, height = 6)
+
 ```
 
 ```{r clase subjetiva latinobarometro, message=F, warning=F, fig.cap="Posicionamiento de clase subjetivo. Argentina 2011-2020"}
@@ -890,6 +901,9 @@ latino %>%
   scale_x_discrete(labels = function(x) str_wrap(x, width = 10)) +
   scale_y_continuous(labels=scales::percent, breaks = seq(0,.7, .1), limits = c(0,.6)) +
   facet_wrap(~anio, ncol = 3)
+
+ggsave(filename = "salidas/barras_subjetiva_latinobarometro.jpg", dpi = 300, width = 8, height = 6)
+
 ```
 
 ```{r clase objetiva, message=F, warning=F, fig.cap="Posicionamiento de clase objetivo. GBA 1960. Argentina 2003-2021"}
@@ -1016,9 +1030,16 @@ barra2021 <- base2021 %>%
   scale_y_continuous(labels=scales::percent, breaks = seq(0,.7, .05), limits = c(0,.35))
 
 
-grid.arrange(barra1960, barra2003, barra2007, barra2010,
+clase_objetiva <- grid.arrange(barra1960, barra2003, barra2007, barra2010,
                                 barra2015, barra2021,
-                                ncol = 3)
+                                ncol = 3,
+                                bottom = textGrob("Fuente: elaboración propia en base a encuestas de hogares 1960-2021",
+    gp = gpar(fontsize = 9),
+    hjust = .1))
+
+ggsave(clase_objetiva, filename = "salidas/barras_subjetiva_1960_2021.jpg", dpi = 300, width = 8, height = 6)
+
+clase_objetiva
 
 ```
 
@@ -1033,7 +1054,7 @@ barra1960 <- base1960 %>%
   geom_col() +
   geom_text(aes(label = scales::percent(porcentaje, accuracy = 0.1),
                 y = porcentaje + 0.01),
-            position = position_stack(.5), vjust = 1.1, size = 2.5) +
+            position = position_stack(.5), vjust = 1.1, size = 2.3) +
   scale_fill_ucscgb() +
   labs(title = "1960",
        fill = "Clase objetiva") +
@@ -1056,7 +1077,7 @@ barra2003 <- base2003 %>%
   geom_col() +
   geom_text(aes(label = scales::percent(porcentaje, accuracy = 0.1),
                 y = porcentaje + 0.01),
-            position = position_stack(.5), vjust = 1.1, size = 2.5) +
+            position = position_stack(.5), vjust = 1.1, size = 2.3) +
   scale_fill_ucscgb() +
   labs(title = "2003/2004") +
   theme(axis.title.y = element_blank(),
@@ -1078,7 +1099,7 @@ barra2007 <- base2007 %>%
   geom_col() +
   geom_text(aes(label = scales::percent(porcentaje, accuracy = 0.1),
                 y = porcentaje + 0.01),
-            position = position_stack(.5), vjust = 1.2, size = 2.5) +
+            position = position_stack(.5), vjust = 1.2, size = 2.3) +
   scale_fill_ucscgb() +
   labs(title = "2007/2008") +
   theme(axis.title.y = element_blank(),
@@ -1099,7 +1120,7 @@ barra2010 <- base2010 %>%
   geom_col() +
   geom_text(aes(label = scales::percent(porcentaje, accuracy = 0.1),
                 y = porcentaje + 0.01),
-            position = position_stack(.5), vjust = 1.2, size = 2.5) +
+            position = position_stack(.5), vjust = 1.2, size = 2.3) +
   scale_fill_ucscgb() +
   labs(title = "2009/2010") +
   theme(axis.title.y = element_blank(),
@@ -1121,7 +1142,7 @@ barra2015 <- base2015 %>%
   geom_col() +
   geom_text(aes(label = scales::percent(porcentaje, accuracy = 0.1),
                 y = porcentaje + 0.01),
-            position = position_stack(.5), vjust = 1.2, size = 2.5) +
+            position = position_stack(.5), vjust = 1.2, size = 2.3) +
   scale_fill_ucscgb() +
   labs(title = "2014/2015") +
   theme(axis.title.y = element_blank(),
@@ -1143,7 +1164,7 @@ barra2021 <- base2021 %>%
   geom_col() +
   geom_text(aes(label = scales::percent(porcentaje, accuracy = 0.1),
                 y = porcentaje + 0.01),
-            position = position_stack(.5), vjust = 1.2, size = 2.5) +
+            position = position_stack(.5), vjust = 1.2, size = 2.3) +
   scale_fill_ucscgb() +
   labs(title = "2021",
        fill = "Clase objetiva") +
@@ -1157,9 +1178,17 @@ barra2021 <- base2021 %>%
   scale_y_continuous(labels=scales::percent, breaks = seq(0,1, .1))
 
 
-ggarrange(barra1960, barra2003, barra2007, barra2010,
+barra_obj_subj <- ggarrange(barra1960, barra2003, barra2007, barra2010,
                                 barra2015, barra2021,
-                                ncol = 3, nrow = 2, common.legend = TRUE, legend = "bottom")
+                                ncol = 3, nrow = 2, 
+                               common.legend = TRUE, legend = "right") 
+  
+barra_obj_subj <- annotate_figure(barra_obj_subj, 
+                                  bottom = text_grob("Fuente: elaboración propia en base a encuestas de hogares 1960-2021", hjust = 1, x = 1, size = 9))
+
+ggsave(barra_obj_subj, filename = "salidas/barras_objetiva_1960_2021.jpg", dpi = 300, width = 8, height = 6)
+
+barra_obj_subj
 
 ```
 
@@ -1326,9 +1355,17 @@ barra2021 <- base2021 %>%
   scale_y_continuous(labels=scales::percent, breaks = seq(0,1, .1))
 
 
-ggarrange(barra1960, barra2003, barra2007, barra2010,
-                             barra2015, barra2021,
-                             ncol = 3, nrow = 2, common.legend = TRUE, legend = "bottom")
+consistencia <- ggarrange(barra1960, barra2003, barra2007, barra2010,
+                                barra2015, barra2021,
+                                ncol = 3, nrow = 2, 
+                               common.legend = TRUE, legend = "right") 
+  
+consistencia <- annotate_figure(consistencia, 
+                                  bottom = text_grob("Fuente: elaboración propia en base a encuestas de hogares 1960-2021", hjust = 1, x = 1, size = 9))
+
+ggsave(consistencia, filename = "salidas/consistencia.jpg", dpi = 300, width = 8, height = 6)
+
+consistencia
 ```
 
 
@@ -1375,18 +1412,19 @@ base2021$egp5_f <- relevel(base2021$egp5_f, ref = "VII")
 base2021$egp5_origen_f <- relevel(base2021$egp5_origen_f, ref = "VII")
 base2021$rama <- relevel(as.factor(base2021$rama), ref = "Construcción")
 base2021$politica <- relevel(base2021$politica, ref = "Ninguno")
+base2021$log_ipcf <- ifelse(base2021$log_ipcf == -Inf, NA, base2021$log_ipcf)
 
-binomial1 <- glm(clasesub_dic ~ egp5_f + sexo_f + M2.4 + nivel_ed_f + ipcf,
+binomial1 <- glm(clasesub_dic ~ egp5_f + sexo_f + M2.4 + nivel_ed_f + log_ipcf,
                  data = base2021, weights = POND2R_FIN_n, family = binomial(link = "logit"))
 
-binomial2 <- glm(clasesub_dic ~ egp5_f + sexo_f + M2.4 + nivel_ed_f + ipcf + formal + rama,
+binomial2 <- glm(clasesub_dic ~ egp5_f + sexo_f + M2.4 + nivel_ed_f + log_ipcf + formal + rama,
                  data = base2021, weights = POND2R_FIN_n, family = binomial(link = "logit"))
 
-binomial3 <- glm(clasesub_dic ~ egp5_f + sexo_f + M2.4 + nivel_ed_f + ipcf + formal + rama +
+binomial3 <- glm(clasesub_dic ~ egp5_f + sexo_f + M2.4 + nivel_ed_f + log_ipcf + formal + rama +
                    afiliacion + politica,
                  data = base2021, weights = POND2R_FIN_n, family = binomial(link = "logit"))
 
-binomial4 <- glm(clasesub_dic ~ egp5_f + sexo_f + M2.4 + nivel_ed_f + ipcf + formal + rama +
+binomial4 <- glm(clasesub_dic ~ egp5_f + sexo_f + M2.4 + nivel_ed_f + log_ipcf + formal + rama +
                    afiliacion + politica + egp5_origen_f,
                  data = base2021, weights = POND2R_FIN_n, family = binomial(link = "logit"))
 
@@ -1396,7 +1434,7 @@ binomial4 <- glm(clasesub_dic ~ egp5_f + sexo_f + M2.4 + nivel_ed_f + ipcf + for
 
 
 regresion_binomial <- export_summs(binomial1, binomial2, binomial3, binomial4, exp = T,
-                                   stars = c(`***` = 0.01, `**` = 0.05, `*` = 0.1), scale = T)
+                                   stars = c(`***` = 0.01, `**` = 0.05, `*` = 0.1))
 
 regresion_binomial %>% 
   set_caption("Regresión logística. Odds ratios Clase media vs clase trabajadora") %>% 
@@ -1418,7 +1456,7 @@ base2021 <- base2021 %>%
                                        "Clase baja")),
          clasesub4 = relevel(clasesub4, ref = "Clase media-baja"))
 
-multinomial <- multinom(clasesub4 ~ egp5_f + sexo_f + M2.4 + nivel_ed_f + ipcf + formal + rama +
+multinomial <- multinom(clasesub4 ~ egp5_f + sexo_f + M2.4 + nivel_ed_f + log_ipcf + formal + rama +
                    afiliacion + politica + egp5_origen_f, data = base2021, weights = POND2R_FIN_n,
                    trace = F)
 
@@ -1430,8 +1468,8 @@ models[["Media vs media-baja"]] <- tidy_replace(multinomial, tidied[tidied$y.lev
 models[["Trabajadora vs media-baja"]] <- tidy_replace(multinomial, tidied[tidied$y.level == "Clase trabajadora", ])
 models[["Baja vs media-baja"]] <- tidy_replace(multinomial, tidied[tidied$y.level == "Clase baja", ])
 
-reg_multinomial <- export_summs(models, statistics = c("AIC", "deviance"),
-             stars = c(`***` = 0.01, `**` = 0.05, `*` = 0.1), scale = T)
+reg_multinomial <- export_summs(models,
+             stars = c(`***` = 0.01, `**` = 0.05, `*` = 0.1))
 
 reg_multinomial %>% 
   set_caption("Regresión multinomial. Categoría de referencia: clase baja") %>% 
