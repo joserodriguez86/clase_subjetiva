@@ -1434,7 +1434,31 @@ binomial4 <- glm(clasesub_dic ~ egp5_f + sexo_f + M2.4 + nivel_ed_f + log_ipcf +
 
 
 regresion_binomial <- export_summs(binomial1, binomial2, binomial3, binomial4, exp = T,
-                                   stars = c(`***` = 0.01, `**` = 0.05, `*` = 0.1))
+                                   stars = c(`***` = 0.01, `**` = 0.05, `*` = 0.1),
+                                   coefs = c("I+II" = "egp5_fI+II",
+                                             "III" = "egp5_fIII",
+                                             "IV" = "egp5_fIV",
+                                             "V+VI" = "egp5_fV+VI",
+                                             "Mujer" = "sexo_fMujer",
+                                             "Edad" = "M2.4",
+                                             "Secundario" = "nivel_ed_fSecundario",
+                                             "Superior" = "nivel_ed_fSuperior",
+                                             "IPCF(log)" = "log_ipcf",
+                                             "Informal" = "formalInformal",
+                                             "Act. Primarias" = "ramaAct. primarias",
+                                             "Adm. Pública" = "ramaAdm. pública",
+                                             "Comercio" = "ramaComercio",
+                                             "Servicios" = "ramaServicios",
+                                             "Sindicalizado" = "afiliacionSindicalizado",
+                                             "Kirchnerismo" = "politicaKirchnerismo",
+                                             "Peronismo no K" = "politicaPeronismo no K",
+                                             "UCR/PRO" = "politicaUCR/PRO",
+                                             "Izquierda" = "politicaIzquierda",
+                                             "Libertarios" = "politicaLibertarios",
+                                             "Origen: I+II" = "egp5_origen_fI+II",
+                                             "Origen: III" = "egp5_origen_fIII",
+                                             "Origen: IV" = "egp5_origen_fIV",
+                                             "Origen: V+VI" = "egp5_origen_fV+VI"))
 
 regresion_binomial %>% 
   set_caption("Regresión logística. Odds ratios Clase media vs clase trabajadora") %>% 
@@ -1442,8 +1466,45 @@ regresion_binomial %>%
         "\\*" = "yellow"
       ))
 
-plot_summs(binomial1, 
-           binomial4, scale = T)
+reg_coef <- plot_summs(binomial1, binomial4, ci_level = 0.91, exp = T,
+                       coefs = c("I+II" = "egp5_fI+II",
+                                             "III" = "egp5_fIII",
+                                             "IV" = "egp5_fIV",
+                                             "V+VI" = "egp5_fV+VI",
+                                             "Mujer" = "sexo_fMujer",
+                                             "Edad" = "M2.4",
+                                             "Secundario" = "nivel_ed_fSecundario",
+                                             "Superior" = "nivel_ed_fSuperior",
+                                             "IPCF(log)" = "log_ipcf",
+                                             "Informal" = "formalInformal",
+                                             "Act. Primarias" = "ramaAct. primarias",
+                                             "Adm. Pública" = "ramaAdm. pública",
+                                             "Comercio" = "ramaComercio",
+                                             "Servicios" = "ramaServicios",
+                                             "Sindicalizado" = "afiliacionSindicalizado",
+                                             "Kirchnerismo" = "politicaKirchnerismo",
+                                             "Peronismo no K" = "politicaPeronismo no K",
+                                             "UCR/PRO" = "politicaUCR/PRO",
+                                             "Izquierda" = "politicaIzquierda",
+                                             "Libertarios" = "politicaLibertarios",
+                                             "Origen: I+II" = "egp5_origen_fI+II",
+                                             "Origen: III" = "egp5_origen_fIII",
+                                             "Origen: IV" = "egp5_origen_fIV",
+                                             "Origen: V+VI" = "egp5_origen_fV+VI"))
+
+reg_coef +
+  labs(caption = "Fuente: elaboración propia en base a encuesta ESAyPP / PISAC COVID 19 (2021)", x = "Razones de momios") +
+  theme(axis.title.y = element_blank(),
+        axis.title.x = element_blank(),
+        axis.text.x = element_text(size = 8),
+        axis.text.y = element_text(size = 10),
+        legend.position= "bottom") +
+  scale_fill_ucscgb() %>% 
+  scale_x_continuous(breaks = seq(0, 3, by = .5))
+
+ggsave(filename = "salidas/coef_graf.jpg", dpi = 300, width = 8, height = 6)
+
+  
 
 ```
 
@@ -1469,7 +1530,31 @@ models[["Trabajadora vs media-baja"]] <- tidy_replace(multinomial, tidied[tidied
 models[["Baja vs media-baja"]] <- tidy_replace(multinomial, tidied[tidied$y.level == "Clase baja", ])
 
 reg_multinomial <- export_summs(models,
-             stars = c(`***` = 0.01, `**` = 0.05, `*` = 0.1))
+             stars = c(`***` = 0.01, `**` = 0.05, `*` = 0.1),
+             coefs = c("I+II" = "egp5_fI+II",
+                                             "III" = "egp5_fIII",
+                                             "IV" = "egp5_fIV",
+                                             "V+VI" = "egp5_fV+VI",
+                                             "Mujer" = "sexo_fMujer",
+                                             "Edad" = "M2.4",
+                                             "Secundario" = "nivel_ed_fSecundario",
+                                             "Superior" = "nivel_ed_fSuperior",
+                                             "IPCF(log)" = "log_ipcf",
+                                             "Informal" = "formalInformal",
+                                             "Act. Primarias" = "ramaAct. primarias",
+                                             "Adm. Pública" = "ramaAdm. pública",
+                                             "Comercio" = "ramaComercio",
+                                             "Servicios" = "ramaServicios",
+                                             "Sindicalizado" = "afiliacionSindicalizado",
+                                             "Kirchnerismo" = "politicaKirchnerismo",
+                                             "Peronismo no K" = "politicaPeronismo no K",
+                                             "UCR/PRO" = "politicaUCR/PRO",
+                                             "Izquierda" = "politicaIzquierda",
+                                             "Libertarios" = "politicaLibertarios",
+                                             "Origen: I+II" = "egp5_origen_fI+II",
+                                             "Origen: III" = "egp5_origen_fIII",
+                                             "Origen: IV" = "egp5_origen_fIV",
+                                             "Origen: V+VI" = "egp5_origen_fV+VI"))
 
 reg_multinomial %>% 
   set_caption("Regresión multinomial. Categoría de referencia: clase baja") %>% 
