@@ -16,8 +16,10 @@ output:
 Se importan las bases de datos.  
 
 ```{r carga librerías, message=F, warning=F}
+##############Para la próxima incorporar a los conyuges en la ENES#############################.
+
 pacman::p_load(tidyverse, haven, gridExtra, grid, occupar, ggpubr, ggsci, gtsummary,
-               survey, jtools, huxtable, nnet, broom)
+               survey, jtools, huxtable, nnet, broom, kableExtra)
 
 theme_set(theme_classic())
 
@@ -189,6 +191,7 @@ base2010 <- base2010 %>%
 
 
 #2014-2015
+
 base2015 <- base2015 %>%
   mutate(clasesub_2015 = case_when(v260a == 1 ~ 6,
                                    v260a == 2 ~ 5,
@@ -716,6 +719,52 @@ base2021$egp5_origen_f <- factor(base2021$egp5_origen,
                                  labels = c("I+II", "III", "IV", "V+VI", "VII"))
 ```
 
+```{r tamaños muestrales, message=F, warning=F}
+muestra_1960 <- nrow(base1960[!is.na(base1960$clasesub_1960), ])
+muestra_2003 <- nrow(base2003[!is.na(base2003$clasesub_2003), ])
+muestra_2007 <- nrow(base2007[!is.na(base2007$clasesub_2007), ])
+muestra_2010 <- nrow(base2010[!is.na(base2010$clasesub_2010), ])
+muestra_2015 <- nrow(base2015[!is.na(base2015$clasesub_2015) & base2015$v111 == 1, ])
+muestra_2021 <- nrow(base2021[!is.na(base2021$clasesub_2021_f), ])
+
+wvs_1995 <- nrow(wvs[!is.na(wvs$clase_sub) & wvs$X003 >= 18 & wvs$S020 == 1995, ])
+wvs_1999 <- nrow(wvs[!is.na(wvs$clase_sub) & wvs$X003 >= 18 & wvs$S020 == 1999, ])
+wvs_2006 <- nrow(wvs[!is.na(wvs$clase_sub) & wvs$X003 >= 18 & wvs$S020 == 2006, ])
+wvs_2013 <- nrow(wvs[!is.na(wvs$clase_sub) & wvs$X003 >= 18 & wvs$S020 == 2013, ])
+wvs_2017 <- nrow(wvs[!is.na(wvs$clase_sub) & wvs$X003 >= 18 & wvs$S020 == 2017, ])
+
+latino_2011 <- nrow(latino[!is.na(latino$clase_sub) & latino$anio == 2011, ])
+latino_2013 <- nrow(latino[!is.na(latino$clase_sub) & latino$anio == 2013, ])
+latino_2015 <- nrow(latino[!is.na(latino$clase_sub) & latino$anio == 2015, ])
+latino_2017 <- nrow(latino[!is.na(latino$clase_sub) & latino$anio == 2017, ])
+latino_2018 <- nrow(latino[!is.na(latino$clase_sub) & latino$anio == 2018, ])
+latino_2020 <- nrow(latino[!is.na(latino$clase_sub) & latino$anio == 2020, ])
+
+muestra <- as.data.frame(c(muestra_1960, muestra_2003, muestra_2007, muestra_2010,
+                           muestra_2015, muestra_2021, wvs_1995, wvs_1999, wvs_2006,
+                           wvs_2013, wvs_2017, latino_2011, latino_2013, latino_2015,
+                           latino_2017, latino_2018, latino_2020))
+colnames(muestra)[1] <- "N"
+
+muestra <- as.data.frame(t(muestra))
+
+
+muestra <- flextable::flextable(muestra) %>%  
+  flextable::set_header_labels(values = list(V1 = "1960", V2="2003-4", V3="2007-8", V4="2009-10",
+                                  V5="2014-15", V6="2021", V7="1995", V8="1999", 
+                                  V9="2006", V10="2013", V11="2017", V12="2011", 
+                                  V13="2013", V14="2015", V15="2017", V16="2018", 
+                                  V17="2020")) %>% 
+  flextable::add_header_row(values = c("Encuestas nacionales", "WVS",
+                                              "Latinobarómetro"),
+                          colwidths = c(6, 5, 6)) %>% 
+  flextable::theme_box() %>% 
+  flextable::align(align = "center", part = "all")
+
+
+muestra
+```
+
 
 # Resultados  
 
@@ -857,7 +906,7 @@ barras_1960_2021
 
 ```{r clase subjetiva wvs, message=F, warning=F, fig.cap="Posicionamiento de clase subjetivo. Argentina 1984-2017"}
 wvs %>%
-  filter(S020 >= 1995) %>% 
+  filter(S020 >= 1995, X003 >= 18) %>% 
   drop_na(clase_sub_f) %>%
   group_by(S020, clase_sub_f) %>%
   tally(S017) %>%
@@ -1181,10 +1230,14 @@ barra2021 <- base2021 %>%
 barra_obj_subj <- ggarrange(barra1960, barra2003, barra2007, barra2010,
                                 barra2015, barra2021,
                                 ncol = 3, nrow = 2, 
-                               common.legend = TRUE, legend = "right") 
+                               common.legend = TRUE, legend = "right") +
+  bgcolor("white") +
+  border("white")
   
 barra_obj_subj <- annotate_figure(barra_obj_subj, 
-                                  bottom = text_grob("Fuente: elaboración propia en base a encuestas de hogares 1960-2021", hjust = 1, x = 1, size = 9))
+                                  bottom = text_grob("Fuente: elaboración propia en base a encuestas de hogares 1960-2021", hjust = 1, x = 1, size = 9)) +
+  bgcolor("white") +
+  border("white")
 
 ggsave(barra_obj_subj, filename = "salidas/barras_objetiva_1960_2021.jpg", dpi = 300, width = 8, height = 6)
 
@@ -1358,10 +1411,14 @@ barra2021 <- base2021 %>%
 consistencia <- ggarrange(barra1960, barra2003, barra2007, barra2010,
                                 barra2015, barra2021,
                                 ncol = 3, nrow = 2, 
-                               common.legend = TRUE, legend = "right") 
+                               common.legend = TRUE, legend = "bottom") +
+  bgcolor("white") +
+  border("white")
   
 consistencia <- annotate_figure(consistencia, 
-                                  bottom = text_grob("Fuente: elaboración propia en base a encuestas de hogares 1960-2021", hjust = 1, x = 1, size = 9))
+                                  bottom = text_grob("Fuente: elaboración propia en base a encuestas de hogares 1960-2021", hjust = 1, x = 1, size = 9)) +
+  bgcolor("white") +
+  border("white")
 
 ggsave(consistencia, filename = "salidas/consistencia.jpg", dpi = 300, width = 8, height = 6)
 
