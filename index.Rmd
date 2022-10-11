@@ -1086,7 +1086,7 @@ clase_objetiva <- grid.arrange(barra1960, barra2003, barra2007, barra2010,
     gp = gpar(fontsize = 9),
     hjust = .1))
 
-ggsave(clase_objetiva, filename = "salidas/barras_subjetiva_1960_2021.jpg", dpi = 300, width = 8, height = 6)
+ggsave(clase_objetiva, filename = "salidas/barras_objetiva_1960_2021.jpg", dpi = 300, width = 8, height = 6)
 
 clase_objetiva
 
@@ -1239,7 +1239,7 @@ barra_obj_subj <- annotate_figure(barra_obj_subj,
   bgcolor("white") +
   border("white")
 
-ggsave(barra_obj_subj, filename = "salidas/barras_objetiva_1960_2021.jpg", dpi = 300, width = 8, height = 6)
+ggsave(barra_obj_subj, filename = "salidas/compara_objetiva_1960_2021.jpg", dpi = 300, width = 8, height = 6)
 
 barra_obj_subj
 
