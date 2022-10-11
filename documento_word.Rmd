@@ -772,9 +772,10 @@ theme_gtsummary_language("es", decimal.mark = ",", big.mark = ".")
 base2021 %>%
   filter(M2.12 <= 2) %>% 
   svydesign(data = ., ids = ~ 1, weights = ~POND2R_FIN_n) %>%
-  tbl_svysummary(include = c(egp5_f, egp5_origen_f, nivel_ed_f, sexo_f,
+  tbl_svysummary(include = c(clasesub_2021_f, egp5_f, egp5_origen_f, nivel_ed_f, sexo_f,
                              formal, afiliacion, rama, politica, M2.4, ipcf),
-                 label = c(egp5_f ~ "Clase encuestado",
+                 label = c(clasesub_2021_f ~ "Clase subjetiva",
+                           egp5_f ~ "Clase encuestado",
                            egp5_origen_f ~ "Clase origen",
                            nivel_ed_f ~ "Nivel educativo",
                            sexo_f ~ "Sexo",
@@ -789,7 +790,7 @@ base2021 %>%
                                   all_character() ~ "{n} ({p}%)"),
                  digits = list(all_categorical() ~ c(0, 1),
                                all_character() ~ c(0, 1)),
-                 missing = "no") %>% 
+                 missing = "no")  %>% 
   as_flex_table()
 
 ```
