@@ -1,27 +1,46 @@
 ---
-title: "Tendencias pasadas y recientes sobre el posicionamiento de clase subjetiva
-  en Argentina (1960-2021). Explicaciones desde la posición de clase y el origen social."
+title: "Tendencias pasadas y recientes sobre el posicionamiento subjetivo de clase social en Argentina (1960-2021)"
+subtitle: "Explicaciones desde la posición de clase y el origen social"
 author: "José Rodríguez de la Fuente - Gonzalo Assusa"
-date: "`r Sys.Date()`"
+institute: "IIGG-UBA-CONICET / IDH-CONICET-UNC"
+date: "XI Jornadas de Sociología de la UNLP - 2022"
 output:
-  rmdformats::downcute:
+  xaringan::moon_reader:
+    lib_dir: libs
+    css: 
+      - default
+      - fc
+      - fc-fonts
+    nature:
+      highlightStyle: github
+      highlightLines: true
+      countIncrementalSlides: false
+      ratio: '4:3'
     self_contained: true
-    lightbox: true
-    highlight: tango
-    code_folding: hide
 ---
+class: inverse right middle 
 
-# Armado de las bases de datos  
+```{r xaringanExtra, echo = FALSE}
+xaringanExtra::use_progress_bar(color = "orange", location = "top", height = "10px")
+```
 
-Se importan las bases de datos.  
-
-```{r carga librerías, message=F, warning=F}
-##############Para la próxima incorporar a los conyuges en la ENES#############################.
+```{r carga de bases y librerias, include = FALSE, message=FALSE, warning=FALSE, error=FALSE}
 
 pacman::p_load(tidyverse, haven, gridExtra, grid, occupar, ggpubr, ggsci, gtsummary,
                survey, jtools, huxtable, nnet, broom, kableExtra)
 
+knitr::opts_chunk$set(echo = FALSE, warning = FALSE, message = FALSE, error = FALSE, dpi = 300,
+                      dev.args=list(bg="transparent"), fig.pos = "H", out.extra = "")
+
 theme_set(theme_classic())
+
+theme_update(panel.background = element_rect(fill = "transparent", colour = NA),
+             plot.background = element_rect(fill = "transparent", colour = NA),
+             legend.key = element_rect(fill = "transparent", colour = NA),
+             legend.background= element_rect(fill = "transparent", colour = NA))
+
+
+
 
 rm(list = ls())
 
@@ -41,12 +60,10 @@ wvs <- readRDS("bases/WVS_Trend_v2_0.rds")
 
 #Latinobarómetro
 latino <- readRDS("bases/latinobarometro.RDS")
-
 ```
 
-Se construyen las principales variables a utilizar.  
 
-```{r variables, message=F, warning=F}
+```{r variables, include = FALSE, message=FALSE, warning=FALSE, error=FALSE}
 #1960
 
 base1960$q36[base1960$q36 == 0] <- NA
@@ -316,11 +333,7 @@ latino <- latino %>%
 ```
 
 
-# Construcción de EGP  
-
-Se construye la variable egp para cada base de datos.  
-
-```{r egp, warning=F, message=F}
+```{r egp, include = FALSE, message=FALSE, warning=FALSE, error=FALSE}
 #2003
 base2003$ciuo <- isco88to08(base2003$ocupacion)
 
@@ -719,7 +732,284 @@ base2021$egp5_origen_f <- factor(base2021$egp5_origen,
                                  labels = c("I+II", "III", "IV", "V+VI", "VII"))
 ```
 
-```{r tamaños muestrales, message=F, warning=F}
+
+# 1. Propuesta de la ponencia 
+
+---
+# Introducción 
+
+.left-column[
+
+## Relevancia de la problemática
+]
+
+.right-column[
+- Numerosos estudios internacionales, regionales y nacionales 
+  
+- Hipótesis realistas `r emo::ji("left-facing fist")` `r emo::ji("right-facing fist")` grupo de referencia 
+]
+
+---
+# Introducción 
+
+.left-column[
+## Relevancia de la problemática
+## Vacancias  
+]
+
+.right-column[
+- Numerosos estudios internacionales, regionales y nacionales 
+  
+- Hipótesis realistas `r emo::ji("left-facing fist")` `r emo::ji("right-facing fist")` grupo de referencia 
+<br>
+<br>
+<br>
+
+1. Reflexiones metodológicas sobre los sistemas de clasificación 
+]
+
+---
+# Introducción 
+
+.left-column[
+## Relevancia de la problemática
+## Vacancias  
+]
+
+.right-column[
+- Numerosos estudios internacionales, regionales y nacionales 
+  
+- Hipótesis realistas `r emo::ji("left-facing fist")` `r emo::ji("right-facing fist")` grupo de referencia 
+<br>
+<br>
+<br>
+
+1. Reflexiones metodológicas sobre los sistemas de clasificación  
+
+2. Dimensión temporal o histórica del estatus social subjetivo  
+]
+
+---
+# Introducción 
+
+.left-column[
+## Relevancia de la problemática
+## Vacancias  
+]
+
+.right-column[
+- Numerosos estudios internacionales, regionales y nacionales 
+  
+- Hipótesis realistas `r emo::ji("left-facing fist")` `r emo::ji("right-facing fist")` grupo de referencia 
+<br>
+<br>
+<br>
+
+1. Reflexiones metodológicas sobre los sistemas de clasificación  
+
+2. Dimensión temporal o histórica del estatus social subjetivo  
+
+3. Estudio del efecto de las crisis socioeconómicas en la configuración del estatus social subjetivo
+]
+
+---
+# Introducción 
+
+.left-column[
+## Relevancia de la problemática
+## Vacancias  
+]
+
+.right-column[
+- Numerosos estudios internacionales, regionales y nacionales 
+  
+- Hipótesis realistas `r emo::ji("left-facing fist")` `r emo::ji("right-facing fist")` grupo de referencia 
+<br>
+<br>
+<br>
+
+1. Reflexiones metodológicas sobre los sistemas de clasificación  
+
+2. Dimensión temporal o histórica del estatus social subjetivo  
+
+3. Estudio del efecto de las crisis socioeconómicas en la configuración del estatus social subjetivo  
+
+4. Incorporación de nuevos factores en el estudio (informalidad laboral, la rama de actividad, la afiliación sindical y las ideologías políticas)]
+
+---
+# Introducción 
+
+.left-column[
+## Relevancia de la problemática
+## Vacancias 
+<br>
+<br>
+<br>
+<br>
+<br>
+<br>
+## Objetivos
+]
+
+.right-column[
+- Numerosos estudios internacionales, regionales y nacionales 
+  
+- Hipótesis realistas `r emo::ji("left-facing fist")` `r emo::ji("right-facing fist")` grupo de referencia 
+<br>
+<br>
+<br>
+
+1. Reflexiones metodológicas sobre los sistemas de clasificación  
+
+2. Dimensión temporal o histórica del estatus social subjetivo  
+
+3. Estudio del efecto de las crisis socioeconómicas en la configuración del estatus social subjetivo  
+
+4. Incorporación de nuevos factores en el estudio (informalidad laboral, la rama de actividad, la afiliación sindical y las ideologías políticas)  
+
+- Reconstruir algunas tendencias históricas en relación al posicionamiento subjetivo de clase social en Argentina a partir de las bases de datos disponibles
+]
+
+---
+# Introducción 
+
+.left-column[
+## Relevancia de la problemática
+## Vacancias  
+<br>
+<br>
+<br>
+<br>
+<br>
+<br>
+## Objetivos
+]
+
+.right-column[
+- Numerosos estudios internacionales, regionales y nacionales 
+  
+- Hipótesis realistas `r emo::ji("left-facing fist")` `r emo::ji("right-facing fist")` grupo de referencia 
+<br>
+<br>
+<br>
+
+1. Reflexiones metodológicas sobre los sistemas de clasificación  
+
+2. Dimensión temporal o histórica del estatus social subjetivo  
+
+3. Estudio del efecto de las crisis socioeconómicas en la configuración del estatus social subjetivo  
+
+4. Incorporación de nuevos factores en el estudio (informalidad laboral, la rama de actividad, la afiliación sindical y las ideologías políticas)  
+
+- Reconstruir algunas tendencias históricas en relación al posicionamiento subjetivo de clase social en Argentina a partir de las bases de datos disponibles  
+
+- Construir modelos explicativos sobre el posicionamiento subjetivo de clase social que aporten nueva evidencia y líneas de análisis en relación con las vacancias antes identificadas]
+
+---
+class: inverse right middle 
+
+# 2. Debates en torno al posicionamiento subjetivo de clase 
+---
+
+# 2.1. Algo de historia sobre el concepto de clase subjetiva  
+
+--
+
+- Distintos conceptos apuntan a aspectos empíricos similares: conciencia de clase, estatus subjetivo, autoafiliación, autoenclasamiento, etc.
+
+--
+
+- Problema central de la sociología clásica: Marx, funcionalistas, Germani, Bourdieu, etc.
+
+--
+
+- ¿**Ser** o **estar** / **sentirse** de una clase social? (Duran, 1996)  
+
+--
+<br>
+<br>
+
+
+¿Cómo se ha abordado esta problemática en los estudios a partir de encuestas?  
+**Dos enfoques**:
+
+--
+
+>Volviendo al presente y a su persona, ahora quisiera hacerle algunas preguntas sobre su posición social: ¿Dónde se ubicaría usted en la siguiente escala de posiciones sociales, que va de 1 (lo más bajo) a 10 (lo más alto)?
+
+--
+<br>
+
+>¿Se considera usted a sí mismo como perteneciendo a una clase social? ¿Qué clase sería...?: *Clase baja | Clase obrera / Clase trabajadora (dependiendo del relevamiento) | Clase media baja | Clase media | Clase media alta | Clase alta*
+
+---
+# 2.2. ¿Arreglo objetivo o distorsión cognitiva? 
+
+* Existiría una cierta <mark>*expectativa de arreglo objetivo*</mark>: Resulta esperable que la mayoría de la población se autoperciba en la posición que efectivamente ocupa. 
+
+    + Esfuerzos por explicar las *distorsiones cognitivas*:
+
+        - La “Falsa conciencia” marxiana-lukacsiana,
+        - Conciencia dividida (Castillo et al., 2013; Puga, 2011),
+        - Divergencia cognitiva (Grimson y Roig, 2011),
+        - Inconsistencia posicional (Araujo y Martuccelli, 2011).  
+    
+--
+    
+* *Todos somos de clase media* (?)  
+    - Más del 70% de la población se autopercibe en alguna de las categorías correspondientes a la clase media -en un sentido amplio- (Assusa y Mansilla, 2019; Grimson, 2015; Maceira, 2018).
+    
+    - Hipótesis de la <mark>disponibilidad heurística, grupo de referencia o muestreo subjetivo</mark>: 
+    
+    >Proceso a partir del cual las personas tienden a considerarse a sí mismas como una especie de <mark>punto intermedio</mark> basado en una experiencia (generalizada) de sociabilidad relativamente cerrada y homogénea, entre semejantes.
+    
+---
+# 2.3. Entre categorías y palabras  
+
+* Problema de recodificación: ¿Dónde poner a la clase media-baja? ¿Cómo recodificar estratos de una escala que va del 1 al 10?  
+
+--
+
+* ¿Enfoques relacionales o gradacionales de clase subjetiva?
+
+--
+
+* Parecidas pero distintas: **Clase trabajadora** vs **Clase obrera** vs **Clase baja**
+
+--
+
+* Las identidades de clase articulan dimensiones de la estructura social (en términos objetivos), pero también en calidad de categoría sintética de percepciones sociales, de la desigualdad general, de la evaluación política y económica situacional, y del malestar subjetivo en un sentido global. 
+
+--
+
+* Experimento de Germani (1960):
+
+<center><img src="imagenes/germani_pregunta.png" width="70%"></center>
+
+---
+class: inverse right middle 
+
+# 3. Diseño metodológico
+
+---
+# 3.1. Fuentes de datos 
+
+Utilización de encuestas de hogares nacionales e internacionales.
+
+* “Estratificación y movilidad social en una ciudad latinoamericana: Buenos Aires, Argentina, 1960”
+
+* Relevamientos realizados por el Centro de Estudios de Opinión Pública de la Facultad de Ciencias Sociales (UBA). 2003/2004, 2007/2008 y 2009/2010.
+
+* Encuesta Nacional sobre la Estructura Social (ENES-PISAC). 2014-2015.
+
+* Encuesta Nacional sobre la Estructura social de Argentina y Políticas públicas durante la pandemia por Covid-19 (ESAyPP/PISAC-Covid19). 2021.  
+
+* Encuesta Mundial de Valores (VWS). 1995, 1999, 2006, 2013 y 2017. 
+
+* Latinobarómetro (LB). 2011, 2013, 2015, 2017, 2018 y 2020. 
+
+--
+```{r tamaños muestrales, message=F, warning=F, echo=F}
 muestra_1960 <- nrow(base1960[!is.na(base1960$clasesub_1960), ])
 muestra_2003 <- nrow(base2003[!is.na(base2003$clasesub_2003), ])
 muestra_2007 <- nrow(base2007[!is.na(base2007$clasesub_2007), ])
@@ -748,29 +1038,70 @@ colnames(muestra)[1] <- "N"
 
 muestra <- as.data.frame(t(muestra))
 
-
-muestra <- flextable::flextable(muestra) %>%  
-  flextable::set_header_labels(values = list(V1 = "1960", V2="2003-4", V3="2007-8", V4="2009-10",
+muestra %>% 
+  kable(col.names = c(V1 = "1960", V2="2003-4", V3="2007-8", V4="2009-10",
                                   V5="2014-15", V6="2021", V7="1995", V8="1999", 
                                   V9="2006", V10="2013", V11="2017", V12="2011", 
                                   V13="2013", V14="2015", V15="2017", V16="2018", 
-                                  V17="2020")) %>% 
-  flextable::add_header_row(values = c("Encuestas nacionales", "WVS",
-                                              "Latinobarómetro"),
-                          colwidths = c(6, 5, 6)) %>% 
-  flextable::theme_box() %>% 
-  flextable::align(align = "center", part = "all")
+                                  V17="2020"), 
+        align = "c",
+        caption = "Cantidad de casos por encuesta. Población mayor de 18 años.") %>% 
+  add_header_above(c(" " = 1, "Encuestas nacionales" = 6, "WVS" = 5, "Latinobarómetro" = 6)) %>% 
+  kable_styling(bootstrap_options = c("striped", "hover", "condensed"), full_width = F,
+                font_size = 14)
 
-
-muestra
 ```
 
+---
+# 3.2. Esquema de clases
 
-# Resultados  
+```{r esquema clase, message=F, warning=F, echo=F}
 
-## Tendencias a largo plazo sobre el posicionamiento subjetivo   
+egp <- data.frame(col1 = c("I", "II", "IIIa", "IIIb", "IVa", "IVb", "IVc", "V",
+                           "VI", "VIIa", "VIIb"),
+                  col2 = c("Profesionales (superiores), managers de grandes establecimientos y grandes propietarios", "Profesionales (inferiores), managers de pequeños establecimientos, técnicos (superiores) y supervisores de trabajo no manual", 
+                           "Trabajadores rutinarios (oficinistas y administrativos)",
+                           "Trabajadores rutinarios (ventas y servicios)",
+                           "Pequeños propietarios con empleados",
+                           "Pequeños propietarios sin empleados (calificados)",
+                           "Pequeños propietarios agrícolas con o sin empleados",
+                           "Técnicos inferiores, supervisores de trabajo manual",
+                           "Trabajadores manuales calificados y semicalificados",
+                           "Trabajadores manuales no calificados",
+                           "Trabajadores agrícolas"),
+                  col3 = c("I+II", "I+II", "III", "III", "IVabc", "IVabc", "IVabc",
+                          "V+VI", "V+VI", "VII", "VII"),
+                  col4 = c("Clase de servicios", "Clase de servicios", 
+                           "Trabajadores rutinarios no manuales", "Trabajadores rutinarios no manuales", 
+                           "Pequeña burguesía", "Pequeña burguesía", "Pequeña burguesía",
+                          "Trabajadores manuales calificados", "Trabajadores manuales calificados", 
+                          "Trabajadores manuales no calificados", "Trabajadores no manuales calificados"))
 
-```{r clase subjetiva, message=F, warning=F, fig.cap="Posicionamiento de clase subjetivo. GBA 1960. Argentina 2003-2021"}
+egp %>% 
+  kable(col.names = NULL) %>%
+    kable_styling(bootstrap_options = c("striped", "hover", "condensed"), full_width = T,
+                font_size = 18) %>% 
+  collapse_rows(columns = 3:4, valign = "middle") %>%
+  add_header_above(c("EGP 11 clases" = 2, "EGP 5 clases" = 2)) %>%
+  footnote(general_title = "Fuente: ", 
+           footnote_as_chunk = T,
+           general = "Elaboración propia en base a Erikson y Goldthorpe (1992)") %>%
+  row_spec(c(1,2,3,4,5,6,7,8,9,10,11), extra_css = "border-bottom: 1px solid;")
+
+```
+
+---
+class: inverse right middle 
+
+# 4. Tendencias históricas en el estudio del posicionamiento subjetivo de clase
+
+---
+.left-column[
+## Posicionamiento subjetivo de clase. GBA (1960) y Argentina urbana (2003-2021). PEA.
+]
+
+.right-column[
+```{r clase subjetiva, fig.align='center', out.width= '100%'}
 barra1960 <- base1960 %>%
   drop_na(q36_f) %>%
   group_by(q36_f) %>%
@@ -785,7 +1116,7 @@ barra1960 <- base1960 %>%
   theme(axis.title.y = element_blank(),
         axis.title.x = element_blank(),
         plot.title = element_text(size = 12),
-        axis.text.x = element_text(size = 6, angle = 30, vjust = .7),
+        axis.text.x = element_text(size = 7, angle = 30, vjust = .7),
         axis.text.y = element_text(size = 8)) +
   scale_x_discrete(labels = function(x) str_wrap(x, width = 10)) +
   scale_y_continuous(labels=scales::percent, breaks = seq(0,.7, .1), limits = c(0,.6))
@@ -804,7 +1135,7 @@ barra2003 <- base2003 %>%
   theme(axis.title.y = element_blank(),
         axis.title.x = element_blank(),
         plot.title = element_text(size = 12),
-        axis.text.x = element_text(size = 6, angle = 30, vjust = .7),
+        axis.text.x = element_text(size = 7, angle = 30, vjust = .7),
         axis.text.y = element_text(size = 8)) +
   scale_x_discrete(labels = function(x) str_wrap(x, width = 15)) +
   scale_y_continuous(labels=scales::percent, breaks = seq(0,.7, .1), limits = c(0,.6))
@@ -824,7 +1155,7 @@ barra2007 <- base2007 %>%
   theme(axis.title.y = element_blank(),
         axis.title.x = element_blank(),
         plot.title = element_text(size = 12),
-        axis.text.x = element_text(size = 6, angle = 30, vjust = .7),
+        axis.text.x = element_text(size = 7, angle = 30, vjust = .7),
         axis.text.y = element_text(size = 8)) +
   scale_x_discrete(labels = function(x) str_wrap(x, width = 15)) +
   scale_y_continuous(labels=scales::percent, breaks = seq(0,.7, .1), limits = c(0,.6))
@@ -844,7 +1175,7 @@ barra2010 <- base2010 %>%
   theme(axis.title.y = element_blank(),
         axis.title.x = element_blank(),
         plot.title = element_text(size = 12),
-        axis.text.x = element_text(size = 6, angle = 30, vjust = .7),
+        axis.text.x = element_text(size = 7, angle = 30, vjust = .7),
         axis.text.y = element_text(size = 8)) +
   scale_x_discrete(labels = function(x) str_wrap(x, width = 15)) +
   scale_y_continuous(labels=scales::percent, breaks = seq(0,.7, .1), limits = c(0,.6))
@@ -865,7 +1196,7 @@ barra2015 <- base2015 %>%
   theme(axis.title.y = element_blank(),
         axis.title.x = element_blank(),
         plot.title = element_text(size = 12),
-        axis.text.x = element_text(size = 6, angle = 30, vjust = .7),
+        axis.text.x = element_text(size = 7, angle = 30, vjust = .7),
         axis.text.y = element_text(size = 8)) +
   scale_x_discrete(labels = function(x) str_wrap(x, width = 15)) +
   scale_y_continuous(labels=scales::percent, breaks = seq(0,.7, .1), limits = c(0,.6))
@@ -886,25 +1217,38 @@ barra2021 <- base2021 %>%
   theme(axis.title.y = element_blank(),
         axis.title.x = element_blank(),
         plot.title = element_text(size = 12),
-        axis.text.x = element_text(size = 6, angle = 30, vjust = .7),
+        axis.text.x = element_text(size = 7, angle = 30, vjust = .7),
         axis.text.y = element_text(size = 8)) +
   scale_x_discrete(labels = function(x) str_wrap(x, width = 15)) +
   scale_y_continuous(labels=scales::percent, breaks = seq(0,.7, .1), limits = c(0,.6))
 
 
-barras_1960_2021 <- grid.arrange(barra1960, barra2003, barra2007, barra2010,
-                                barra2015, barra2021, ncol = 3,
-                                bottom = textGrob("Fuente: elaboración propia en base a encuestas de hogares 1960-2021",
-    gp = gpar(fontsize = 9),
-    hjust = .1))
+barras_1960_2021 <- ggarrange(barra1960, barra2003, barra2007, barra2010,
+                                barra2015, barra2021, ncol = 3, nrow = 2) +
+  bgcolor("transparent") +
+  border("transparent")
 
-ggsave(barras_1960_2021, filename = "salidas/barras_subjetiva_1960_2021.jpg", dpi = 300, width = 8, height = 6)
+barras_1960_2021 <- annotate_figure(barras_1960_2021, 
+                                  bottom = text_grob("Fuente: elaboración propia en base a encuestas de hogares 1960-2021", hjust = 1, x = 1, size = 10)) +
+  bgcolor("transparent") +
+  border("transparent")
 
 barras_1960_2021
 
-```
+# ggsave(barras_1960_2021, filename = "salidas/barras_subjetiva_1960_2021.jpg", dpi = 300, width = 8, height = 6, bg='white')
+# 
+# knitr::include_graphics("salidas/barras_subjetiva_1960_2021.jpg")
 
-```{r clase subjetiva wvs, message=F, warning=F, fig.cap="Posicionamiento de clase subjetivo. Argentina 1984-2017"}
+```
+]
+
+---
+.left-column[
+## Posicionamiento subjetivo de clase. Relevamiento WVS. Argentina urbana. 1995-2020.
+]
+
+.right-column[
+```{r clase subjetiva wvs, out.width='100%'}
 wvs %>%
   filter(S020 >= 1995, X003 >= 18) %>% 
   drop_na(clase_sub_f) %>%
@@ -915,22 +1259,28 @@ wvs %>%
   geom_bar(stat = "identity") +
   geom_text(aes(label = scales::percent(porcentaje, accuracy = 0.1),
                 y = porcentaje + 0.01),
-            position = position_dodge(.9), vjust = 0, size = 2.5) +
+            position = position_dodge(.9), vjust = 0, size = 3.5) +
   labs(caption = "Fuente: elaboración propia en base a World Values Survey Time-Series (1995-2020)") +
   theme(axis.title.y = element_blank(),
         axis.title.x = element_blank(),
-        plot.title = element_text(size = 12),
-        axis.text.x = element_text(size = 8, vjust = .7),
-        axis.text.y = element_text(size = 8)) +
+        axis.text.x = element_text(size = 9, vjust = .7),
+        axis.text.y = element_text(size = 10),
+        strip.text.x = element_text(size = 12)) +
   scale_x_discrete(labels = function(x) str_wrap(x, width = 10)) +
   scale_y_continuous(labels=scales::percent, breaks = seq(0,.7, .1), limits = c(0,.6)) +
   facet_wrap(~S020, ncol = 3)
 
-ggsave(filename = "salidas/barras_subjetiva_wvs.jpg", dpi = 300, width = 8, height = 6)
 
 ```
+]
 
-```{r clase subjetiva latinobarometro, message=F, warning=F, fig.cap="Posicionamiento de clase subjetivo. Argentina 2011-2020"}
+---
+.left-column[
+## Posicionamiento subjetivo de clase. Relevamiento Latinobarómetro. Argentina urbana. 2011-2020.
+]
+
+.right-column[
+```{r clase subjetiva latinobarometro, out.width='100%'}
 latino %>%
   drop_na(clase_sub_f) %>%
   group_by(anio, clase_sub_f) %>%
@@ -940,159 +1290,29 @@ latino %>%
   geom_bar(stat = "identity") +
   geom_text(aes(label = scales::percent(porcentaje, accuracy = 0.1),
                 y = porcentaje + 0.01),
-            position = position_dodge(.9), vjust = 0, size = 2.5) +
+            position = position_dodge(.9), vjust = 0, size = 3.5) +
   labs(caption = "Fuente: elaboración propia en base a Latinobarometro (2011-2020)") +
   theme(axis.title.y = element_blank(),
         axis.title.x = element_blank(),
         plot.title = element_text(size = 12),
-        axis.text.x = element_text(size = 8, vjust = .7),
-        axis.text.y = element_text(size = 8)) +
+        axis.text.x = element_text(size = 9, vjust = .7),
+        axis.text.y = element_text(size = 10),
+        strip.text.x = element_text(size = 12)) +
   scale_x_discrete(labels = function(x) str_wrap(x, width = 10)) +
   scale_y_continuous(labels=scales::percent, breaks = seq(0,.7, .1), limits = c(0,.6)) +
   facet_wrap(~anio, ncol = 3)
 
-ggsave(filename = "salidas/barras_subjetiva_latinobarometro.jpg", dpi = 300, width = 8, height = 6)
-
 ```
 
-```{r clase objetiva, message=F, warning=F, fig.cap="Posicionamiento de clase objetivo. GBA 1960. Argentina 2003-2021"}
+]
 
-barra1960 <- base1960 %>%
-  drop_na(egp5_f) %>%
-  group_by(egp5_f) %>%
-  tally() %>%
-  mutate(porcentaje = n/sum(n)) %>%
-  ggplot(aes(x=egp5_f, y=porcentaje)) +
-  geom_bar(stat = "identity") +
-  geom_text(aes(label = scales::percent(porcentaje, accuracy = 0.1),
-                y = porcentaje + 0.01),
-            position = position_dodge(.9), vjust = 0, size = 2.5) +
-  labs(title = "1960") +
-  theme(axis.title.y = element_blank(),
-        axis.title.x = element_blank(),
-        plot.title = element_text(size = 12),
-        axis.text.x = element_text(size = 7),
-        axis.text.y = element_text(size = 8)) +
-  scale_x_discrete(labels = function(x) str_wrap(x, width = 10)) +
-  scale_y_continuous(labels=scales::percent, breaks = seq(0,.7, .05), limits = c(0,.35))
+---
 
+.left-column[## Posicionamiento subjetivo de clase según clase objetiva (EGP). GBA (1960) y Argentina urbana (2003-2021). PEA.
+]
 
-barra2003 <- base2003 %>%
-  drop_na(egp5_f) %>%
-  group_by(egp5_f) %>%
-  tally() %>%
-  mutate(porcentaje = n/sum(n)) %>%
-  ggplot(aes(x=egp5_f, y=porcentaje)) +
-  geom_bar(stat = "identity") +
-  geom_text(aes(label = scales::percent(porcentaje, accuracy = 0.1),
-                y = porcentaje + 0.01),
-            position = position_dodge(.9), vjust = 0, size = 2.5) +
-  labs(title = "2003/2004") +
-  theme(axis.title.y = element_blank(),
-        axis.title.x = element_blank(),
-        plot.title = element_text(size = 12),
-        axis.text.x = element_text(size = 7),
-        axis.text.y = element_text(size = 8)) +
-  scale_x_discrete(labels = function(x) str_wrap(x, width = 10)) +
-  scale_y_continuous(labels=scales::percent, breaks = seq(0,.7, .05), limits = c(0,.35))
-
-barra2007 <- base2007 %>%
-  # filter(region == 1) %>%
-  drop_na(egp5_f) %>%
-  group_by(egp5_f) %>%
-  tally(pond18) %>%
-  mutate(porcentaje = n/sum(n)) %>%
-  ggplot(aes(x=egp5_f, y=porcentaje)) +
-  geom_bar(stat = "identity") +
-  geom_text(aes(label = scales::percent(porcentaje, accuracy = 0.1),
-                y = porcentaje + 0.01),
-            position = position_dodge(.9), vjust = 0, size = 2.5) +
-  labs(title = "2007/2008") +
-  theme(axis.title.y = element_blank(),
-        axis.title.x = element_blank(),
-        plot.title = element_text(size = 12),
-        axis.text.x = element_text(size = 7),
-        axis.text.y = element_text(size = 8)) +
-  scale_x_discrete(labels = function(x) str_wrap(x, width = 10)) +
-  scale_y_continuous(labels=scales::percent, breaks = seq(0,.7, .05), limits = c(0,.35))
-
-barra2010 <- base2010 %>%
-  # filter(Region == 1) %>%
-  drop_na(egp5_f) %>%
-  group_by(egp5_f) %>%
-  tally() %>%
-  mutate(porcentaje = n/sum(n)) %>%
-  ggplot(aes(x=egp5_f, y=porcentaje)) +
-  geom_bar(stat = "identity") +
-  geom_text(aes(label = scales::percent(porcentaje, accuracy = 0.1),
-                y = porcentaje + 0.01),
-            position = position_dodge(.9), vjust = 0, size = 2.5) +
-  labs(title = "2009/2010") +
-  theme(axis.title.y = element_blank(),
-        axis.title.x = element_blank(),
-        plot.title = element_text(size = 12),
-        axis.text.x = element_text(size = 7),
-        axis.text.y = element_text(size = 8)) +
-  scale_x_discrete(labels = function(x) str_wrap(x, width = 10)) +
-  scale_y_continuous(labels=scales::percent, breaks = seq(0,.7, .05), limits = c(0,.35))
-
-
-barra2015 <- base2015 %>%
-  # filter(region == 1) %>%
-  drop_na(egp5_f) %>%
-  group_by(egp5_f) %>%
-  tally(f_calib3) %>%
-  mutate(porcentaje = n/sum(n)) %>%
-  ggplot(aes(x=egp5_f, y=porcentaje)) +
-  geom_bar(stat = "identity") +
-  geom_text(aes(label = scales::percent(porcentaje, accuracy = 0.1),
-                y = porcentaje + 0.01),
-            position = position_dodge(.9), vjust = 0, size = 2.5) +
-  labs(title = "2014/2015") +
-  theme(axis.title.y = element_blank(),
-        axis.title.x = element_blank(),
-        plot.title = element_text(size = 12),
-        axis.text.x = element_text(size = 7),
-        axis.text.y = element_text(size = 8)) +
-  scale_x_discrete(labels = function(x) str_wrap(x, width = 7)) +
-  scale_y_continuous(labels=scales::percent, breaks = seq(0,.7, .05), limits = c(0,.35))
-
-
-barra2021 <- base2021 %>%
-  # filter(REGION == "GBA") %>%
-  drop_na(egp5_f) %>%
-  group_by(egp5_f) %>%
-  tally(POND2R_FIN_n) %>%
-  mutate(porcentaje = n/sum(n)) %>%
-  ggplot(aes(x=egp5_f, y=porcentaje)) +
-  geom_bar(stat = "identity") +
-  geom_text(aes(label = scales::percent(porcentaje, accuracy = 0.1),
-                y = porcentaje + 0.01),
-            position = position_dodge(.9), vjust = 0, size = 2.5) +
-  labs(title = "2021") +
-  theme(axis.title.y = element_blank(),
-        axis.title.x = element_blank(),
-        plot.title = element_text(size = 12),
-        axis.text.x = element_text(size = 7),
-        axis.text.y = element_text(size = 8)) +
-  scale_x_discrete(labels = function(x) str_wrap(x, width = 10)) +
-  scale_y_continuous(labels=scales::percent, breaks = seq(0,.7, .05), limits = c(0,.35))
-
-
-clase_objetiva <- grid.arrange(barra1960, barra2003, barra2007, barra2010,
-                                barra2015, barra2021,
-                                ncol = 3,
-                                bottom = textGrob("Fuente: elaboración propia en base a encuestas de hogares 1960-2021",
-    gp = gpar(fontsize = 9),
-    hjust = .1))
-
-ggsave(clase_objetiva, filename = "salidas/barras_objetiva_1960_2021.jpg", dpi = 300, width = 8, height = 6)
-
-clase_objetiva
-
-```
-
-```{r comparacion clase obj-sub, message=F, warning=F, fig.cap="Composición de clase subjetiva según posicionamiento objetivo. GBA 1960. Argentina 2003-2021"}
+.right-column[
+```{r comparacion clase obj-sub, out.width='100%', fig.align='center'}
 
 barra1960 <- base1960 %>%
   drop_na(egp5_f, clase_recod_f) %>%
@@ -1231,237 +1451,95 @@ barra_obj_subj <- ggarrange(barra1960, barra2003, barra2007, barra2010,
                                 barra2015, barra2021,
                                 ncol = 3, nrow = 2, 
                                common.legend = TRUE, legend = "right") +
-  bgcolor("white") +
-  border("white")
+  bgcolor("transparent") +
+  border("transparent")
   
 barra_obj_subj <- annotate_figure(barra_obj_subj, 
                                   bottom = text_grob("Fuente: elaboración propia en base a encuestas de hogares 1960-2021", hjust = 1, x = 1, size = 9)) +
-  bgcolor("white") +
-  border("white")
-
-ggsave(barra_obj_subj, filename = "salidas/compara_objetiva_1960_2021.jpg", dpi = 300, width = 8, height = 6)
+  bgcolor("transparent") +
+  border("transparent")
 
 barra_obj_subj
 
 ```
 
+]
 
-```{r consistencia, message=F, warning=F, fig.cap="Consistencia de clase. GBA 1960. Argentina 2003-2021"}
-barra1960 <- base1960 %>%
-  drop_na(clasesub_dic, egp5) %>%
-  mutate(consistencia = case_when(clasesub_dic == 1 & egp5 <= 3 ~ "Consistencia",
-                                  clasesub_dic == 2 & egp5 > 3 ~ "Consistencia",
-                                  clasesub_dic == 1 & egp5 > 3 ~ "Inconsistencia",
-                                  clasesub_dic == 2 & egp5 <= 3 ~ "Inconsistencia",
-                                  TRUE ~ NA_character_)) %>%
-  group_by(clasesub_dic_f, consistencia) %>%
-  tally() %>%
-  mutate(porcentaje = n/sum(n)) %>%
-  ggplot(aes(x=clasesub_dic_f, y=porcentaje, fill=consistencia)) +
-  geom_col() +
-  geom_text(aes(label = scales::percent(porcentaje, accuracy = 0.1),
-                y = porcentaje + 0.01),
-            position = position_stack(.5), vjust = 1.1, size = 2.5) +
-  scale_fill_ucscgb() +
-  labs(title = "1960") +
-  theme(axis.title.y = element_blank(),
-        axis.title.x = element_blank(),
-        plot.title = element_text(size = 12, hjust = 0.5),
-        axis.text.x = element_text(size = 8),
-        axis.text.y = element_blank(),
-        legend.position= "none",
-        legend.title = element_blank()) +
-  scale_x_discrete() +
-  scale_y_continuous(labels=scales::percent, breaks = seq(0,1, .1))
+---
+class: inverse right middle 
 
+# 5. Factores explicativos del posicionamiento subjetivo de clase
 
-barra2003 <- base2003 %>%
-  drop_na(clasesub_dic, egp5) %>%
-  mutate(consistencia = case_when(clasesub_dic == 1 & egp5 <= 3 ~ "Consistencia",
-                                  clasesub_dic == 2 & egp5 > 3 ~ "Consistencia",
-                                  clasesub_dic == 1 & egp5 > 3 ~ "Inconsistencia",
-                                  clasesub_dic == 2 & egp5 <= 3 ~ "Inconsistencia",
-                                  TRUE ~ NA_character_)) %>%
-  group_by(clasesub_dic_f, consistencia) %>%
-  tally() %>%
-  mutate(porcentaje = n/sum(n)) %>%
-  ggplot(aes(x=clasesub_dic_f, y=porcentaje, fill=consistencia)) +
-  geom_col() +
-  geom_text(aes(label = scales::percent(porcentaje, accuracy = 0.1),
-                y = porcentaje + 0.01),
-            position = position_stack(.5), vjust = 1.1, size = 2.5) +
-  scale_fill_ucscgb() +
-  labs(title = "2003/2004") +
-  theme(axis.title.y = element_blank(),
-        axis.title.x = element_blank(),
-        plot.title = element_text(size = 12, hjust = 0.5),
-        axis.text.x = element_text(size = 8),
-        axis.text.y = element_blank(),
-        legend.position= "none") +
-  scale_x_discrete() +
-  scale_y_continuous(labels=scales::percent, breaks = seq(0,1, .1))
+---
+# Variables utilizadas  
 
-barra2007 <- base2007 %>%
-  drop_na(clasesub_dic, egp5) %>%
-  mutate(consistencia = case_when(clasesub_dic == 1 & egp5 <= 3 ~ "Consistencia",
-                                  clasesub_dic == 2 & egp5 > 3 ~ "Consistencia",
-                                  clasesub_dic == 1 & egp5 > 3 ~ "Inconsistencia",
-                                  clasesub_dic == 2 & egp5 <= 3 ~ "Inconsistencia",
-                                  TRUE ~ NA_character_)) %>%
-  group_by(clasesub_dic_f, consistencia) %>%
-  tally() %>%
-  mutate(porcentaje = n/sum(n)) %>%
-  ggplot(aes(x=clasesub_dic_f, y=porcentaje, fill=consistencia)) +
-  geom_col() +
-  geom_text(aes(label = scales::percent(porcentaje, accuracy = 0.1),
-                y = porcentaje + 0.01),
-            position = position_stack(.5), vjust = 1.1, size = 2.5) +
-  scale_fill_ucscgb() +
-  labs(title = "2007/2008") +
-  theme(axis.title.y = element_blank(),
-        axis.title.x = element_blank(),
-        plot.title = element_text(size = 12, hjust = 0.5),
-        axis.text.x = element_text(size = 8),
-        axis.text.y = element_blank(),
-        legend.position= "none") +
-  scale_x_discrete() +
-  scale_y_continuous(labels=scales::percent, breaks = seq(0,1, .1))
-
-barra2010 <- base2010 %>%
-  drop_na(clasesub_dic, egp5) %>%
-  mutate(consistencia = case_when(clasesub_dic == 1 & egp5 <= 3 ~ "Consistencia",
-                                  clasesub_dic == 2 & egp5 > 3 ~ "Consistencia",
-                                  clasesub_dic == 1 & egp5 > 3 ~ "Inconsistencia",
-                                  clasesub_dic == 2 & egp5 <= 3 ~ "Inconsistencia",
-                                  TRUE ~ NA_character_)) %>%
-  group_by(clasesub_dic_f, consistencia) %>%
-  tally() %>%
-  mutate(porcentaje = n/sum(n)) %>%
-  ggplot(aes(x=clasesub_dic_f, y=porcentaje, fill=consistencia)) +
-  geom_col() +
-  geom_text(aes(label = scales::percent(porcentaje, accuracy = 0.1),
-                y = porcentaje + 0.01),
-            position = position_stack(.5), vjust = 1.1, size = 2.5) +
-  scale_fill_ucscgb() +
-  labs(title = "2009/2010") +
-  theme(axis.title.y = element_blank(),
-        axis.title.x = element_blank(),
-        plot.title = element_text(size = 12, hjust = 0.5),
-        axis.text.x = element_text(size = 8),
-        axis.text.y = element_blank(),
-        legend.position= "none") +
-  scale_x_discrete() +
-  scale_y_continuous(labels=scales::percent, breaks = seq(0,1, .1))
-
-
-barra2015 <- base2015 %>%
-  drop_na(clasesub_dic, egp5) %>%
-  mutate(consistencia = case_when(clasesub_dic == 1 & egp5 <= 3 ~ "Consistencia",
-                                  clasesub_dic == 2 & egp5 > 3 ~ "Consistencia",
-                                  clasesub_dic == 1 & egp5 > 3 ~ "Inconsistencia",
-                                  clasesub_dic == 2 & egp5 <= 3 ~ "Inconsistencia",
-                                  TRUE ~ NA_character_)) %>%
-  group_by(clasesub_dic_f, consistencia) %>%
-  tally() %>%
-  mutate(porcentaje = n/sum(n)) %>%
-  ggplot(aes(x=clasesub_dic_f, y=porcentaje, fill=consistencia)) +
-  geom_col() +
-  geom_text(aes(label = scales::percent(porcentaje, accuracy = 0.1),
-                y = porcentaje + 0.01),
-            position = position_stack(.5), vjust = 1.1, size = 2.5) +
-  scale_fill_ucscgb() +
-  labs(title = "2014/2015") +
-  theme(axis.title.y = element_blank(),
-        axis.title.x = element_blank(),
-        plot.title = element_text(size = 12, hjust = 0.5),
-        axis.text.x = element_text(size = 8),
-        axis.text.y = element_blank(),
-        legend.position= "none") +
-  scale_x_discrete() +
-  scale_y_continuous(labels=scales::percent, breaks = seq(0,1, .1))
-
-
-barra2021 <- base2021 %>%
-  drop_na(clasesub_dic, egp5) %>%
-  mutate(consistencia = case_when(clasesub_dic == 1 & egp5 <= 3 ~ "Consistencia",
-                                  clasesub_dic == 2 & egp5 > 3 ~ "Consistencia",
-                                  clasesub_dic == 1 & egp5 > 3 ~ "Inconsistencia",
-                                  clasesub_dic == 2 & egp5 <= 3 ~ "Inconsistencia",
-                                  TRUE ~ NA_character_)) %>%
-  group_by(clasesub_dic_f, consistencia) %>%
-  tally() %>%
-  mutate(porcentaje = n/sum(n)) %>%
-  ggplot(aes(x=clasesub_dic_f, y=porcentaje, fill=consistencia)) +
-  geom_col() +
-  geom_text(aes(label = scales::percent(porcentaje, accuracy = 0.1),
-                y = porcentaje + 0.01),
-            position = position_stack(.5), vjust = 1.1, size = 2.5) +
-  scale_fill_ucscgb() +
-  labs(title = "2021") +
-  theme(axis.title.y = element_blank(),
-        axis.title.x = element_blank(),
-        plot.title = element_text(size = 12, hjust = 0.5),
-        axis.text.x = element_text(size = 8),
-        axis.text.y = element_blank(),
-        legend.position= "none") +
-  scale_x_discrete() +
-  scale_y_continuous(labels=scales::percent, breaks = seq(0,1, .1))
-
-
-consistencia <- ggarrange(barra1960, barra2003, barra2007, barra2010,
-                                barra2015, barra2021,
-                                ncol = 3, nrow = 2, 
-                               common.legend = TRUE, legend = "bottom") +
-  bgcolor("white") +
-  border("white")
-  
-consistencia <- annotate_figure(consistencia, 
-                                  bottom = text_grob("Fuente: elaboración propia en base a encuestas de hogares 1960-2021", hjust = 1, x = 1, size = 9)) +
-  bgcolor("white") +
-  border("white")
-
-ggsave(consistencia, filename = "salidas/consistencia.jpg", dpi = 300, width = 8, height = 6)
-
-consistencia
-```
-
-
-## Determinantes del posicionamiento subjetivo de clase (2021)  
-
-### Descriptivos  
-
-```{r descriptivos, warning=F, message=F, echo=F}
+.pull-left[
+```{r descriptivos 1, results = 'asis'}
 theme_gtsummary_language("es", decimal.mark = ",", big.mark = ".")
+theme_gtsummary_compact()
 
 base2021 %>%
-  filter(M2.12 <= 2) %>% 
+  filter(M2.12 <= 2) %>%
   svydesign(data = ., ids = ~ 1, weights = ~POND2R_FIN_n) %>%
-  tbl_svysummary(include = c(clasesub_2021_f, egp5_f, egp5_origen_f, nivel_ed_f, sexo_f,
-                             formal, afiliacion, rama, politica, M2.4, ipcf),
+  tbl_svysummary(include = c(clasesub_2021_f, egp5_f, egp5_origen_f, nivel_ed_f,
+                             formal),
                  label = c(clasesub_2021_f ~ "Clase subjetiva",
                            egp5_f ~ "Clase encuestado",
                            egp5_origen_f ~ "Clase origen",
                            nivel_ed_f ~ "Nivel educativo",
-                           sexo_f ~ "Sexo",
-                           M2.4 ~ "Edad",
-                           formal ~ "Condición laboral",
-                           afiliacion ~ "Afiliación",
-                           rama ~ "Rama de actividad",
-                           politica ~ "Posicionamiento político",
-                           ipcf ~ "Ingreso per cápita familiar"), 
-                 statistic = list(all_continuous() ~ "{mean} ({sd})", 
+                           formal ~ "Condición laboral"),
+                 statistic = list(all_continuous() ~ "{mean} ({sd})",
                                   all_categorical() ~ "{n} ({p}%)",
                                   all_character() ~ "{n} ({p}%)"),
                  digits = list(all_categorical() ~ c(0, 1),
                                all_character() ~ c(0, 1)),
-                 missing = "no") 
+                 missing = "no") %>%
+  as_gt() %>% 
+  gt::tab_options(table.font.size = 14)
+
+
+
+```
+]
+
+.pull-right[
+```{r descriptivos 2, results = 'asis'}
+theme_gtsummary_language("es", decimal.mark = ",", big.mark = ".")
+theme_gtsummary_compact()
+
+base2021 %>%
+  filter(M2.12 <= 2) %>%
+  svydesign(data = ., ids = ~ 1, weights = ~POND2R_FIN_n) %>%
+  tbl_svysummary(include = c(afiliacion, rama, politica, sexo_f, M2.4, ipcf),
+                 label = c(afiliacion ~ "Afiliación",
+                           rama ~ "Rama de actividad",
+                           politica ~ "Posicionamiento político",
+                           ipcf ~ "Ingreso per cápita familiar",
+                           sexo_f ~ "Sexo",
+                           M2.4 ~ "Edad"),
+                 statistic = list(all_continuous() ~ "{mean} ({sd})",
+                                  all_categorical() ~ "{n} ({p}%)",
+                                  all_character() ~ "{n} ({p}%)"),
+                 digits = list(all_categorical() ~ c(0, 1),
+                               all_character() ~ c(0, 1)),
+                 missing = "no") %>%
+  as_gt() %>% 
+  gt::tab_options(table.font.size = 14) %>% 
+  gt::tab_source_note(gt::md("Fuente: elaboración propia en base a encuesta ESAyPP / PISAC COVID 19 (2021)"))
+
 
 ```
 
+]
 
-### Regresión logística binomial  
+---
 
-```{r binomial, warning=F, message=F, echo=F, results='asis'}
+.left-column[
+## Oportunidades relativas de identificarse con la clase media (ref: clase trabajadora y baja). Argentina urbana 2021. PEA. Coeficientes exponenciados.
+]
+
+.right-column[
+```{r binomial}
 base2021 <- base2021 %>%
   filter(M2.12 <= 2)
 
@@ -1486,12 +1564,10 @@ binomial4 <- glm(clasesub_dic ~ egp5_f + sexo_f + M2.4 + nivel_ed_f + log_ipcf +
                    afiliacion + politica + egp5_origen_f,
                  data = base2021, weights = POND2R_FIN_n, family = binomial(link = "logit"))
 
-# binomial5 <- glm(clasesub_dic ~ sexo_f + edad_grupo + nivel_ed_f + formal + rama +
-#                    afiliacion + politica + egp5_f * egp5_origen_f,
-#                  data = base2021, weights = POND2R_FIN_n, family = binomial(link = "logit"))
 
 
-regresion_binomial <- export_summs(binomial1, binomial2, binomial3, binomial4, exp = T,
+regresion_binomial <- export_summs(binomial1, binomial2, binomial3, binomial4, 
+                                   error_pos = "right", exp = T,
                                    stars = c(`***` = 0.01, `**` = 0.05, `*` = 0.1),
                                    coefs = c("I+II" = "egp5_fI+II",
                                              "III" = "egp5_fIII",
@@ -1517,59 +1593,75 @@ regresion_binomial <- export_summs(binomial1, binomial2, binomial3, binomial4, e
                                              "Origen: I+II" = "egp5_origen_fI+II",
                                              "Origen: III" = "egp5_origen_fIII",
                                              "Origen: IV" = "egp5_origen_fIV",
-                                             "Origen: V+VI" = "egp5_origen_fV+VI"))
+                                             "Origen: V+VI" = "egp5_origen_fV+VI"),
+                                   note = "{stars}. Fuente: elaboración propia en base a encuesta ESAyPP / PISAC COVID 19 (2021)")
 
 regresion_binomial %>% 
-  set_caption("Regresión logística. Odds ratios Clase media vs clase trabajadora") %>% 
+  theme_compact() %>% 
   map_background_color(-1, -1, by_regex(
         "\\*" = "yellow"
-      ))
+      )) %>% 
+  huxtable::set_font_size(10)
 
+```
+]
+
+---
+
+```{r grafico binomial, out.width='80%'}
 reg_coef <- plot_summs(binomial1, binomial4, ci_level = 0.91, exp = T,
-                       coefs = c("I+II" = "egp5_fI+II",
+                       coefs = c("I+II (ref: VII)" = "egp5_fI+II",
                                              "III" = "egp5_fIII",
                                              "IV" = "egp5_fIV",
                                              "V+VI" = "egp5_fV+VI",
                                              "Mujer" = "sexo_fMujer",
                                              "Edad" = "M2.4",
-                                             "Secundario" = "nivel_ed_fSecundario",
+                                             "Secundario (ref: primario)" = "nivel_ed_fSecundario",
                                              "Superior" = "nivel_ed_fSuperior",
                                              "IPCF(log)" = "log_ipcf",
                                              "Informal" = "formalInformal",
-                                             "Act. Primarias" = "ramaAct. primarias",
+                                             "Act. Primarias (ref: construcción)" = "ramaAct. primarias",
                                              "Adm. Pública" = "ramaAdm. pública",
                                              "Comercio" = "ramaComercio",
                                              "Servicios" = "ramaServicios",
                                               "Industria" = "ramaIndustria",
                                              "Sindicalizado" = "afiliacionSindicalizado",
-                                             "Kirchnerismo" = "politicaKirchnerismo",
+                                             "Kirchnerismo (ref: ninguna)" = "politicaKirchnerismo",
                                              "Peronismo no K" = "politicaPeronismo no K",
                                              "UCR/PRO" = "politicaUCR/PRO",
                                              "Izquierda" = "politicaIzquierda",
                                              "Libertarios" = "politicaLibertarios",
-                                             "Origen: I+II" = "egp5_origen_fI+II",
+                                             "Origen: I+II (ref: VII)" = "egp5_origen_fI+II",
                                              "Origen: III" = "egp5_origen_fIII",
                                              "Origen: IV" = "egp5_origen_fIV",
-                                             "Origen: V+VI" = "egp5_origen_fV+VI"))
+                                             "Origen: V+VI" = "egp5_origen_fV+VI"),
+                       model.names = c("Modelo 1", "Modelo 4"))
 
 reg_coef +
-  labs(caption = "Fuente: elaboración propia en base a encuesta ESAyPP / PISAC COVID 19 (2021)", x = "Razones de momios") +
+  theme_light() +
+  labs(title = "Oportunidades relativas de identificarse con la clase media",
+       subtitle = "Argentina urbana 2021. PEA. Coeficientes exponenciados.",
+         caption = "Fuente: elaboración propia en base a encuesta ESAyPP / PISAC COVID 19 (2021)", x = "Razones de momios") +
   theme(axis.title.y = element_blank(),
         axis.title.x = element_blank(),
-        axis.text.x = element_text(size = 8),
-        axis.text.y = element_text(size = 10),
-        legend.position= "bottom") +
-  scale_fill_ucscgb() %>% 
-  scale_x_continuous(breaks = seq(0, 3, by = .5))
-
-ggsave(filename = "salidas/coef_graf.jpg", dpi = 300, width = 8, height = 6)
-
-  
+        axis.text.x = element_text(size = 9),
+        axis.text.y = element_text(size = 8),
+        legend.position= "bottom",
+        panel.background = element_rect(fill = "transparent", colour = NA),
+        plot.background = element_rect(fill = "transparent", colour = NA),
+        legend.key = element_rect(fill = "transparent", colour = NA),
+        legend.background= element_rect(fill = "transparent", colour = NA)) +
+  scale_fill_d3() +
+  scale_x_continuous(breaks = seq(0, 3, by = .2))
 
 ```
 
-### Regresión logística Multinomial
+---
+.left-column[
+## Oportunidades relativas de identificarse con la clase media, trabajadora y baja (ref: clase media-baja). Argentina urbana 2021. PEA. Coeficientes exponenciados.
+]
 
+.right-column[
 ```{r multinomial, warning=F, message=F, echo=F, results='asis'}
 base2021 <- base2021 %>% 
   mutate(clasesub4 = factor(car::recode(M11.6, "1:3 = 1; 4=2; 5=3; 6=4"),
@@ -1590,40 +1682,73 @@ models[["Trabajadora vs media-baja"]] <- tidy_replace(multinomial, tidied[tidied
 models[["Baja vs media-baja"]] <- tidy_replace(multinomial, tidied[tidied$y.level == "Clase baja", ])
 
 reg_multinomial <- export_summs(models,
+                                error_pos = "right",
              stars = c(`***` = 0.01, `**` = 0.05, `*` = 0.1),
-             coefs = c("I+II" = "egp5_fI+II",
+             coefs = c("I+II (ref: VII)" = "egp5_fI+II",
                                              "III" = "egp5_fIII",
                                              "IV" = "egp5_fIV",
                                              "V+VI" = "egp5_fV+VI",
                                              "Mujer" = "sexo_fMujer",
                                              "Edad" = "M2.4",
-                                             "Secundario" = "nivel_ed_fSecundario",
+                                             "Secundario (ref: primaria)" = "nivel_ed_fSecundario",
                                              "Superior" = "nivel_ed_fSuperior",
                                              "IPCF(log)" = "log_ipcf",
                                              "Informal" = "formalInformal",
-                                             "Act. Primarias" = "ramaAct. primarias",
+                                             "Act. Primarias (ref: construcción)" = "ramaAct. primarias",
                                              "Adm. Pública" = "ramaAdm. pública",
                                              "Comercio" = "ramaComercio",
                                              "Servicios" = "ramaServicios",
                                               "Industria" = "ramaIndustria",
                                              "Sindicalizado" = "afiliacionSindicalizado",
-                                             "Kirchnerismo" = "politicaKirchnerismo",
+                                             "Kirchnerismo (ref: ninguna)" = "politicaKirchnerismo",
                                              "Peronismo no K" = "politicaPeronismo no K",
                                              "UCR/PRO" = "politicaUCR/PRO",
                                              "Izquierda" = "politicaIzquierda",
                                              "Libertarios" = "politicaLibertarios",
-                                             "Origen: I+II" = "egp5_origen_fI+II",
+                                             "Origen: I+II (ref: VII)" = "egp5_origen_fI+II",
                                              "Origen: III" = "egp5_origen_fIII",
                                              "Origen: IV" = "egp5_origen_fIV",
-                                             "Origen: V+VI" = "egp5_origen_fV+VI"))
+                                             "Origen: V+VI" = "egp5_origen_fV+VI"),
+             note = "{stars}. Fuente: elaboración propia en base a encuesta ESAyPP / PISAC COVID 19 (2021)")
 
 reg_multinomial %>% 
-  set_caption("Regresión multinomial. Categoría de referencia: clase baja") %>% 
+  theme_compact() %>% 
   map_background_color(-1, -1, by_regex(
         "\\*" = "yellow"
-      ))
-
+      )) %>% 
+  huxtable::set_font_size(10)
 ```
+]
 
-El pseudo R2 es de **```r DescTools::PseudoR2(multinomial)```**.
+---
+class: inverse right middle 
+
+# 6. Discusiones y lineamientos  
+
+---
+
+1. Trabajo en construcción `r emo::ji("construction")`  
+
+2. **Dimensión diacrónica** del análisis del posicionamiento subjetivo de clase social.
+
+  * Posible efecto de las <mark>crisis</mark> en las tendencias de posicionamiento subjetivos.  
+  
+  * Efecto del <mark>origen social</mark> de clase.  
+  
+  * La evidencia histórica no parece apoyar la difundida idea de que las amplias mayorías de la población se <mark>autopercibe como perteneciente a la clase media</mark>.  
+  
+3. **Dimensión metodológica** del análisis del posicionamiento subjetivo de clase social.
+
+  * Los <mark>sistemas categoriales</mark> de los instrumentos de producción de datos cuantitativos sobre el posicionamiento subjetivo de clase social producen importantes cambios en los procesos de identificación de clase.  
+
+4. **Modelos estadísticos**
+
+  * Fuerza de algunos factores explicativos que escapan a lo investigado por los abordajes realistas.  
+  
+  * Revisar valores morales ligados al “trabajo”, la “humildad” o la “modestia”, como bien muestra la ya clásica investigación de Germani (2010),  
+  
+---
+class: inverse center middle 
+
+# ¡Muchas gracias!
 
