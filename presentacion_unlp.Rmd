@@ -22,6 +22,9 @@ class: inverse right middle
 
 ```{r xaringanExtra, echo = FALSE}
 xaringanExtra::use_progress_bar(color = "orange", location = "top", height = "10px")
+
+xaringanExtra::use_tile_view()
+xaringanExtra::use_scribble()
 ```
 
 ```{r carga de bases y librerias, include = FALSE, message=FALSE, warning=FALSE, error=FALSE}
