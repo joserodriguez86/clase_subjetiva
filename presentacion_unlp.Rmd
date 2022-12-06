@@ -946,7 +946,7 @@ class: inverse right middle
 >¿Se considera usted a sí mismo como perteneciendo a una clase social? ¿Qué clase sería...?: *Clase baja | Clase obrera / Clase trabajadora (dependiendo del relevamiento) | Clase media baja | Clase media | Clase media alta | Clase alta*
 
 ---
-# 2.2. ¿Arreglo objetivo o distorsión cognitiva? 
+# 2.2. ¿Arreglo objetivo o grupo de referencia? 
 
 * Existiría una cierta <mark>*expectativa de arreglo objetivo*</mark>: Resulta esperable que la mayoría de la población se autoperciba en la posición que efectivamente ocupa. 
 
