@@ -14,17 +14,9 @@ base2021 <- base_pirc
 rm(base_pirc)
 
 #base wvs
-drive_deauth()
+wvs7 <- readRDS("bases/WVS_Cross-National_Wave_7_Rds_v5_0.rds")
 
-url <-  drive_get(as_id("116juyHb0SWru0-He3hbtwYLCTINDdI_n"))
-drive_download(url, overwrite = TRUE)
-wvs7 <- readRDS("WVS_Cross-National_Wave_7_Rds_v5_0.rds")
-
-url <-  drive_get(as_id("1RExNKgNUMgm_6ALPaKBOyaPPIVWEryNj"))
-drive_download(url, overwrite = TRUE)
-wvs <- readRDS("WVS_Trend_v2_0.rds")
-
-unlink(c("WVS_Cross-National_Wave_7_Rds_v5_0.rds", "WVS_Trend_v2_0.rds")) #borra archivos descargados
+wvs <- readRDS("bases/WVS_Trend_v2_0.rds")
 
 #Bases pegadas de encuestas de hogares latinoamericanas
 base_AL <- readRDS("bases/Bases_AL/base_al.RDS")
