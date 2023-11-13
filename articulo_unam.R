@@ -405,7 +405,7 @@ objetiva <- base_AL %>%
 
 grafico_subjobj <- grid.arrange(subjetiva, objetiva, ncol = 2)
 
-ggsave(grafico_subjobj, filename = "salidas_articulo/subjetiva_objetiva.jpg", dpi = 300, width = 5.5, height = 8)
+ggsave(grafico_subjobj, filename = "salidas_articulo/subjetiva_objetiva_eph.jpg", dpi = 300, width = 5.5, height = 8)
 
 
 #Regresiones----

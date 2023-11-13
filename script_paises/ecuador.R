@@ -24,7 +24,7 @@ ecuador <- ecuador %>%
          pond = fexp,
          id = paste0(as.character(vivienda), as.character(hogar), as.character(p01)),
          sexo = p02,
-         anio = 2022,
+         anio = 2018,
          edad = p03)
 
 #Construcción CIUO 08 --------------
